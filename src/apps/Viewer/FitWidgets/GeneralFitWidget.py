@@ -49,7 +49,8 @@ class GeneralFitWidget(QWidget):
         self.constrain_btn = QPushButton('Constrain parameters')
         self.bckg_fit_btn = QPushButton('Fit Background')
         self.peaks_fit_btn = QPushButton('Fit peaks')
-        self.fit_all_btn = QPushButton('Fit multiple')
+        self.full_fit_btn = QPushButton('Fit this')
+        self.fit_mult_btn = QPushButton('Fit multiple')
         self.copy_btn = QPushButton('Copy params')
         self.export_btn = QPushButton('Export')
         self.plot_w = FitPlot(parent=self)
@@ -59,25 +60,27 @@ class GeneralFitWidget(QWidget):
         layout = QGridLayout()
         self.setLayout(layout)
         layout.addWidget(self.lmfit_inspector, 1, 1, 3, 3)
-        layout.addWidget(self.active_list, 4, 2, 6, 2)
+        layout.addWidget(self.active_list, 4, 3, 6, 1)
         # layout.addWidget(self.fit_btn, 4, 1, 1, 1)
-        layout.addWidget(self.constrain_btn, 4, 1, 1, 1)
+        layout.addWidget(self.constrain_btn, 4, 1, 1, 2)
         layout.addWidget(self.bckg_fit_btn, 5, 1, 1, 1)
-        layout.addWidget(self.peaks_fit_btn, 6, 1, 1, 1)
-        layout.addWidget(self.copy_btn, 7, 1, 1, 1)
-        layout.addWidget(self.fit_all_btn, 8, 1, 1, 1)
-        layout.addWidget(self.export_btn, 9, 1, 1, 1)
+        layout.addWidget(self.peaks_fit_btn, 5, 2, 1, 1)
+        layout.addWidget(self.full_fit_btn, 6, 1, 1, 2)
+        layout.addWidget(self.copy_btn, 8, 1, 1, 2)
+        layout.addWidget(self.fit_mult_btn, 7, 1, 1, 2)
+        layout.addWidget(self.export_btn, 9, 1, 1, 2)
         layout.addWidget(self.plot_w, 1, 4, 8, 1)
         layout.setColumnStretch(1, 1)
         layout.setColumnStretch(2, 1)
-        layout.setColumnStretch(3, 1)
-        layout.setColumnStretch(4, 6)
+        layout.setColumnStretch(3, 4)
+        layout.setColumnStretch(4, 16)
 
         # self.fit_btn.clicked.connect(self.on_fit_btn)
         self.constrain_btn.clicked.connect(self.on_constrain_btn)
-        self.fit_all_btn.clicked.connect(self.on_fit_all_btn)
+        self.fit_mult_btn.clicked.connect(self.on_fit_mult_btn)
         self.bckg_fit_btn.clicked.connect(self.on_bckg_fit_btn)
         self.peaks_fit_btn.clicked.connect(self.on_peak_fit_btn)
+        self.full_fit_btn.clicked.connect(self.on_fit_to_prec_btn)
         self.copy_btn.clicked.connect(self.on_copy_btn)
         self.export_btn.clicked.connect(self.on_export_button)
 
@@ -115,9 +118,6 @@ class GeneralFitWidget(QWidget):
             return
 
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
-        # x_lim = self.plot_w.get_axes_xlim()
-        # yy = yy[(xx > x_lim[0]) & (xx < x_lim[1])]
-        # xx = xx[(xx > x_lim[0]) & (xx < x_lim[1])]
 
         fw = FitWorker(xx, yy, copy.deepcopy(result), fit_type='peaks')
         self.fit_idx = idx
@@ -196,7 +196,7 @@ class GeneralFitWidget(QWidget):
         w = CopyPopUp(parent=self)
         w.exec_()
 
-    def on_fit_all_btn(self):
+    def on_fit_mult_btn(self):
         w = SeqFitPopUp(parent=self)
         w.exec_()
 

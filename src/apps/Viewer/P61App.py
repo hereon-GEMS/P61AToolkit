@@ -71,8 +71,8 @@ class P61App(QApplication):
     - :code:`lmFitModelUpdated`: when the :code:`self.params['LmFitModel']` is updated;
 
     """
-    name = 'P61 Viewer'
-    version = '0.1.0'
+    name = 'P61A::Viewer'
+    version = '1.0.0'
 
     dataRowsInserted = pyqtSignal(int, int)
     dataRowsRemoved = pyqtSignal(list)
