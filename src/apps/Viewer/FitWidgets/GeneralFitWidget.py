@@ -16,7 +16,7 @@ from lmfit_utils import fit_peaks, fit_bckg, fit_to_precision
 
 
 class FitWorker(Worker):
-    def __init__(self, x, y, res, fit_type):
+    def __init__(self, x, y, res, fit_type, max_cycles=None, min_chi_change=None):
         if fit_type == 'peaks':
             super(FitWorker, self).__init__(fit_peaks, args=[], kwargs={'xx': x, 'yy': y, 'result': res})
         elif fit_type == 'bckg':
@@ -25,7 +25,12 @@ class FitWorker(Worker):
             super(FitWorker, self).__init__(fit_to_precision, args=[],
                                             kwargs={'xx': x, 'yy': y, 'result': res, 'max_cycles': 1})
         elif fit_type == 'prec':
-            super(FitWorker, self).__init__(fit_to_precision, args=[], kwargs={'xx': x, 'yy': y, 'result': res})
+            kws = {'xx': x, 'yy': y, 'result': res}
+            if max_cycles is not None:
+                kws['max_cycles'] = max_cycles
+            if min_chi_change is not None:
+                kws['min_chi_change'] = min_chi_change
+            super(FitWorker, self).__init__(fit_to_precision, args=[], kwargs=kws)
         else:
             raise ValueError('fit_type argument should be \'peaks\' or \'bckg\'')
 
@@ -61,7 +66,6 @@ class GeneralFitWidget(QWidget):
         self.setLayout(layout)
         layout.addWidget(self.lmfit_inspector, 1, 1, 3, 3)
         layout.addWidget(self.active_list, 4, 3, 6, 1)
-        # layout.addWidget(self.fit_btn, 4, 1, 1, 1)
         layout.addWidget(self.constrain_btn, 4, 1, 1, 2)
         layout.addWidget(self.bckg_fit_btn, 5, 1, 1, 1)
         layout.addWidget(self.peaks_fit_btn, 5, 2, 1, 1)
@@ -75,7 +79,6 @@ class GeneralFitWidget(QWidget):
         layout.setColumnStretch(3, 4)
         layout.setColumnStretch(4, 16)
 
-        # self.fit_btn.clicked.connect(self.on_fit_btn)
         self.constrain_btn.clicked.connect(self.on_constrain_btn)
         self.fit_mult_btn.clicked.connect(self.on_fit_mult_btn)
         self.bckg_fit_btn.clicked.connect(self.on_bckg_fit_btn)
@@ -148,7 +151,7 @@ class GeneralFitWidget(QWidget):
         else:
             fw.run()
 
-    def on_fit_btn(self, *args, idx=None):
+    def on_fit_to_prec_btn(self, *args, idx=None, max_cycles=None, min_chi_change=None):
         if self.fit_idx is not None:
             return
 
@@ -163,29 +166,7 @@ class GeneralFitWidget(QWidget):
 
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
 
-        fw = FitWorker(xx, yy, copy.deepcopy(result), fit_type='all')
-        self.fit_idx = idx
-        if self.q_app.config['use_threads']:
-            self.q_app.thread_pool.start(fw)
-        else:
-            fw.run()
-
-    def on_fit_to_prec_btn(self, *args, idx=None):
-        if self.fit_idx is not None:
-            return
-
-        if self.q_app.get_selected_idx() == -1:
-            return
-        elif idx is None:
-            idx = self.q_app.get_selected_idx()
-
-        result = self.q_app.get_general_result(idx)
-        if result is None:
-            return
-
-        xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
-
-        fw = FitWorker(xx, yy, copy.deepcopy(result), fit_type='prec')
+        fw = FitWorker(xx, yy, copy.deepcopy(result), fit_type='prec', max_cycles=max_cycles, min_chi_change=min_chi_change)
         self.fit_idx = idx
         if self.q_app.config['use_threads']:
             self.q_app.thread_pool.start(fw)

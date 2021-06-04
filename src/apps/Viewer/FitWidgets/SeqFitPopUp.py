@@ -25,7 +25,7 @@ class SeqFitPopUp(QDialog):
         self.cb_bckg.setChecked(True)
         self.cb_peaks = QCheckBox('Fit peaks')
         self.cb_peaks.setChecked(True)
-        self.cb_prec = QCheckBox('Fit to precision')
+        self.cb_prec = QCheckBox('Quick fit (low quality)')
         self.cb_prec.setChecked(False)
         self.btn_ok = QPushButton('Fit', parent=self)
         self.selection_list = DatasetSelector(parent=self)
@@ -114,9 +114,9 @@ class SeqFitPopUp(QDialog):
             self.parent().on_peak_fit_btn(idx=idx)
         elif self.cb_bckg.isChecked() and not self.cb_peaks.isChecked():
             self.parent().on_bckg_fit_btn(idx=idx)
-        elif self.cb_peaks.isChecked() and self.cb_bckg.isChecked() and not self.cb_prec.isChecked():
-            self.parent().on_fit_btn(idx=idx)
         elif self.cb_peaks.isChecked() and self.cb_bckg.isChecked() and self.cb_prec.isChecked():
+            self.parent().on_fit_to_prec_btn(idx=idx, max_cycles=1)
+        elif self.cb_peaks.isChecked() and self.cb_bckg.isChecked() and not self.cb_prec.isChecked():
             self.parent().on_fit_to_prec_btn(idx=idx)
 
         self.progress.setValue(ii)
