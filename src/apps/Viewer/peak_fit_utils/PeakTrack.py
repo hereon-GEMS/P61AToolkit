@@ -1,10 +1,20 @@
 import numpy as np
 import pandas as pd
 import copy
+from uncertainties import ufloat
+
+
+prefixes = {'Gaussian': 'gau',
+            'Lorentzian': 'lor',
+            'Pearson7': 'pvii',
+            'PseudoVoigt': 'pv',
+            'SplitLorentzian': 'spl',
+            'Interpolation': 'int',
+            'Chebyshev': 'che'}
 
 
 class PeakData:
-    def __init__(self, idx, cx, cy, l_ip, r_ip, l_b, r_b, l_bh, r_bh):
+    def __init__(self, idx, cx, cy, l_ip, r_ip, l_b, r_b, l_bh, r_bh, model='PseudoVoigt'):
         """
 
         """
@@ -19,6 +29,32 @@ class PeakData:
 
         self._track = None
         self._idx = idx
+
+        self.md_name = model
+        self.md_prefix = prefixes[model]
+        self.md_params = dict()
+        self.md_p_bounds = dict()
+
+        self.make_md_params()
+
+    def make_md_params(self):
+        self.md_params, self.md_p_bounds = dict(), dict()
+
+        if self.md_name == 'PseudoVoigt':
+            self.md_params['width'] = ufloat(self.peak_width, np.NAN)
+            self.md_params['sigma'] = self.md_params['width'] / (2. * np.sqrt(2. * np.log(2)))
+            self.md_params['center'] = ufloat(self.cx, np.NAN)
+            self.md_params['amplitude'] = ufloat(self.peak_height * np.sqrt(2. * np.pi) * \
+                                          self.md_params['sigma'] / np.sqrt(2. * np.log(2)), np.NAN)
+            self.md_params['height'] = ufloat(self.peak_height, np.NAN)
+            self.md_params['fraction'] = ufloat(0., np.NAN)
+
+            self.md_p_bounds['width'] = (0., np.inf)
+            self.md_p_bounds['sigma'] = (0., np.inf)
+            self.md_p_bounds['center'] = (0., np.inf)
+            self.md_p_bounds['amplitude'] = (0., np.inf)
+            self.md_p_bounds['height'] = (0., np.inf)
+            self.md_p_bounds['fraction'] = (0., 1.)
 
     def __copy__(self):
         return PeakData(self._idx, self._cx, self._cy,
