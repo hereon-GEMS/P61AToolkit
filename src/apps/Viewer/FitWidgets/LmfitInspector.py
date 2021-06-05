@@ -129,7 +129,6 @@ class LmfitInspectorModel(QAbstractItemModel):
                     return Qt.Checked if data[0] else Qt.Unchecked
         elif role == Qt.EditRole:
             if isinstance(data, tuple):
-                print(data[index.column() + 1])
                 return data[index.column() + 1]
 
         return QVariant()
