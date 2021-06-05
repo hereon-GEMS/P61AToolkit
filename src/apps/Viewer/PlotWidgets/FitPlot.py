@@ -1,5 +1,6 @@
 from PyQt5.Qt import Qt
 import pyqtgraph as pg
+import numpy as np
 import logging
 
 from P61App import P61App
@@ -68,15 +69,18 @@ class FitPlot(pg.GraphicsLayoutWidget):
             if data['PeakDataList'] is not None:
                 xx = data['DataX']
                 yy = data['DataY']
+                yy_calc = np.zeros(yy.shape)
                 # difference calculation
                 # self._diff = yy - data['GeneralFitResult'].eval(data['GeneralFitResult'].params, x=xx)
 
                 for peak in data['PeakDataList']:
                     yy_peak = models[peak.md_name](xx, **{name: peak.md_params[name].n for name in peak.md_params})
+                    yy_calc += yy_peak
                     self._line_ax.plot(1E3 * xx, yy_peak,
                                        pen=pg.mkPen(color=str(hex(next(self.q_app.params['ColorWheel2']))).replace('0x', '#')),
                                        name='%.01f' % peak.md_params['center'].n)
 
+                self._diff = yy - yy_calc
                 # cmps = data['GeneralFitResult'].eval_components(x=xx)
                 # for cmp in cmps:
                 #     if cmp not in self.q_app.params['LmFitModelColors'].keys():
@@ -111,9 +115,8 @@ class FitPlot(pg.GraphicsLayoutWidget):
                 #         # self._line_ax.addItem(text)
                 #         # text.setPos(1E3 * xc, 1.1 * max(cmps[cmp]))
                 #
-                # self._line_ax.plot(1E3 * xx, data['GeneralFitResult'].eval(data['GeneralFitResult'].params, x=xx),
-                #                    pen=pg.mkPen(color='#d62728'), name='Fit')
-                # self._diff_ax.plot(1E3 * xx, self._diff, pen=pg.mkPen(color='#d62728'))
+                self._line_ax.plot(1E3 * xx, yy_calc, pen=pg.mkPen(color='#d62728'), name='Fit')
+                self._diff_ax.plot(1E3 * xx, self._diff, pen=pg.mkPen(color='#d62728'))
 
     def clear_axes(self):
         self._line_ax.clear()
