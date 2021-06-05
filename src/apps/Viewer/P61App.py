@@ -101,7 +101,7 @@ class P61App(QApplication):
 
         # data storage for one-per-dataset items
         self.data = pd.DataFrame(columns=('DataX', 'DataY', 'DeadTime', 'Channel', 'DataID', 'ScreenName', 'Active',
-                                          'Color', 'PeakDataList', 'GeneralFitResult', 'GFRCache', 'Motors'))
+                                          'Color', 'PeakDataList', 'GeneralFitResult', 'Motors'))
         self.data_model = DataSetStorageModel(instance=self)
         self.motors_cols = ('eu.chi', 'eu.phi', 'eu.eta', 'eu.x', 'eu.y', 'eu.z')
         self.motors_all = set(self.motors_cols)
