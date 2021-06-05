@@ -99,7 +99,7 @@ class LmfitInspectorModel(QAbstractItemModel):
                                                    self.rootItem))
                 for par in peak.md_param_keys():
                     self.rootItem.childItems[-1].appendChild(
-                                        TreeNode((peak.md_p_refine[par], par,
+                                        TreeNode((peak.md_p_refine[par] if par in peak.md_p_refine else None, par,
                                                   '%.03E' % peak.md_params[par].nominal_value,
                                                   '%.03E' % peak.md_params[par].std_dev,
                                                   '%.03E' % peak.md_p_bounds[par][0],
@@ -125,7 +125,7 @@ class LmfitInspectorModel(QAbstractItemModel):
             return data[index.column()]
         elif role == Qt.CheckStateRole:
             if index.column() == 0 and isinstance(data, tuple):
-                if True:  # add check if parameter is refinable at all ???
+                if data[0] is not None:  # add check if parameter is refinable at all ???
                     return Qt.Checked if data[0] else Qt.Unchecked
         elif role == Qt.EditRole:
             if isinstance(data, tuple):
@@ -138,10 +138,12 @@ class LmfitInspectorModel(QAbstractItemModel):
         if not index.isValid():
             return Qt.NoItemFlags
 
-        if index.column() == 0:
+        data = index.internalPointer().itemData
+
+        if index.column() == 0 and data[0] is not None:
             return QAbstractItemModel.flags(self, index) | Qt.ItemIsUserCheckable
         elif index.column() in (1, 3, 4) and isinstance(index.internalPointer().itemData, tuple):
-            if True: # add actual check for if param is editable
+            if data[1] not in ('width', 'height', 'rwp', 'chi2'):
                 return QAbstractItemModel.flags(self, index) | Qt.ItemIsEditable
             else:
                 return QAbstractItemModel.flags(self, index)

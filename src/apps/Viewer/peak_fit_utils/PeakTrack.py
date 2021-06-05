@@ -49,6 +49,10 @@ class PeakData:
                                           self.md_params['sigma'] / np.sqrt(2. * np.log(2))
             self.md_params['height'] = ufloat(self.peak_height, np.NAN)
             self.md_params['fraction'] = ufloat(0., np.NAN)
+            self.md_params['base'] = ufloat(3., np.NAN)
+            self.md_params['overlap_base'] = ufloat(1e-2, np.NAN)
+            self.md_params['rwp'] = ufloat(np.NAN, np.NAN)
+            self.md_params['chi2'] = ufloat(np.NAN, np.NAN)
 
             self.md_p_bounds['width'] = (0., np.inf)
             self.md_p_bounds['sigma'] = (0., np.inf)
@@ -56,17 +60,19 @@ class PeakData:
             self.md_p_bounds['amplitude'] = (0., np.inf)
             self.md_p_bounds['height'] = (0., np.inf)
             self.md_p_bounds['fraction'] = (0., 1.)
+            self.md_p_bounds['base'] = (0., np.inf)
+            self.md_p_bounds['overlap_base'] = (0., np.inf)
+            self.md_p_bounds['rwp'] = (0., np.inf)
+            self.md_p_bounds['chi2'] = (0., np.inf)
 
-            self.md_p_refine['width'] = False
             self.md_p_refine['sigma'] = True
             self.md_p_refine['center'] = True
             self.md_p_refine['amplitude'] = True
-            self.md_p_refine['height'] = False
             self.md_p_refine['fraction'] = True
 
     def md_param_keys(self):
-        ref = tuple(k for k in self.md_p_refine if self.md_p_refine[k])
-        n_ref = tuple(k for k in self.md_p_refine if not self.md_p_refine[k])
+        ref = tuple(k for k in self.md_params if k in self.md_p_refine)
+        n_ref = tuple(k for k in self.md_params if k not in self.md_p_refine)
         return ref + n_ref
 
     def __copy__(self):
