@@ -44,8 +44,8 @@ class PeakData:
             self.md_params['width'] = ufloat(self.peak_width, np.NAN)
             self.md_params['sigma'] = self.md_params['width'] / (2. * np.sqrt(2. * np.log(2)))
             self.md_params['center'] = ufloat(self.cx, np.NAN)
-            self.md_params['amplitude'] = ufloat(self.peak_height * np.sqrt(2. * np.pi) * \
-                                          self.md_params['sigma'] / np.sqrt(2. * np.log(2)), np.NAN)
+            self.md_params['amplitude'] = self.peak_height * np.sqrt(2. * np.pi) * \
+                                          self.md_params['sigma'] / np.sqrt(2. * np.log(2))
             self.md_params['height'] = ufloat(self.peak_height, np.NAN)
             self.md_params['fraction'] = ufloat(0., np.NAN)
 
