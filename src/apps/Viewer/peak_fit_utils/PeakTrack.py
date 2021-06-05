@@ -34,6 +34,7 @@ class PeakData:
         self.md_prefix = prefixes[model]
         self.md_params = dict()
         self.md_p_bounds = dict()
+        self.md_p_refine = dict()
 
         self.make_md_params()
 
@@ -55,6 +56,18 @@ class PeakData:
             self.md_p_bounds['amplitude'] = (0., np.inf)
             self.md_p_bounds['height'] = (0., np.inf)
             self.md_p_bounds['fraction'] = (0., 1.)
+
+            self.md_p_refine['width'] = False
+            self.md_p_refine['sigma'] = True
+            self.md_p_refine['center'] = True
+            self.md_p_refine['amplitude'] = True
+            self.md_p_refine['height'] = False
+            self.md_p_refine['fraction'] = True
+
+    def md_param_keys(self):
+        ref = tuple(k for k in self.md_p_refine if self.md_p_refine[k])
+        n_ref = tuple(k for k in self.md_p_refine if not self.md_p_refine[k])
+        return ref + n_ref
 
     def __copy__(self):
         return PeakData(self._idx, self._cx, self._cy,

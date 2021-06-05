@@ -2,6 +2,7 @@ import lmfit
 import numpy as np
 import logging
 import json
+from uncertainties import ufloat
 
 
 from PyQt5.QtWidgets import QWidget, QPushButton, QGridLayout, QMenu, QAction, QInputDialog, QTreeView, \
@@ -53,11 +54,13 @@ class LmfitInspectorModel(QAbstractItemModel):
 
         self.rootItem = TreeNode(('Name', 'Value', 'STD', 'Min', 'Max'))
         self._fit_res = None
+        self._peak_list = None
         self._upd()
 
         self.q_app.selectedIndexChanged.connect(self.on_selected_idx_ch)
         self.q_app.dataSorted.connect(self.on_data_sorted)
-        self.q_app.genFitResChanged.connect(self.on_gen_fit_res_changed)
+        self.q_app.peakListChanged.connect(self.on_pl_changed)
+        self.q_app.peakTracksChanged.connect(self.on_pt_changed)
 
     def on_data_sorted(self):
         self.logger.debug('on_data_sorted: Handling dataSorted')
@@ -67,8 +70,12 @@ class LmfitInspectorModel(QAbstractItemModel):
         self.logger.debug('on_selected_idx_ch: Handling selectedIndexChanged(%d)' % idx)
         self._upd()
 
-    def on_gen_fit_res_changed(self, ids):
-        self.logger.debug('on_gen_fit_res_changed: Handling genFitResChanged(%s)' % str(ids))
+    def on_pl_changed(self, ids):
+        self.logger.debug('on_pl_changed: Handling peakListChanged(%s)' % str(ids))
+        self._upd()
+
+    def on_pt_changed(self):
+        self.logger.debug('on_pt_changed: Handling peakTracksChanged')
         self._upd()
 
     def _clear_tree(self):
@@ -79,22 +86,24 @@ class LmfitInspectorModel(QAbstractItemModel):
     def _upd(self, *args, **kwargs):
         idx = self.q_app.get_selected_idx()
         if idx == -1:
-            self._fit_res = None
+            self._peak_list = None
         else:
-            self._fit_res = self.q_app.get_general_result(idx)
+            self._peak_list = self.q_app.get_peak_data_list(idx)
 
         self.modelAboutToBeReset.emit()  # so this is private apparently so look for a different way???
         self._clear_tree()
 
-        if self._fit_res is not None:
-            # for md in self._fit_res.model.components:
-            for md in lmfit_utils.sort_components(self._fit_res):
-                self.rootItem.appendChild(TreeNode(md, self.rootItem))
-
-                for par in self._fit_res.params:
-                    if md.prefix in par:
-                        self.rootItem.childItems[-1].appendChild(
-                            TreeNode(self._fit_res.params[par], self.rootItem.childItems[-1]))
+        if self._peak_list is not None:
+            for peak in self._peak_list:
+                self.rootItem.appendChild(TreeNode('{:0.1f}: {}'.format(peak.md_params['center'], peak.md_name),
+                                                   self.rootItem))
+                for par in peak.md_param_keys():
+                    self.rootItem.childItems[-1].appendChild(
+                                        TreeNode((peak.md_p_refine[par], par,
+                                                  '%.03E' % peak.md_params[par].nominal_value,
+                                                  '%.03E' % peak.md_params[par].std_dev,
+                                                  '%.03E' % peak.md_p_bounds[par][0],
+                                                  '%.03E' % peak.md_p_bounds[par][1]), self.rootItem.childItems[-1]))
 
         self.endResetModel()
         self.layoutChanged.emit()
@@ -109,28 +118,19 @@ class LmfitInspectorModel(QAbstractItemModel):
         data = index.internalPointer().itemData
 
         if role == Qt.DisplayRole:
-            if isinstance(data, lmfit.Parameter):
-                data = (data.name, '%.03E' % data.value, '± %.03E' % data.stderr
-                        if data.stderr is not None else 'None', '%.03E' % data.min, '%.03E' % data.max)
-            elif isinstance(data, lmfit.Model):
-                if lmfit_utils.is_peak_md(data):
-                    center = '%.1f: ' % self._fit_res.params[data.prefix + 'center'].value
-                else:
-                    center = ''
-                data = (center + data.prefix + ' (' + data._name + ')', ) + ('', ) * 4
+            if isinstance(data, tuple):
+                data = data[1:]
+            elif isinstance(data, str):
+                data = (data, ) + ('', ) * 4
             return data[index.column()]
         elif role == Qt.CheckStateRole:
-            if index.column() == 0 and isinstance(data, lmfit.Parameter):
-                if lmfit_utils.is_param_refinable(data):
-                    return Qt.Checked if data.vary else Qt.Unchecked
+            if index.column() == 0 and isinstance(data, tuple):
+                if True:  # add check if parameter is refinable at all ???
+                    return Qt.Checked if data[0] else Qt.Unchecked
         elif role == Qt.EditRole:
-            if isinstance(data, lmfit.Parameter):
-                data = (data.name,
-                        '%.03E' % data.value,
-                        '± %.03E' % data.stderr if data.stderr is not None else 'None',
-                        '%.03E' % data.min,
-                        '%.03E' % data.max)
-                return data[index.column()]
+            if isinstance(data, tuple):
+                print(data[index.column() + 1])
+                return data[index.column() + 1]
 
         return QVariant()
 
@@ -140,8 +140,8 @@ class LmfitInspectorModel(QAbstractItemModel):
 
         if index.column() == 0:
             return QAbstractItemModel.flags(self, index) | Qt.ItemIsUserCheckable
-        elif index.column() in (1, 3, 4) and isinstance(index.internalPointer().itemData, lmfit.Parameter):
-            if lmfit_utils.is_param_editable(index.internalPointer().itemData):
+        elif index.column() in (1, 3, 4) and isinstance(index.internalPointer().itemData, tuple):
+            if True: # add actual check for if param is editable
                 return QAbstractItemModel.flags(self, index) | Qt.ItemIsEditable
             else:
                 return QAbstractItemModel.flags(self, index)
@@ -198,29 +198,34 @@ class LmfitInspectorModel(QAbstractItemModel):
 
         item = ii.internalPointer()
         data = item.itemData
-        result = self.q_app.get_general_result(self.q_app.get_selected_idx())
+        peak_list = self.q_app.get_peak_data_list(self.q_app.get_selected_idx())
 
         if role == Qt.CheckStateRole and ii.column() == 0:
-            result.params[data.name].set(vary=bool(value))
-            self.q_app.set_general_result(self.q_app.get_selected_idx(), result)
+            peak_list[ii.parent().row()].md_p_refine[data[1]] = bool(value)
+            self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
             return True
         elif role == Qt.EditRole:
             if ii.column() == 1:
-                if result.params[data.name].min > value:
-                    result.params[data.name].set(min=value)
-                if result.params[data.name].max < value:
-                    result.params[data.name].set(max=value)
+                # updating min and max bounds
+                if peak_list[ii.parent().row()].md_p_bounds[data[1]][0] > value:
+                    peak_list[ii.parent().row()].md_p_bounds[data[1]] = \
+                        (value, peak_list[ii.parent().row()].md_p_bounds[data[1]][1])
+                if peak_list[ii.parent().row()].md_p_bounds[data[1]][1] < value:
+                    peak_list[ii.parent().row()].md_p_bounds[data[1]] = \
+                        (peak_list[ii.parent().row()].md_p_bounds[data[1]][0], value)
 
-                result.params[data.name].set(value=value)
-                self.q_app.set_general_result(self.q_app.get_selected_idx(), result)
+                peak_list[ii.parent().row()].md_params[data[1]] = ufloat(value, np.nan)
+                self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
                 return True
             elif ii.column() == 3:
-                result.params[data.name].set(min=value)
-                self.q_app.set_general_result(self.q_app.get_selected_idx(), result)
+                peak_list[ii.parent().row()].md_p_bounds[data[1]] = \
+                    (value, peak_list[ii.parent().row()].md_p_bounds[data[1]][1])
+                self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
                 return True
             elif ii.column() == 4:
-                result.params[data.name].set(max=value)
-                self.q_app.set_general_result(self.q_app.get_selected_idx(), result)
+                peak_list[ii.parent().row()].md_p_bounds[data[1]] = \
+                    (peak_list[ii.parent().row()].md_p_bounds[data[1]][0], value)
+                self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
                 return True
 
         return False
