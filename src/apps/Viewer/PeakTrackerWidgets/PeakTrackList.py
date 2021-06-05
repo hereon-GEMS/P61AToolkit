@@ -164,6 +164,7 @@ class PeakTrackList(QWidget):
             for spectra_idx in new_track.ids:
                 peak_list = self.q_app.get_peak_data_list(spectra_idx)
                 peak_list.append(new_track[spectra_idx])
+                peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
                 self.q_app.set_peak_data_list(spectra_idx, peak_list, emit=False)
 
             all_spectra_ids.extend(new_track.ids)
