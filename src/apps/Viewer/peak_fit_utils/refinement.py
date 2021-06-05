@@ -5,6 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from peak_fit_utils.models import models
+from utils import log_ex_time
 
 
 def get_peak_intervals(peak_list):
@@ -62,6 +63,7 @@ class IntervalOptimizer:
         print(ll, rr, peak_ids)
         iy = self.ydata[(self.xdata > ll) & (self.xdata < rr)]
         ix = self.xdata[(self.xdata > ll) & (self.xdata < rr)]
+        iy, ix = iy.astype(np.float64), ix.astype(np.float64)
 
         iy_c_static = np.zeros(iy.shape)
         for ii in range(len(self.peak_list)):
@@ -78,8 +80,8 @@ class IntervalOptimizer:
                      for k in self.peak_list[ii].md_p_refine.keys() if not self.peak_list[ii].md_p_refine[k]}
                 for ii in peak_ids}
 
-        print(refined_params)
-        print(kwds)
+        # print(refined_params)
+        # print(kwds)
 
         def residuals(x, *args, **kwargs):
             ycalc = np.zeros(iy.shape)
@@ -96,12 +98,12 @@ class IntervalOptimizer:
         bounds = np.array([self.peak_list[ii].md_p_bounds[k] for ii in peak_ids for k in self.peak_list[ii].md_p_refine.keys()
               if self.peak_list[ii].md_p_refine[k]]).T
 
-        print(x0)
-        print(bounds)
+        # print(x0)
+        # print(bounds)
 
         opt_result = self.opt(residuals, x0=x0, bounds=bounds)
 
-        print(opt_result.x)
+        # print(opt_result.x)
         idx = 0
         for ii in peak_ids:
             for k in self.peak_list[ii].md_p_refine.keys():
@@ -112,11 +114,24 @@ class IntervalOptimizer:
         return self.peak_list
 
 
+@log_ex_time
 def fit_peaks(peak_list, xx, yy):
     intervals = get_peak_intervals(peak_list)
 
-    iopt = IntervalOptimizer(peak_list, xx, yy, least_squares)
-    for interval in intervals:
-        peak_list = iopt(interval)
+    # parallel = True  # 22151.7 ms
+    parallel = False  # 718.5 ms
 
+    iopt = IntervalOptimizer(peak_list, xx, yy, least_squares)
+    if not parallel:
+        for interval in intervals:
+            peak_list = iopt(interval)
+    else:
+        with Pool(cpu_count()) as p:
+            upd_peaks = p.map(iopt, intervals)
+
+        for interval, upd in zip(intervals, upd_peaks):
+            for ii in interval[2:]:
+                peak_list[ii] = upd[ii]
+
+    peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
     return peak_list
