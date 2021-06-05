@@ -55,9 +55,10 @@ class PeakData:
             self.md_params['chi2'] = ufloat(np.NAN, np.NAN)
 
             self.md_p_bounds['width'] = (0., np.inf)
-            self.md_p_bounds['sigma'] = (0., np.inf)
-            self.md_p_bounds['center'] = (0., np.inf)
-            self.md_p_bounds['amplitude'] = (0., np.inf)
+            self.md_p_bounds['sigma'] = (0.9 * self.md_params['sigma'].n, 1.1 * self.md_params['sigma'].n)
+            self.md_p_bounds['center'] = (self.md_params['center'].n - .5 * self.md_params['width'].n,
+                                          self.md_params['center'].n + .5 * self.md_params['width'].n)
+            self.md_p_bounds['amplitude'] = (0., 1e7)
             self.md_p_bounds['height'] = (0., np.inf)
             self.md_p_bounds['fraction'] = (0., 1.)
             self.md_p_bounds['base'] = (0., np.inf)
