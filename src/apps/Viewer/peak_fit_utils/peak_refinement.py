@@ -3,6 +3,9 @@ from scipy.optimize import least_squares
 from uncertainties import ufloat
 import numpy as np
 from matplotlib import pyplot as plt
+import logging
+
+logger = logging.getLogger('peak_fit_utils')
 
 from peak_fit_utils.models import peak_models, background_models
 from utils import log_ex_time
@@ -49,6 +52,37 @@ def get_peak_intervals(peak_list):
         result.extend(recursive_merge(tmp, 0))
 
     return list(sorted(result, key=lambda x: x[0]))
+
+
+def metrics(yy_o, yy_c):
+    rwp2 = np.sum((1. / yy_o) * ((yy_o - yy_c) ** 2)) / np.sum((1. / yy_o) * (yy_o ** 2))
+    rexp2 = yy_o.shape[0] / np.sum((1. / yy_o) * yy_o ** 2)
+    return {'chi2': rwp2 / rexp2, 'rwp2': rwp2, 'rexp2': rexp2}
+
+
+def upd_metrics(peak_list, bckg_list, xx, yy):
+
+    yy_calc_bckg = np.zeros(yy.shape)
+    for bc_md in bckg_list:
+        yy_calc_bckg += background_models[bc_md.md_name](xx, **bc_md.func_params)
+
+    y_calc_peaks = np.zeros(yy.shape)
+    for peak in peak_list:
+        y_calc_peaks += peak_models[peak.md_name](xx, **{name: peak.md_params[name].n for name in peak.md_params})
+
+    for peak in peak_list:
+        xmin, xmax = peak.md_params['center'].n - peak.md_params['base'].n * peak.md_params['sigma'].n, \
+                     peak.md_params['center'].n + peak.md_params['base'].n * peak.md_params['sigma'].n
+
+        mcs = metrics(
+            yy[(xx > xmin) & (xx < xmax)],
+            (y_calc_peaks + yy_calc_bckg)[(xx > xmin) & (xx < xmax)]
+        )
+
+        peak.md_params['rwp'] = ufloat(mcs['rwp2'], np.NAN)
+        peak.md_params['chi2'] = ufloat(mcs['chi2'], np.NAN)
+
+    return peak_list
 
 
 class IntervalOptimizer:
@@ -129,7 +163,10 @@ def fit_peaks(peak_list, bckg_list, xx, yy):
     iopt = IntervalOptimizer(peak_list, xx, yy - yy_calc_bckg, least_squares)
     if not parallel:
         for interval in intervals:
-            peak_list = iopt(interval)
+            try:
+                peak_list = iopt(interval)
+            except Exception as e:
+                logger.error('fit_peaks: error %s' % str(e))
     else:
         with Pool(cpu_count()) as p:
             upd_peaks = p.map(iopt, intervals)
@@ -139,4 +176,9 @@ def fit_peaks(peak_list, bckg_list, xx, yy):
                 peak_list[ii] = upd[ii]
 
     peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
+
+    for peak in peak_list:
+        peak.upd_nref_params()
+
+    peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
     return peak_list

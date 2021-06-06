@@ -55,7 +55,8 @@ class PeakData:
             self.md_params['chi2'] = ufloat(np.NAN, np.NAN)
 
             self.md_p_bounds['width'] = (0., np.inf)
-            self.md_p_bounds['sigma'] = (0.9 * self.md_params['sigma'].n, 1.1 * self.md_params['sigma'].n)
+            # self.md_p_bounds['sigma'] = (0.9 * self.md_params['sigma'].n, 1.1 * self.md_params['sigma'].n)
+            self.md_p_bounds['sigma'] = (1e-4, 1.0)
             self.md_p_bounds['center'] = (self.md_params['center'].n - .5 * self.md_params['width'].n,
                                           self.md_params['center'].n + .5 * self.md_params['width'].n)
             self.md_p_bounds['amplitude'] = (0., 1e7)
@@ -70,6 +71,23 @@ class PeakData:
             self.md_p_refine['center'] = True
             self.md_p_refine['amplitude'] = True
             self.md_p_refine['fraction'] = True
+
+    def upd_nref_params(self):
+        if self.md_name == 'PseudoVoigt':
+            self.md_params['width'] = self.md_params['sigma'] * (2. * np.sqrt(2. * np.log(2)))
+            self.md_params['height'] = self.md_params['amplitude'] / (
+                        np.sqrt(2. * np.pi) * self.md_params['sigma'] / np.sqrt(2. * np.log(2)))
+
+            self.md_p_bounds['width'] = (
+                self.md_p_bounds['sigma'][0] * (2. * np.sqrt(2. * np.log(2))),
+                self.md_p_bounds['sigma'][1] * (2. * np.sqrt(2. * np.log(2)))
+            )
+            self.md_p_bounds['height'] = (self.md_p_bounds['amplitude'][0] / (
+                    np.sqrt(2. * np.pi) * self.md_params['sigma'].n / np.sqrt(2. * np.log(2))),
+                                          self.md_p_bounds['amplitude'][1] / (
+                                                  np.sqrt(2. * np.pi) * self.md_params['sigma'].n / np.sqrt(
+                                              2. * np.log(2)))
+                                          )
 
     def md_param_keys(self):
         ref = tuple(k for k in self.md_params if k in self.md_p_refine)

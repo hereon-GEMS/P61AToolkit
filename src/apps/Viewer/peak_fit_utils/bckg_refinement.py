@@ -1,10 +1,9 @@
 import numpy as np
 from uncertainties import ufloat
 from scipy.optimize import least_squares
-from matplotlib import pyplot as plt
 
-from peak_fit_utils.peak_refinement import get_peak_intervals
 from peak_fit_utils.models import peak_models, background_models
+from peak_fit_utils.peak_refinement import upd_metrics
 
 
 class BckgData:
@@ -57,11 +56,10 @@ class BckgData:
     def set_poly_coefs(self, new_coefs):
         for ii in range(len(new_coefs)):
             self._poly_coefs[ii] = new_coefs[ii]
+        self._poly_coefs[len(new_coefs):] = 0.
 
 
 def fit_bckg(peak_list, bckg_list, xx, yy):
-    intervals = get_peak_intervals(peak_list)
-
     y_calc_peaks = np.zeros(yy.shape)
 
     for peak in peak_list:
@@ -75,15 +73,16 @@ def fit_bckg(peak_list, bckg_list, xx, yy):
             y_calc = background_models[bc_md.md_name](ix, xmin=bc_md.md_params['xmin'].n,
                                                       xmax=bc_md.md_params['xmax'].n,
                                                       **{'c%d' % ii: val for ii, val in enumerate(x)})
-            return (iy - y_calc) ** 2
+            return ((iy - y_calc) / np.max(iy)) ** 2
 
         x0 = bc_md.func_params
         x0.pop('xmin')
         x0.pop('xmax')
         x0 = [x0[k] for k in sorted(x0.keys())]
 
-        opt_result = least_squares(residuals, x0=x0, ftol=None, xtol=None, max_nfev=5000)
-        print(opt_result)
+        opt_result = least_squares(residuals, x0=x0, ftol=1e-12, xtol=1e-12, gtol=1e-12, max_nfev=1000)
         bc_md.set_poly_coefs(opt_result.x)
 
-    return bckg_list
+    peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
+
+    return bckg_list, peak_list

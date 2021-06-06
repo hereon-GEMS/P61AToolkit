@@ -157,8 +157,9 @@ class GeneralFitWidget(QWidget):
 
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
 
-        bckg_list = fit_bckg2(peak_list, bckg_list, xx, yy)
+        bckg_list, peak_list = fit_bckg2(peak_list, bckg_list, xx, yy)
         self.q_app.set_bckg_data_list(idx, bckg_list)
+        self.q_app.set_peak_data_list(idx, peak_list)
 
         # fw = FitWorker(copy.deepcopy(xx), copy.deepcopy(yy), copy.deepcopy(result), fit_type='bckg')
         # self.fit_idx = idx
