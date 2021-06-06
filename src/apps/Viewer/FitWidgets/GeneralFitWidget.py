@@ -12,26 +12,18 @@ from FitWidgets.SeqFitPopUp import SeqFitPopUp
 from FitWidgets.ConstrainPopUp import ConstrainPopUp
 from PlotWidgets import FitPlot
 from ThreadIO import Worker
-from lmfit_utils import fit_peaks, fit_bckg, fit_to_precision
-from peak_fit_utils import fit_peaks as fit_peaks2, fit_bckg as fit_bckg2
+from peak_fit_utils import fit_peaks as fit_peaks2, fit_bckg as fit_bckg2, fit_to_precision as fit_to_precision2
 
 
 class FitWorker(Worker):
-    def __init__(self, x, y, res, fit_type, max_cycles=None, min_chi_change=None):
+    def __init__(self, x, y, peak_list, bckg_list, fit_type):
         if fit_type == 'peaks':
-            super(FitWorker, self).__init__(fit_peaks, args=[], kwargs={'xx': x, 'yy': y, 'result': res})
+            super(FitWorker, self).__init__(fit_peaks2, args=[], kwargs={'xx': x, 'yy': y, 'peak_list': peak_list, 'bckg_list': bckg_list})
         elif fit_type == 'bckg':
-            super(FitWorker, self).__init__(fit_bckg, args=[], kwargs={'xx': x, 'yy': y, 'result': res})
-        elif fit_type == 'all':
-            super(FitWorker, self).__init__(fit_to_precision, args=[],
-                                            kwargs={'xx': x, 'yy': y, 'result': res, 'max_cycles': 1})
+            super(FitWorker, self).__init__(fit_bckg2, args=[], kwargs={'xx': x, 'yy': y, 'peak_list': peak_list, 'bckg_list': bckg_list})
         elif fit_type == 'prec':
-            kws = {'xx': x, 'yy': y, 'result': res}
-            if max_cycles is not None:
-                kws['max_cycles'] = max_cycles
-            if min_chi_change is not None:
-                kws['min_chi_change'] = min_chi_change
-            super(FitWorker, self).__init__(fit_to_precision, args=[], kwargs=kws)
+            super(FitWorker, self).__init__(fit_to_precision2, args=[],
+                                            kwargs={'xx': x, 'yy': y, 'peak_list': peak_list, 'bckg_list': bckg_list})
         else:
             raise ValueError('fit_type argument should be \'peaks\' or \'bckg\'')
 
@@ -98,7 +90,11 @@ class GeneralFitWidget(QWidget):
 
     def on_tw_result(self, result):
         self.logger.debug('on_tw_result: Handling FitWorker.threadWorkerResult')
-        self.q_app.set_general_result(self.fit_idx, result)
+        chi2, bckg_list, peak_list = result
+
+        self.q_app.data.loc[self.fit_idx, 'Chi2'] = chi2
+        self.q_app.set_bckg_data_list(self.fit_idx, bckg_list)
+        self.q_app.set_peak_data_list(self.fit_idx, peak_list)
 
     def on_tw_exception(self):
         self.logger.debug('on_tw_exception: Handling FitWorker.threadWorkerException')
@@ -113,7 +109,6 @@ class GeneralFitWidget(QWidget):
 
         if self.q_app.get_selected_idx() == -1:
             return
-
         elif idx is None:
             idx = self.q_app.get_selected_idx()
 
@@ -127,17 +122,12 @@ class GeneralFitWidget(QWidget):
 
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
 
-        chi2, bckg_list, peak_list = fit_peaks2(peak_list, bckg_list, xx, yy)
-
-        self.q_app.data.loc[idx, 'Chi2'] = chi2
-        self.q_app.set_peak_data_list(idx, peak_list)
-
-        # fw = FitWorker(xx, yy, copy.deepcopy(result), fit_type='peaks')
-        # self.fit_idx = idx
-        # if self.q_app.config['use_threads']:
-        #     self.q_app.thread_pool.start(fw)
-        # else:
-        #     fw.run()
+        fw = FitWorker(xx, yy, peak_list, bckg_list, fit_type='peaks')
+        self.fit_idx = idx
+        if self.q_app.config['use_threads']:
+            self.q_app.thread_pool.start(fw)
+        else:
+            fw.run()
 
     def on_bckg_fit_btn(self, *args, idx=None):
         if self.fit_idx is not None:
@@ -145,7 +135,6 @@ class GeneralFitWidget(QWidget):
 
         if self.q_app.get_selected_idx() == -1:
             return
-
         elif idx is None:
             idx = self.q_app.get_selected_idx()
 
@@ -159,18 +148,12 @@ class GeneralFitWidget(QWidget):
 
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
 
-        chi2, bckg_list, peak_list = fit_bckg2(peak_list, bckg_list, xx, yy)
-
-        self.q_app.data.loc[idx, 'Chi2'] = chi2
-        self.q_app.set_bckg_data_list(idx, bckg_list)
-        self.q_app.set_peak_data_list(idx, peak_list)
-
-        # fw = FitWorker(copy.deepcopy(xx), copy.deepcopy(yy), copy.deepcopy(result), fit_type='bckg')
-        # self.fit_idx = idx
-        # if self.q_app.config['use_threads']:
-        #     self.q_app.thread_pool.start(fw)
-        # else:
-        #     fw.run()
+        fw = FitWorker(xx, yy, peak_list, bckg_list, fit_type='bckg')
+        self.fit_idx = idx
+        if self.q_app.config['use_threads']:
+            self.q_app.thread_pool.start(fw)
+        else:
+            fw.run()
 
     def on_fit_to_prec_btn(self, *args, idx=None, max_cycles=None, min_chi_change=None):
         if self.fit_idx is not None:
@@ -181,13 +164,17 @@ class GeneralFitWidget(QWidget):
         elif idx is None:
             idx = self.q_app.get_selected_idx()
 
-        result = self.q_app.get_general_result(idx)
-        if result is None:
-            return
+        peak_list = self.q_app.get_peak_data_list(idx)
+        if peak_list is None:
+            peak_list = []
+
+        bckg_list = self.q_app.get_bckg_data_list(idx)
+        if bckg_list is None:
+            bckg_list = []
 
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
 
-        fw = FitWorker(xx, yy, copy.deepcopy(result), fit_type='prec', max_cycles=max_cycles, min_chi_change=min_chi_change)
+        fw = FitWorker(xx, yy, peak_list, bckg_list, fit_type='prec')
         self.fit_idx = idx
         if self.q_app.config['use_threads']:
             self.q_app.thread_pool.start(fw)

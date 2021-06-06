@@ -2,8 +2,12 @@ import numpy as np
 from uncertainties import ufloat
 from scipy.optimize import least_squares
 
+import logging
+
+logger = logging.getLogger('peak_fit_utils')
+
 from peak_fit_utils.models import peak_models, background_models
-from peak_fit_utils.peak_refinement import upd_metrics
+from peak_fit_utils.metrics import upd_metrics
 
 
 class BckgData:
@@ -68,6 +72,9 @@ def fit_bckg(peak_list, bckg_list, xx, yy):
     for bc_md in bckg_list:
         iy = (yy - y_calc_peaks)[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
         ix = xx[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
+
+        logger.info('fit_bckg: refining background on [%d, %d]' % (bc_md.md_params['xmin'].n,
+                                                                                     bc_md.md_params['xmax'].n))
 
         def residuals(x, *args, **kwargs):
             y_calc = background_models[bc_md.md_name](ix, xmin=bc_md.md_params['xmin'].n,
