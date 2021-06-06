@@ -81,6 +81,7 @@ class P61App(QApplication):
     dataSorted = pyqtSignal()
 
     peakListChanged = pyqtSignal(list)
+    bckgListChanged = pyqtSignal(list)
     genFitResChanged = pyqtSignal(list)
     peakTracksChanged = pyqtSignal()
     hklPhasesChanged = pyqtSignal()
@@ -101,7 +102,7 @@ class P61App(QApplication):
 
         # data storage for one-per-dataset items
         self.data = pd.DataFrame(columns=('DataX', 'DataY', 'DeadTime', 'Channel', 'DataID', 'ScreenName', 'Active',
-                                          'Color', 'PeakDataList', 'GeneralFitResult', 'Motors'))
+                                          'Color', 'PeakDataList', 'BckgDataList', 'GeneralFitResult', 'Motors'))
         self.data_model = DataSetStorageModel(instance=self)
         self.motors_cols = ('eu.chi', 'eu.phi', 'eu.eta', 'eu.x', 'eu.y', 'eu.z')
         self.motors_all = set(self.motors_cols)
@@ -262,6 +263,15 @@ class P61App(QApplication):
         if emit:
             self.logger.debug('set_peak_list: Emitting peakListChanged([%d])' % (idx, ))
             self.peakListChanged.emit([idx])
+
+    def get_bckg_data_list(self, idx):
+        return self.data.loc[idx, 'BckgDataList']
+
+    def set_bckg_data_list(self, idx, result, emit=True):
+        self.data.loc[idx, 'BckgDataList'] = result
+        if emit:
+            self.logger.debug('set_bckg_data_list: Emitting bckgListChanged([%d])' % (idx, ))
+            self.bckgListChanged.emit([idx])
 
     def get_general_result(self, idx):
         return self.data.loc[idx, 'GeneralFitResult']

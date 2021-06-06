@@ -4,7 +4,7 @@ from uncertainties import ufloat
 import numpy as np
 from matplotlib import pyplot as plt
 
-from peak_fit_utils.models import models
+from peak_fit_utils.models import peak_models
 from utils import log_ex_time
 
 
@@ -68,8 +68,8 @@ class IntervalOptimizer:
         iy_c_static = np.zeros(iy.shape)
         for ii in range(len(self.peak_list)):
             if ii not in peak_ids:
-                iy_c_static += models[self.peak_list[ii].md_name](ix,
-                                                                  **{name: self.peak_list[ii].md_params[name].n for name
+                iy_c_static += peak_models[self.peak_list[ii].md_name](ix,
+                                                                       **{name: self.peak_list[ii].md_params[name].n for name
                                                                      in
                                                                      self.peak_list[ii].md_params})
         iy -= iy_c_static
@@ -88,8 +88,8 @@ class IntervalOptimizer:
             shift = 0
             for ii in peak_ids:
                 x_ = x[shift:]
-                ycalc += models[self.peak_list[ii].md_name](ix, **(kwds[ii]), **{name: val for (name, val) in
-                                                                           zip(refined_params[ii], x_)})
+                ycalc += peak_models[self.peak_list[ii].md_name](ix, **(kwds[ii]), **{name: val for (name, val) in
+                                                                                      zip(refined_params[ii], x_)})
                 shift += len(refined_params[ii])
             return (iy - ycalc)**2
 
@@ -102,13 +102,13 @@ class IntervalOptimizer:
         # print(bounds)
 
         opt_result = self.opt(residuals, x0=x0, bounds=bounds)
+        cov = np.sqrt(np.diagonal(np.linalg.inv(opt_result.jac.T.dot(opt_result.jac))))
 
-        # print(opt_result.x)
         idx = 0
         for ii in peak_ids:
             for k in self.peak_list[ii].md_p_refine.keys():
                 if self.peak_list[ii].md_p_refine[k]:
-                    self.peak_list[ii].md_params[k] = ufloat(opt_result.x[idx], np.nan)
+                    self.peak_list[ii].md_params[k] = ufloat(opt_result.x[idx], cov[idx])
                     idx += 1
 
         return self.peak_list

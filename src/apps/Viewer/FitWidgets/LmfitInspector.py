@@ -10,9 +10,8 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QGridLayout, QMenu, QAction, Q
 from PyQt5.Qt import QAbstractItemModel, Qt, QModelIndex, QVariant
 
 from FitWidgets.FloatEdit import FloatEdit
-from FitWidgets.InitPopUp import InitPopUp
 from P61App import P61App
-import lmfit_utils
+from peak_fit_utils import background_models, BckgData
 
 
 class TreeNode(object):
@@ -61,6 +60,7 @@ class LmfitInspectorModel(QAbstractItemModel):
         self.q_app.dataSorted.connect(self.on_data_sorted)
         self.q_app.peakListChanged.connect(self.on_pl_changed)
         self.q_app.peakTracksChanged.connect(self.on_pt_changed)
+        self.q_app.bckgListChanged.connect(self.on_bckg_changed)
 
     def on_data_sorted(self):
         self.logger.debug('on_data_sorted: Handling dataSorted')
@@ -78,6 +78,10 @@ class LmfitInspectorModel(QAbstractItemModel):
         self.logger.debug('on_pt_changed: Handling peakTracksChanged')
         self._upd()
 
+    def on_bckg_changed(self, ids):
+        self.logger.debug('on_bckg_changed: Handling bckgListChanged(%s)' % str(ids))
+        self._upd()
+
     def _clear_tree(self):
         for item in self.rootItem.childItems:
             del item.childItems[:]
@@ -86,12 +90,31 @@ class LmfitInspectorModel(QAbstractItemModel):
     def _upd(self, *args, **kwargs):
         idx = self.q_app.get_selected_idx()
         if idx == -1:
+            self._bckg_list = None
             self._peak_list = None
         else:
+            self._bckg_list = self.q_app.get_bckg_data_list(idx)
             self._peak_list = self.q_app.get_peak_data_list(idx)
+
+        self._peak_list = self._peak_list if self._peak_list is not None else []
+        self._bckg_list = self._bckg_list if self._bckg_list is not None else []
 
         self.modelAboutToBeReset.emit()  # so this is private apparently so look for a different way???
         self._clear_tree()
+
+        if self._bckg_list is not None:
+            for b_md in self._bckg_list:
+                self.rootItem.appendChild(TreeNode('[{}, {}]: {}'.format(b_md.md_params['xmin'].n,
+                                                                         b_md.md_params['xmax'].n,
+                                                                         b_md.md_name),
+                                                   self.rootItem))
+                for par in b_md.md_params.keys():
+                    self.rootItem.childItems[-1].appendChild(
+                        TreeNode((None, par,
+                                  '%.03E' % b_md.md_params[par].nominal_value,
+                                  '%.03E' % b_md.md_params[par].std_dev,
+                                  '%.03E' % b_md.md_p_bounds[par][0],
+                                  '%.03E' % b_md.md_p_bounds[par][1]), self.rootItem.childItems[-1]))
 
         if self._peak_list is not None:
             for peak in self._peak_list:
@@ -125,7 +148,7 @@ class LmfitInspectorModel(QAbstractItemModel):
             return data[index.column()]
         elif role == Qt.CheckStateRole:
             if index.column() == 0 and isinstance(data, tuple):
-                if data[0] is not None:  # add check if parameter is refinable at all ???
+                if data[0] is not None:
                     return Qt.Checked if data[0] else Qt.Unchecked
         elif role == Qt.EditRole:
             if isinstance(data, tuple):
@@ -141,8 +164,13 @@ class LmfitInspectorModel(QAbstractItemModel):
 
         if index.column() == 0 and data[0] is not None:
             return QAbstractItemModel.flags(self, index) | Qt.ItemIsUserCheckable
-        elif index.column() in (1, 3, 4) and isinstance(index.internalPointer().itemData, tuple):
+        elif index.column() == 1 and isinstance(index.internalPointer().itemData, tuple):
             if data[1] not in ('width', 'height', 'rwp', 'chi2'):
+                return QAbstractItemModel.flags(self, index) | Qt.ItemIsEditable
+            else:
+                return QAbstractItemModel.flags(self, index)
+        elif index.column() in (3, 4) and isinstance(index.internalPointer().itemData, tuple):
+            if data[1] not in ('width', 'height', 'rwp', 'chi2') and index.parent().row() >= len(self._bckg_list):
                 return QAbstractItemModel.flags(self, index) | Qt.ItemIsEditable
             else:
                 return QAbstractItemModel.flags(self, index)
@@ -200,39 +228,58 @@ class LmfitInspectorModel(QAbstractItemModel):
         item = ii.internalPointer()
         data = item.itemData
         peak_list = self.q_app.get_peak_data_list(self.q_app.get_selected_idx())
+        bckg_list = self.q_app.get_bckg_data_list(self.q_app.get_selected_idx())
 
-        if role == Qt.CheckStateRole and ii.column() == 0:
-            peak_list[ii.parent().row()].md_p_refine[data[1]] = bool(value)
-            self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
-            return True
-        elif role == Qt.EditRole:
-            if ii.column() == 1:
-                # updating min and max bounds
-                if peak_list[ii.parent().row()].md_p_bounds[data[1]][0] > value:
-                    peak_list[ii.parent().row()].md_p_bounds[data[1]] = \
-                        (value, peak_list[ii.parent().row()].md_p_bounds[data[1]][1])
-                if peak_list[ii.parent().row()].md_p_bounds[data[1]][1] < value:
-                    peak_list[ii.parent().row()].md_p_bounds[data[1]] = \
-                        (peak_list[ii.parent().row()].md_p_bounds[data[1]][0], value)
+        peak_list = peak_list if peak_list is not None else []
+        bckg_list = bckg_list if bckg_list is not None else []
 
-                peak_list[ii.parent().row()].md_params[data[1]] = ufloat(value, np.nan)
+        if ii.parent().row() >= len(bckg_list):
+            parent_row = ii.parent().row() - len(bckg_list)
 
-                if data[1] == 'center':
-                    peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
-
+            if role == Qt.CheckStateRole and ii.column() == 0:
+                peak_list[parent_row].md_p_refine[data[1]] = bool(value)
                 self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
                 return True
-            elif ii.column() == 3:
-                peak_list[ii.parent().row()].md_p_bounds[data[1]] = \
-                    (value, peak_list[ii.parent().row()].md_p_bounds[data[1]][1])
-                self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
-                return True
-            elif ii.column() == 4:
-                peak_list[ii.parent().row()].md_p_bounds[data[1]] = \
-                    (peak_list[ii.parent().row()].md_p_bounds[data[1]][0], value)
-                self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
-                return True
+            elif role == Qt.EditRole:
+                if ii.column() == 1:
+                    # updating min and max bounds
+                    if peak_list[parent_row].md_p_bounds[data[1]][0] > value:
+                        peak_list[parent_row].md_p_bounds[data[1]] = \
+                            (value, peak_list[parent_row].md_p_bounds[data[1]][1])
+                    if peak_list[parent_row].md_p_bounds[data[1]][1] < value:
+                        peak_list[parent_row].md_p_bounds[data[1]] = \
+                            (peak_list[parent_row].md_p_bounds[data[1]][0], value)
 
+                    peak_list[parent_row].md_params[data[1]] = ufloat(value, np.nan)
+
+                    if data[1] == 'center':
+                        peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
+
+                    self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
+                    return True
+                elif ii.column() == 3:
+                    peak_list[parent_row].md_p_bounds[data[1]] = \
+                        (value, peak_list[parent_row].md_p_bounds[data[1]][1])
+                    self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
+                    return True
+                elif ii.column() == 4:
+                    peak_list[parent_row].md_p_bounds[data[1]] = \
+                        (peak_list[parent_row].md_p_bounds[data[1]][0], value)
+                    self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
+                    return True
+        else:
+            if role == Qt.EditRole and ii.column() == 1:
+
+                if bckg_list[ii.parent().row()].md_p_bounds[data[1]][0] > value:
+                    value = bckg_list[ii.parent().row()].md_p_bounds[data[1]][0]
+                if bckg_list[ii.parent().row()].md_p_bounds[data[1]][1] < value:
+                    value = bckg_list[ii.parent().row()].md_p_bounds[data[1]][1]
+
+                bckg_list[ii.parent().row()].md_params[data[1]] = ufloat(value, np.nan)
+                bckg_list = list(sorted(bckg_list, key=lambda item: item.md_params['xmin'] + item.md_params['xmax']))
+
+                self.q_app.set_bckg_data_list(self.q_app.get_selected_idx(), bckg_list)
+                return True
         return False
 
 
@@ -267,12 +314,9 @@ class LmfitInspector(QWidget):
         self.logger = logging.getLogger(str(self.__class__))
         self.fitPlot = fitPlot
 
-        self.bplus = QPushButton('+')
-        self.bminus = QPushButton('-')
-        self.bopen = QPushButton('Open')
-        self.bsave = QPushButton('Save')
-        self.b_from_peaklist = QPushButton('Init from PT')
-        # self.b_from_data = QPushButton('Init from data')
+        self.btn_add_bckg = QPushButton('Add background model')
+        self.btn_cp_bckg = QPushButton('Copy background')
+
         self.treeview_md = LmfitInspectorModel()
         self._delegate = SpinBoxDelegate()
         self.treeview = QTreeView()
@@ -283,217 +327,37 @@ class LmfitInspector(QWidget):
         self.treeview.header().setStretchLastSection(True)
 
         self.menu = QMenu()
-
-        for k in lmfit_utils.prefixes.keys():
+        for k in background_models.keys():
             self.menu.addAction(k)
 
         layout = QGridLayout()
         self.setLayout(layout)
-        layout.addWidget(self.b_from_peaklist, 1, 1, 1, 1)
-        # layout.addWidget(self.b_from_data, 1, 2, 1, 1)
-        layout.addWidget(self.bopen, 1, 3, 1, 1)
-        layout.addWidget(self.bplus, 2, 1, 1, 1)
-        layout.addWidget(self.bminus, 2, 2, 1, 1)
-        layout.addWidget(self.bsave, 2, 3, 1, 1)
-        layout.addWidget(self.treeview, 3, 1, 1, 3)
+        layout.addWidget(self.btn_add_bckg, 1, 1, 1, 1)
+        layout.addWidget(self.btn_cp_bckg, 1, 3, 1, 1)
+        layout.addWidget(self.treeview, 2, 1, 1, 3)
 
-        self.bplus.clicked.connect(self.bplus_onclick)
-        self.bminus.clicked.connect(self.bminus_onclick)
-        self.bopen.clicked.connect(self.bopen_onclick)
-        self.bsave.clicked.connect(self.bsave_onclick)
-        self.b_from_peaklist.clicked.connect(self.from_peaklist_onclick)
-        # self.b_from_data.clicked.connect(self.from_data_onclick)
         self.treeview_md.modelReset.connect(self.expander)
-
-    def bopen_onclick(self):
-        idx = self.q_app.get_selected_idx()
-        if idx == -1:
-            return
-
-        file, _ = QFileDialog.getOpenFileName(self, "Open lmfit model",  "",
-                                              "lmfit.ModelResult (*.mr);;All Files (*)")
-        try:
-            with open(file, 'r') as f:
-                result = lmfit_utils.deserialize_model_result(json.load(f))
-        except Exception as e:
-            self.logger.error('bopen_onclick: during opening of %s an exception was raised: %s' % (file, str(e)))
-            return
-
-        if isinstance(result, lmfit.model.ModelResult):
-            self.q_app.set_general_result(idx, result)
-
-    def bsave_onclick(self):
-        f_name, _ = QFileDialog.getSaveFileName(self, "Save fit model", "",
-                                                "lmfit.ModelResult (*.mr);;All Files (*)")
-        if not f_name:
-            return
-
-        idx = self.q_app.get_selected_idx()
-        if idx == -1:
-            return
-
-        result = self.q_app.get_general_result(idx)
-        if result is None:
-            return
-
-        with open(f_name, 'w') as f:
-            json.dump(lmfit_utils.serialize_model_result(result), f)
-
-    def from_peaklist_onclick(self):
-        w = InitPopUp(parent=self)
-        w.exec_()
-
-    def init_from_peaklist(self, idx=-1, emit=True):
-        if idx == -1:
-            idx = self.q_app.get_selected_idx()
-
-        if idx == -1:
-            return
-
-        tracks = self.q_app.get_pd_tracks()
-        if tracks is None:
-            return
-        if not tracks:
-            return
-
-        self.q_app.set_general_result(idx, None, emit=False)
-        result = self._add_model('ChebyshevModel', idx,
-                                 {'c0': 0., 'c1': 0., 'c2': 0., 'c3': 0., 'c4': 0., 'c5': 0., 'c6': 0., 'c7': 0.},
-                                 poly_deg_default=7)
-        xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
-
-        min_cx, max_cx, max_base = 200, 0, 0
-        for track in tracks:
-            min_cx = np.min(track.cxs + [min_cx])
-            max_cx = np.max(track.cxs + [max_cx])
-            max_base = np.max([r - l for l, r in zip(track.l_bs, track.r_bs)] + [max_base])
-
-            if idx in track.ids:
-                result = lmfit_utils.add_peak_md('PseudoVoigtModel', track[idx], result)
-            # else:
-            #     result = lmfit_utils.add_peak_md('PseudoVoigtModel', track.predict_by_average(idx, xx, yy), result)
-
-        result.params['che0_xmin'].value = min_cx - max_base
-        result.params['che0_xmax'].value = max_cx + max_base
-        result = lmfit_utils.update_metrics(result, x=xx, data=yy)
-        self.q_app.set_general_result(idx, result, emit=emit)
-
-    def from_data_onclick(self):
-        idx = self.q_app.get_selected_idx()
-        result = self.q_app.get_general_result(idx)
-        if result is None:
-            return
-        # get x and y data
-        xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
-        # get difference values
-        diff = self.fitPlot.get_diff()
-        # get current range on x axis
-        x_lim = self.fitPlot.get_axes_xlim()
-        # select only shown data on screen
-        if diff is not None:
-            diff = diff[(xx > x_lim[0]) & (xx < x_lim[1])]
-        yy = yy[(xx > x_lim[0]) & (xx < x_lim[1])]
-        xx = xx[(xx > x_lim[0]) & (xx < x_lim[1])]
-        # get current parameters of fit models
-        parNamesParts = np.array([name.split('_', 1) for name in result.model.param_names])
-        model_parts = np.unique(parNamesParts[:, 0])
-        # parNames = np.unique(parNamesParts[:, 1])
-        # select only distribution models
-        model_parts = model_parts[[name.find('g') >= 0 or name.find('sg') >= 0 or name.find('lor') >= 0 or
-                                   name.find('pvii') >= 0 or name.find('pv') >= 0 or name.find('sv') >= 0 or
-                                   name.find('spl') >= 0 for name in model_parts]]
-        par_vals = np.zeros((len(model_parts), 3))
-        for i in range(len(model_parts)):
-            par_vals[i, 0] = result.params[model_parts[i] + '_amplitude'].value
-            par_vals[i, 1] = result.params[model_parts[i] + '_center'].value
-            par_vals[i, 2] = result.params[model_parts[i] + '_sigma'].value
-        # check current parameters of fit models
-        # test_ind = 5  # distance to maximum value to estimate sigma parameter
-        if sum(par_vals[:, 1]) == 0:
-            # all centers are not initialized - predetermine all parameters
-            x_step = (x_lim[1] - x_lim[0]) / len(model_parts)
-            for i in range(len(model_parts)):
-                xx_sel = (xx > x_lim[0] + i * x_step) & (xx < x_lim[0] + (i + 1) * x_step)
-                if xx_sel.size > 0 and np.any(xx_sel):
-                    par_vals[i, :] = self.estimate_pear_params(xx[xx_sel], yy[xx_sel])
-        else:
-            # some models have an initialization - optimize these parameters first (only if inside current range)
-            for i in range(len(model_parts)):
-                if (x_lim[0] < par_vals[i, 1]) & (par_vals[i, 1] < x_lim[1]):
-                    # this model is inside current value range
-                    xx_sel = (0.9 * par_vals[i, 1] < xx) & (xx < 1.1 * par_vals[i, 1])
-                    if xx_sel.size > 0 and np.any(xx_sel):
-                        par_vals[i, :] = self.estimate_pear_params(xx[xx_sel], yy[xx_sel])
-            # now try to get some initial parameters for uninitialized models
-            uninit_models = par_vals[:, 1] == 0
-            x_step = (x_lim[1] - x_lim[0]) / sum(uninit_models)
-            count = 0
-            for i in np.where(uninit_models):
-                xx_sel = (xx > x_lim[0] + count * x_step) & (xx < x_lim[0] + (count + 1) * x_step)
-                count += 1
-                if xx_sel.size > 0 and np.any(xx_sel):
-                    par_vals[i, :] = self.estimate_pear_params(xx[xx_sel], diff[xx_sel])
-        # set adapted values as model parameters
-        for i in range(len(model_parts)):
-            result.params[model_parts[i] + '_amplitude'].value = par_vals[i, 0]
-            result.params[model_parts[i] + '_center'].value = par_vals[i, 1]
-            result.params[model_parts[i] + '_sigma'].value = par_vals[i, 2]
-        # accept changes and update view
-        self.q_app.set_general_result(idx, result)
-
-    def estimate_pear_params(self, xx, yy, test_ind=5):
-        max_ind = np.argmax(yy)
-        max_val = yy[max_ind]
-        l_sigma = 0
-        r_sigma = 0
-        if max_ind > test_ind:
-            l_sigma = np.abs(xx[max_ind - test_ind] - xx[max_ind]) / (
-                    2 * (np.log(max_val) - np.log(yy[max_ind - test_ind]))) ** 0.5
-            est_sigma = l_sigma
-        if max_ind < len(xx):
-            r_sigma = np.abs(xx[max_ind + test_ind] - xx[max_ind]) / (2 * (np.log(max_val) - np.log(yy[max_ind + test_ind]))) ** 0.5
-            est_sigma = r_sigma
-        if l_sigma > 0 and r_sigma > 0:
-            est_sigma = np.mean([l_sigma, r_sigma])
-        self.logger.debug('estimate_peak_params: amplitude %f, center %f, sigma %f' % (max_val, xx[max_ind], est_sigma))
-        return max_val, xx[max_ind], est_sigma
+        self.btn_add_bckg.clicked.connect(self.btn_add_onclick)
+        self.btn_cp_bckg.clicked.connect(self.btn_copy_onclick)
 
     def expander(self, *args, **kwargs):
         self.treeview.expandAll()
 
-    def bplus_onclick(self):
-        name = self.menu.exec(self.mapToGlobal(self.bplus.pos()))
+    def btn_add_onclick(self):
+        name = self.menu.exec(self.mapToGlobal(self.btn_add_bckg.pos()))
         idx = self.q_app.get_selected_idx()
 
         if not isinstance(name, QAction) or idx == -1:
             return
 
-        new_md = self._add_model(name.text(), idx, poly_deg_default=False)
-        self.q_app.set_general_result(idx, new_md)
+        bckg_model_list = self.q_app.get_bckg_data_list(idx)
+        new_md = BckgData(model=name.text())
 
-    def bminus_onclick(self):
-        selected_obj = self.treeview.currentIndex().internalPointer()
-        if selected_obj is None:
-            return
+        if bckg_model_list is None:
+            self.q_app.set_bckg_data_list(idx, [new_md])
+        else:
+            bckg_model_list.append(new_md)
+            self.q_app.set_bckg_data_list(idx, bckg_model_list)
 
-        if isinstance(selected_obj.itemData, lmfit.Model):
-            prefix = selected_obj.itemData.prefix
-            result = lmfit_utils.rm_md(prefix, self.q_app.get_general_result(self.q_app.get_selected_idx()))
-            self.q_app.set_general_result(self.q_app.get_selected_idx(), result)
-
-    def _add_model(self, name, idx, init_params=dict(), poly_deg_default=7):
-        old_res = self.q_app.get_general_result(idx)
-
-        if name == 'ChebyshevModel':
-            if not poly_deg_default:
-                ii, ok = QInputDialog.getInt(self, 'Polynomial degree', 'Polynomial degree', 7, 2, 11, 1)
-                if ok:
-                    init_params['degree'] = ii
-            else:
-                init_params['degree'] = poly_deg_default
-
-            for i in range(init_params['degree'] + 1):
-                init_params['c%d' % i] = 0.
-
-        result = lmfit_utils.add_md(name, init_params, old_res)
-        return result
+    def btn_copy_onclick(self):
+        pass

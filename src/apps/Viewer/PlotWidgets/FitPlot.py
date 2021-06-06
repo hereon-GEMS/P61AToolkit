@@ -5,7 +5,7 @@ import logging
 
 from P61App import P61App
 from utils import log_ex_time
-from peak_fit_utils import models
+from peak_fit_utils import peak_models
 
 
 class FitPlot(pg.GraphicsLayoutWidget):
@@ -74,7 +74,7 @@ class FitPlot(pg.GraphicsLayoutWidget):
                 # self._diff = yy - data['GeneralFitResult'].eval(data['GeneralFitResult'].params, x=xx)
 
                 for peak in data['PeakDataList']:
-                    yy_peak = models[peak.md_name](xx, **{name: peak.md_params[name].n for name in peak.md_params})
+                    yy_peak = peak_models[peak.md_name](xx, **{name: peak.md_params[name].n for name in peak.md_params})
                     yy_calc += yy_peak
                     self._line_ax.plot(1E3 * xx, yy_peak,
                                        pen=pg.mkPen(color=str(hex(next(self.q_app.params['ColorWheel2']))).replace('0x', '#')),
