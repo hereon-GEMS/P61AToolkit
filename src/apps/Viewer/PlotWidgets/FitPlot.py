@@ -5,7 +5,7 @@ import logging
 
 from P61App import P61App
 from utils import log_ex_time
-from peak_fit_utils import peak_models
+from peak_fit_utils import peak_models, background_models
 
 
 class FitPlot(pg.GraphicsLayoutWidget):
@@ -36,6 +36,7 @@ class FitPlot(pg.GraphicsLayoutWidget):
         self.q_app.selectedIndexChanged.connect(self.on_selected_idx_ch)
         self.q_app.peakTracksChanged.connect(self.on_pt_changed)
         self.q_app.peakListChanged.connect(self.on_peaks_changed)
+        self.q_app.bckgListChanged.connect(self.on_bckg_changed)
         self.q_app.dataSorted.connect(self.on_data_sorted)
 
     def on_data_sorted(self):
@@ -51,6 +52,11 @@ class FitPlot(pg.GraphicsLayoutWidget):
         if self.q_app.get_selected_idx() in idxs:
             self.redraw_data()
 
+    def on_bckg_changed(self, idxs):
+        self.logger.debug('on_bckg_changed: Handling bckgListChanged(%s)' % (str(idxs),))
+        if self.q_app.get_selected_idx() in idxs:
+            self.redraw_data()
+
     def on_pt_changed(self):
         self.logger.debug('on_pt_changed: Handling peakTracksChanged')
         self.redraw_data()
@@ -60,63 +66,38 @@ class FitPlot(pg.GraphicsLayoutWidget):
         self.clear_axes()
         self._line_ax.addLegend()
         idx = self.q_app.get_selected_idx()
+
         if idx != -1:
-            data = self.q_app.data.loc[idx, ['DataX', 'DataY', 'Color', 'PeakDataList']]
+            data = self.q_app.data.loc[idx, ['DataX', 'DataY', 'Color', 'PeakDataList', 'BckgDataList']]
 
             self._line_ax.plot(1E3 * data['DataX'], data['DataY'],
                                pen=pg.mkPen(color='#000000', style=Qt.DotLine), name='Data')
+            xx = data['DataX']
+            yy = data['DataY']
+            yy_calc = np.zeros(yy.shape)
+
+            if data['BckgDataList'] is not None:
+                for bc_md in data['BckgDataList']:
+                    yy_bckg = background_models[bc_md.md_name](xx, **bc_md.func_params)
+                    yy_calc += yy_bckg
+                    self._line_ax.plot(1E3 * xx, yy_bckg,
+                                       pen=pg.mkPen(
+                                           color=str(hex(next(self.q_app.params['ColorWheel2']))).replace('0x', '#')),
+                                       name='[%.f, %.f]: %s' % (
+                                       bc_md.md_params['xmin'].n, bc_md.md_params['xmax'].n, bc_md.md_name))
 
             if data['PeakDataList'] is not None:
-                xx = data['DataX']
-                yy = data['DataY']
-                yy_calc = np.zeros(yy.shape)
-                # difference calculation
-                # self._diff = yy - data['GeneralFitResult'].eval(data['GeneralFitResult'].params, x=xx)
-
                 for peak in data['PeakDataList']:
                     yy_peak = peak_models[peak.md_name](xx, **{name: peak.md_params[name].n for name in peak.md_params})
                     yy_calc += yy_peak
                     self._line_ax.plot(1E3 * xx, yy_peak,
-                                       pen=pg.mkPen(color=str(hex(next(self.q_app.params['ColorWheel2']))).replace('0x', '#')),
+                                       pen=pg.mkPen(
+                                           color=str(hex(next(self.q_app.params['ColorWheel2']))).replace('0x', '#')),
                                        name='%.01f' % peak.md_params['center'].n)
 
-                self._diff = yy - yy_calc
-                # cmps = data['GeneralFitResult'].eval_components(x=xx)
-                # for cmp in cmps:
-                #     if cmp not in self.q_app.params['LmFitModelColors'].keys():
-                #         self.q_app.params['LmFitModelColors'][cmp] = next(self.q_app.params['ColorWheel2'])
-                #     self._line_ax.plot(1E3 * xx, cmps[cmp], pen=pg.mkPen(
-                #         color=str(hex(self.q_app.params['LmFitModelColors'][cmp])).replace('0x', '#')),
-                #                        name=cmp)
-                #
-                #     if cmp + 'center' in data['GeneralFitResult'].params:
-                #         xc = data['GeneralFitResult'].params[cmp + 'center'].value
-                #         xb = data['GeneralFitResult'].params[cmp + 'sigma'].value * \
-                #              data['GeneralFitResult'].params[cmp + 'base'].value
-                #         xob = data['GeneralFitResult'].params[cmp + 'sigma'].value * \
-                #              data['GeneralFitResult'].params[cmp + 'overlap_base'].value
-                #
-                #         self._line_ax.plot([1E3 * (xc - xob), 1E3 * (xc + xob)],
-                #                            [1.1 * max(cmps[cmp]), 1.1 * max(cmps[cmp])],
-                #                            pen=pg.mkPen(
-                #                                width=4,
-                #                                color=str(hex(self.q_app.params['LmFitModelColors'][cmp])).replace('0x',
-                #                                                                                                   '#')),
-                #                            name=None)
-                #         self._line_ax.plot([1E3 * (xc - xb), 1E3 * (xc + xb)],
-                #                            [1.1 * max(cmps[cmp]), 1.1 * max(cmps[cmp])],
-                #                            pen=pg.mkPen(
-                #                                color=str(hex(self.q_app.params['LmFitModelColors'][cmp])).replace('0x',
-                #                                                                                                   '#')),
-                #                            name=None)
-                #         # text = pg.TextItem(cmp[:-1],
-                #         #                    color=str(hex(self.q_app.params['LmFitModelColors'][cmp])).replace('0x',
-                #         #                                                                                           '#'))
-                #         # self._line_ax.addItem(text)
-                #         # text.setPos(1E3 * xc, 1.1 * max(cmps[cmp]))
-                #
-                self._line_ax.plot(1E3 * xx, yy_calc, pen=pg.mkPen(color='#d62728'), name='Fit')
-                self._diff_ax.plot(1E3 * xx, self._diff, pen=pg.mkPen(color='#d62728'))
+            self._diff = yy - yy_calc
+            self._line_ax.plot(1E3 * xx, yy_calc, pen=pg.mkPen(color='#d62728'), name='Fit')
+            self._diff_ax.plot(1E3 * xx, self._diff, pen=pg.mkPen(color='#d62728'))
 
     def clear_axes(self):
         self._line_ax.clear()
