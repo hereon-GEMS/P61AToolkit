@@ -127,7 +127,9 @@ class GeneralFitWidget(QWidget):
 
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
 
-        peak_list = fit_peaks2(peak_list, bckg_list, xx, yy)
+        chi2, bckg_list, peak_list = fit_peaks2(peak_list, bckg_list, xx, yy)
+
+        self.q_app.data.loc[idx, 'Chi2'] = chi2
         self.q_app.set_peak_data_list(idx, peak_list)
 
         # fw = FitWorker(xx, yy, copy.deepcopy(result), fit_type='peaks')
@@ -157,7 +159,9 @@ class GeneralFitWidget(QWidget):
 
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
 
-        bckg_list, peak_list = fit_bckg2(peak_list, bckg_list, xx, yy)
+        chi2, bckg_list, peak_list = fit_bckg2(peak_list, bckg_list, xx, yy)
+
+        self.q_app.data.loc[idx, 'Chi2'] = chi2
         self.q_app.set_bckg_data_list(idx, bckg_list)
         self.q_app.set_peak_data_list(idx, peak_list)
 

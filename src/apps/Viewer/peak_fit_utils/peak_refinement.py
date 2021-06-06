@@ -61,7 +61,6 @@ def metrics(yy_o, yy_c):
 
 
 def upd_metrics(peak_list, bckg_list, xx, yy):
-
     yy_calc_bckg = np.zeros(yy.shape)
     for bc_md in bckg_list:
         yy_calc_bckg += background_models[bc_md.md_name](xx, **bc_md.func_params)
@@ -82,7 +81,18 @@ def upd_metrics(peak_list, bckg_list, xx, yy):
         peak.md_params['rwp'] = ufloat(mcs['rwp2'], np.NAN)
         peak.md_params['chi2'] = ufloat(mcs['chi2'], np.NAN)
 
-    return peak_list
+    if len(bckg_list) == 0:
+        total_chi2 = metrics(yy, y_calc_peaks)['chi2']
+    else:
+        y_c_w_bg = np.array([])
+        y_o_w_bg = np.array([])
+        for bc_md in bckg_list:
+            y_c_w_bg = np.concatenate([y_c_w_bg, (y_calc_peaks + yy_calc_bckg)[
+                (xx > bc_md.md_params['xmin']) & (xx < bc_md.md_params['xmax'])]])
+            y_o_w_bg = np.concatenate([y_o_w_bg, yy[
+                (xx > bc_md.md_params['xmin']) & (xx < bc_md.md_params['xmax'])]])
+        total_chi2 = metrics(y_o_w_bg, y_c_w_bg)['chi2']
+    return total_chi2, peak_list
 
 
 class IntervalOptimizer:
@@ -94,7 +104,7 @@ class IntervalOptimizer:
 
     def __call__(self, interval):
         ll, rr, *peak_ids = interval
-        print(ll, rr, peak_ids)
+        logger.info('IntervalOptimizer.__call__: refining peaks (%s) on [%d, %d]' % (str(peak_ids), ll, rr))
         iy = self.ydata[(self.xdata > ll) & (self.xdata < rr)]
         ix = self.xdata[(self.xdata > ll) & (self.xdata < rr)]
         iy, ix = iy.astype(np.float64), ix.astype(np.float64)
@@ -148,7 +158,6 @@ class IntervalOptimizer:
         return self.peak_list
 
 
-@log_ex_time
 def fit_peaks(peak_list, bckg_list, xx, yy):
     intervals = get_peak_intervals(peak_list)
 
@@ -179,6 +188,5 @@ def fit_peaks(peak_list, bckg_list, xx, yy):
 
     for peak in peak_list:
         peak.upd_nref_params()
-
-    peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
-    return peak_list
+    chi2, peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
+    return chi2, bckg_list, peak_list

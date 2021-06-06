@@ -83,6 +83,6 @@ def fit_bckg(peak_list, bckg_list, xx, yy):
         opt_result = least_squares(residuals, x0=x0, ftol=1e-12, xtol=1e-12, gtol=1e-12, max_nfev=1000)
         bc_md.set_poly_coefs(opt_result.x)
 
-    peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
+    chi2, peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
 
-    return bckg_list, peak_list
+    return chi2, bckg_list, peak_list

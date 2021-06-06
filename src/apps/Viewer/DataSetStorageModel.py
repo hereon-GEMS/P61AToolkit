@@ -13,6 +13,8 @@ class DataSetStorageModel(QAbstractTableModel):
         self.c_names = ('Name', 'Channel', u'💀⏱', u'χ²')
 
         self.q_app.genFitResChanged.connect(self.on_gen_fit_changed)
+        self.q_app.peakListChanged.connect(self.on_gen_fit_changed)
+        self.q_app.bckgListChanged.connect(self.on_gen_fit_changed)
 
     def on_gen_fit_changed(self, rows):
         self.logger.debug('on_gen_fit_changed: Handling genFitResChanged(%s)' % (str(rows),))
@@ -62,13 +64,7 @@ class DataSetStorageModel(QAbstractTableModel):
                 return None
         elif ii.column() == 3:
             if role == Qt.DisplayRole:
-                if item_row['GeneralFitResult'] is not None:
-                    if item_row['GeneralFitResult'].chisqr is not None:
-                        return '%.01f' % item_row['GeneralFitResult'].chisqr
-                    else:
-                        return None
-                else:
-                    return None
+                return '%.01e' % item_row['Chi2'] if item_row['Chi2'] is not None else None
             else:
                 return None
         elif len(self.c_names) <= ii.column() < len(self.q_app.motors_cols) + len(self.c_names):
@@ -128,7 +124,7 @@ class DataSetStorageModel(QAbstractTableModel):
             return False
 
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
-        tmp = {0: 'ScreenName', 1: 'Channel', 2: 'DeadTime', 3: 'GeneralFitResult'}
+        tmp = {0: 'ScreenName', 1: 'Channel', 2: 'DeadTime', 3: 'Chi2'}
         tmp.update({i + len(self.c_names): self.q_app.motors_cols[i] for i in range(len(self.q_app.motors_cols))})
 
         self.q_app.sort_data(by=tmp[column], inplace=True, ascending=bool(order))
