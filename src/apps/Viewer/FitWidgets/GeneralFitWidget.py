@@ -13,7 +13,7 @@ from FitWidgets.ConstrainPopUp import ConstrainPopUp
 from PlotWidgets import FitPlot
 from ThreadIO import Worker
 from lmfit_utils import fit_peaks, fit_bckg, fit_to_precision
-from peak_fit_utils import fit_peaks as fit_peaks2
+from peak_fit_utils import fit_peaks as fit_peaks2, fit_bckg as fit_bckg2
 
 
 class FitWorker(Worker):
@@ -121,9 +121,13 @@ class GeneralFitWidget(QWidget):
         if peak_list is None:
             return
 
+        bckg_list = self.q_app.get_bckg_data_list(idx)
+        if bckg_list is None:
+            bckg_list = []
+
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
 
-        peak_list = fit_peaks2(peak_list, xx, yy)
+        peak_list = fit_peaks2(peak_list, bckg_list, xx, yy)
         self.q_app.set_peak_data_list(idx, peak_list)
 
         # fw = FitWorker(xx, yy, copy.deepcopy(result), fit_type='peaks')
@@ -139,21 +143,29 @@ class GeneralFitWidget(QWidget):
 
         if self.q_app.get_selected_idx() == -1:
             return
+
         elif idx is None:
             idx = self.q_app.get_selected_idx()
 
-        result = self.q_app.get_general_result(idx)
-        if result is None:
+        peak_list = self.q_app.get_peak_data_list(idx)
+        if peak_list is None:
+            peak_list = []
+
+        bckg_list = self.q_app.get_bckg_data_list(idx)
+        if bckg_list is None:
             return
 
         xx, yy = self.q_app.data.loc[idx, 'DataX'], self.q_app.data.loc[idx, 'DataY']
 
-        fw = FitWorker(copy.deepcopy(xx), copy.deepcopy(yy), copy.deepcopy(result), fit_type='bckg')
-        self.fit_idx = idx
-        if self.q_app.config['use_threads']:
-            self.q_app.thread_pool.start(fw)
-        else:
-            fw.run()
+        bckg_list = fit_bckg2(peak_list, bckg_list, xx, yy)
+        self.q_app.set_bckg_data_list(idx, bckg_list)
+
+        # fw = FitWorker(copy.deepcopy(xx), copy.deepcopy(yy), copy.deepcopy(result), fit_type='bckg')
+        # self.fit_idx = idx
+        # if self.q_app.config['use_threads']:
+        #     self.q_app.thread_pool.start(fw)
+        # else:
+        #     fw.run()
 
     def on_fit_to_prec_btn(self, *args, idx=None, max_cycles=None, min_chi_change=None):
         if self.fit_idx is not None:

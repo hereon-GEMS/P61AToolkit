@@ -4,7 +4,7 @@ from uncertainties import ufloat
 import numpy as np
 from matplotlib import pyplot as plt
 
-from peak_fit_utils.models import peak_models
+from peak_fit_utils.models import peak_models, background_models
 from utils import log_ex_time
 
 
@@ -115,13 +115,18 @@ class IntervalOptimizer:
 
 
 @log_ex_time
-def fit_peaks(peak_list, xx, yy):
+def fit_peaks(peak_list, bckg_list, xx, yy):
     intervals = get_peak_intervals(peak_list)
+
+    yy_calc_bckg = np.zeros(yy.shape)
+
+    for bc_md in bckg_list:
+        yy_calc_bckg += background_models[bc_md.md_name](xx, **bc_md.func_params)
 
     # parallel = True  # 22151.7 ms
     parallel = False  # 718.5 ms
 
-    iopt = IntervalOptimizer(peak_list, xx, yy, least_squares)
+    iopt = IntervalOptimizer(peak_list, xx, yy - yy_calc_bckg, least_squares)
     if not parallel:
         for interval in intervals:
             peak_list = iopt(interval)
