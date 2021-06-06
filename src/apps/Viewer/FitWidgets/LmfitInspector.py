@@ -314,7 +314,8 @@ class LmfitInspector(QWidget):
         self.logger = logging.getLogger(str(self.__class__))
         self.fitPlot = fitPlot
 
-        self.btn_add_bckg = QPushButton('Add background model')
+        self.btn_add_bckg = QPushButton('+ background')
+        self.btn_rm_bckg = QPushButton('- background')
         self.btn_cp_bckg = QPushButton('Copy background')
 
         self.treeview_md = LmfitInspectorModel()
@@ -333,12 +334,14 @@ class LmfitInspector(QWidget):
         layout = QGridLayout()
         self.setLayout(layout)
         layout.addWidget(self.btn_add_bckg, 1, 1, 1, 1)
+        layout.addWidget(self.btn_rm_bckg, 1, 2, 1, 1)
         layout.addWidget(self.btn_cp_bckg, 1, 3, 1, 1)
         layout.addWidget(self.treeview, 2, 1, 1, 3)
 
         self.treeview_md.modelReset.connect(self.expander)
         self.btn_add_bckg.clicked.connect(self.btn_add_onclick)
         self.btn_cp_bckg.clicked.connect(self.btn_copy_onclick)
+        self.btn_rm_bckg.clicked.connect(self.btn_rm_onclick)
 
     def expander(self, *args, **kwargs):
         self.treeview.expandAll()
@@ -361,3 +364,18 @@ class LmfitInspector(QWidget):
 
     def btn_copy_onclick(self):
         pass
+
+    def btn_rm_onclick(self):
+        selected_obj = self.treeview.currentIndex().internalPointer()
+        if selected_obj is None:
+            return
+        if isinstance(selected_obj.itemData, str):
+            row = selected_obj.row()
+
+            bckg_list = self.q_app.get_bckg_data_list(self.q_app.get_selected_idx())
+            if bckg_list is None:
+                return
+
+            if row < len(bckg_list):
+                bckg_list = bckg_list[:row] + bckg_list[row + 1:]
+                self.q_app.set_bckg_data_list(self.q_app.get_selected_idx(), bckg_list)
