@@ -253,7 +253,10 @@ class P61App(QApplication):
             self.dataActiveChanged.emit([idx])
 
     def get_selected_screen_name(self):
-        return self.data.loc[self.params['SelectedActiveIdx'], 'ScreenName']
+        if self.params['SelectedActiveIdx'] != -1:
+            return self.data.loc[self.params['SelectedActiveIdx'], 'ScreenName']
+        else:
+            return ''
 
     def get_peak_data_list(self, idx):
         return self.data.loc[idx, 'PeakDataList']

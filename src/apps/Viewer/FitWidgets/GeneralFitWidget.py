@@ -7,7 +7,7 @@ import copy
 from P61App import P61App
 from DatasetManager import DatasetViewer
 from FitWidgets.LmfitInspector import LmfitInspector
-from FitWidgets.CopyPopUp import CopyPopUp
+
 from FitWidgets.SeqFitPopUp import SeqFitPopUp
 from FitWidgets.ConstrainPopUp import ConstrainPopUp
 from PlotWidgets import FitPlot
@@ -182,8 +182,7 @@ class GeneralFitWidget(QWidget):
             fw.run()
 
     def on_copy_btn(self, *args):
-        w = CopyPopUp(parent=self)
-        w.exec_()
+        pass
 
     def on_fit_mult_btn(self):
         w = SeqFitPopUp(parent=self)

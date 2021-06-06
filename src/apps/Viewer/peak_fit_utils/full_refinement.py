@@ -3,7 +3,7 @@ from peak_fit_utils.bckg_refinement import fit_bckg
 from peak_fit_utils.peak_refinement import fit_peaks
 
 
-def fit_to_precision(peak_list, bckg_list, xx, yy, max_cycles=10, min_chi_change=0.01):
+def fit_to_precision(peak_list, bckg_list, xx, yy, max_cycles=10, min_chi_change=0.1):
     chi2, peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
     cond, ii = True, 1
 
@@ -11,7 +11,7 @@ def fit_to_precision(peak_list, bckg_list, xx, yy, max_cycles=10, min_chi_change
         chi2_, bckg_list, peak_list = fit_bckg(peak_list, bckg_list, xx, yy)
         chi2_, bckg_list, peak_list = fit_peaks(peak_list, bckg_list, xx, yy)
 
-        if (chi2 - chi2_) / chi2_ < min_chi_change:
+        if 0 < (chi2 - chi2_) / chi2_ < min_chi_change:
             cond = False
         else:
             chi2 = chi2_
@@ -20,6 +20,8 @@ def fit_to_precision(peak_list, bckg_list, xx, yy, max_cycles=10, min_chi_change
             cond = False
         else:
             ii += 1
+
+        print('cycle %d, chi2 = %e' % (ii, chi2))
 
     chi2, peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
     return chi2, bckg_list, peak_list

@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QWidget, QPushButton, QGridLayout, QMenu, QAction, Q
     QStyledItemDelegate, QStyleOptionViewItem, QHeaderView, QFileDialog, QCheckBox
 from PyQt5.Qt import QAbstractItemModel, Qt, QModelIndex, QVariant
 
+from FitWidgets.CopyPopUp import CopyPopUp
 from FitWidgets.FloatEdit import FloatEdit
 from P61App import P61App
 from peak_fit_utils import background_models, BckgData
@@ -363,7 +364,8 @@ class LmfitInspector(QWidget):
             self.q_app.set_bckg_data_list(idx, bckg_model_list)
 
     def btn_copy_onclick(self):
-        pass
+        w = CopyPopUp(parent=self)
+        w.exec_()
 
     def btn_rm_onclick(self):
         selected_obj = self.treeview.currentIndex().internalPointer()

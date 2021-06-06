@@ -1,6 +1,4 @@
 from PyQt5.QtWidgets import QDialog, QGridLayout, QPushButton, QLabel
-import copy
-import numpy as np
 import logging
 
 from P61App import P61App
