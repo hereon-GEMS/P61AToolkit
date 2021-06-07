@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 
 
 if __name__ == '__main__':
-    dd = pd.read_csv(r'N:\4all\intern\wpd\p61a\Software\P61Viewer\Data for testing\04-21 DT calibration\2021-04-10-Graphite deadtime calibration\Ch1Results_GD.csv')
+    dd = pd.read_csv(r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\test.csv')
     x_mot = 'eu.psi'
 
     prefixes = {col.split('_')[0] for col in dd.columns if (('_' in col) and ('pv' in col))}

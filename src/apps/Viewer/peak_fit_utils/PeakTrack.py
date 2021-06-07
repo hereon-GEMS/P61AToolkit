@@ -111,6 +111,19 @@ class PeakData:
         n_ref = tuple(k for k in self.md_params if k not in self.md_p_refine)
         return ref + n_ref
 
+    def export_ref_params(self):
+        result = dict()
+        if self.md_name == 'PseudoVoigt':
+            for k in ('center', 'sigma', 'width', 'height', 'fraction', 'amplitude'):
+                result[k] = self.md_params[k].n
+                result['_'.join((k, 'std'))] = self.md_params[k].s
+            for k in ('chi2', 'rwp2'):
+                result[k] = self.md_params[k].n
+        else:
+            pass
+
+        return result
+
     def __copy__(self):
         return PeakData(self._idx, self.cx, self.cy,
                         self.l_ip, self.r_ip,

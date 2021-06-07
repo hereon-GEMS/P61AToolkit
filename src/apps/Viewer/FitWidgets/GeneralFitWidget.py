@@ -44,12 +44,10 @@ class GeneralFitWidget(QWidget):
         self.active_list = DatasetViewer()
 
         self.fit_btn = QPushButton('Fit')
-        self.constrain_btn = QPushButton('Constrain parameters')
         self.bckg_fit_btn = QPushButton('Fit Background')
         self.peaks_fit_btn = QPushButton('Fit peaks')
         self.full_fit_btn = QPushButton('Fit this')
         self.fit_mult_btn = QPushButton('Fit multiple')
-        self.copy_btn = QPushButton('Copy params')
         self.export_btn = QPushButton('Export')
         self.plot_w = FitPlot(parent=self)
 
@@ -57,27 +55,23 @@ class GeneralFitWidget(QWidget):
 
         layout = QGridLayout()
         self.setLayout(layout)
-        layout.addWidget(self.lmfit_inspector, 1, 1, 3, 3)
-        layout.addWidget(self.active_list, 4, 3, 6, 1)
-        layout.addWidget(self.constrain_btn, 4, 1, 1, 2)
-        layout.addWidget(self.bckg_fit_btn, 5, 1, 1, 1)
-        layout.addWidget(self.peaks_fit_btn, 5, 2, 1, 1)
-        layout.addWidget(self.full_fit_btn, 6, 1, 1, 2)
-        layout.addWidget(self.copy_btn, 8, 1, 1, 2)
-        layout.addWidget(self.fit_mult_btn, 7, 1, 1, 2)
-        layout.addWidget(self.export_btn, 9, 1, 1, 2)
-        layout.addWidget(self.plot_w, 1, 4, 8, 1)
+        layout.addWidget(self.lmfit_inspector, 1, 1, 1, 3)
+        layout.addWidget(self.active_list, 2, 3, 4, 1)
+        layout.addWidget(self.bckg_fit_btn, 2, 1, 1, 1)
+        layout.addWidget(self.peaks_fit_btn, 2, 2, 1, 1)
+        layout.addWidget(self.full_fit_btn, 3, 1, 1, 2)
+        layout.addWidget(self.fit_mult_btn, 4, 1, 1, 2)
+        layout.addWidget(self.export_btn, 5, 1, 1, 2)
+        layout.addWidget(self.plot_w, 1, 4, 7, 1)
         layout.setColumnStretch(1, 1)
         layout.setColumnStretch(2, 1)
         layout.setColumnStretch(3, 4)
         layout.setColumnStretch(4, 16)
 
-        self.constrain_btn.clicked.connect(self.on_constrain_btn)
         self.fit_mult_btn.clicked.connect(self.on_fit_mult_btn)
         self.bckg_fit_btn.clicked.connect(self.on_bckg_fit_btn)
         self.peaks_fit_btn.clicked.connect(self.on_peak_fit_btn)
         self.full_fit_btn.clicked.connect(self.on_fit_to_prec_btn)
-        self.copy_btn.clicked.connect(self.on_copy_btn)
         self.export_btn.clicked.connect(self.on_export_button)
 
         self.q_app.fitWorkerResult.connect(self.on_tw_result, Qt.QueuedConnection)
@@ -99,9 +93,9 @@ class GeneralFitWidget(QWidget):
     def on_tw_exception(self):
         self.logger.debug('on_tw_exception: Handling FitWorker.threadWorkerException')
 
-    def on_constrain_btn(self, *args, idx=None):
-        w = ConstrainPopUp(parent=self)
-        w.exec_()
+    # def on_constrain_btn(self, *args, idx=None):
+    #     w = ConstrainPopUp(parent=self)
+    #     w.exec_()
 
     def on_peak_fit_btn(self, *args, idx=None):
         if self.fit_idx is not None:
@@ -181,9 +175,6 @@ class GeneralFitWidget(QWidget):
         else:
             fw.run()
 
-    def on_copy_btn(self, *args):
-        pass
-
     def on_fit_mult_btn(self):
         w = SeqFitPopUp(parent=self)
         w.exec_()
@@ -193,8 +184,20 @@ class GeneralFitWidget(QWidget):
         if not f_name:
             return
 
-        def expand_result(row):
-            return row
+        tracks = self.q_app.get_pd_tracks()
+        prefixes = ['pv%d' % ii for ii in range(len(tracks))]
+
+        def expand_peaks(row):
+            if row['PeakDataList'] is None:
+                return row.drop(labels=['PeakDataList'])
+            else:
+                for track, prefix in zip(tracks, prefixes):
+                    if row.name in track.ids:
+                        name = row.name
+                        row = row.append(pd.Series({'_'.join((prefix, k)): val
+                                                    for (k, val) in track[row.name].export_ref_params().items()}))
+                        row.name = name
+                return row.drop(labels=['PeakDataList'])
             # if row['GeneralFitResult'] is None:
             #     return row.drop(labels=['GeneralFitResult'])
             # else:
@@ -234,9 +237,9 @@ class GeneralFitWidget(QWidget):
             return df
 
         result = pd.DataFrame()
-        result = result.append(self.q_app.data.loc[self.q_app.data['Active'], ['ScreenName', 'DeadTime',
-                                                                               'Motors']])
-        result = result.apply(expand_result, axis=1)
+        result = result.append(self.q_app.data.loc[self.q_app.data['Active'],
+                                                   ['ScreenName', 'DeadTime', 'PeakDataList', 'Motors', 'Chi2']])
+        result = result.apply(expand_peaks, axis=1)
         result = result.apply(expand_motors, axis=1)
         result = add_phase_data(result)
 
