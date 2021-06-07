@@ -82,6 +82,11 @@ class TrackEditPopUp(QDialog):
 
             self._tracks = list(sorted(self._tracks, key=lambda x: np.mean(x.cxs)))
 
+        for spectra_idx in spectra_ids:
+            peak_list = self.q_app.get_peak_data_list(spectra_idx)
+            peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
+            self.q_app.set_peak_data_list(spectra_idx, peak_list, emit=False)
+
         self.q_app.peakListChanged.emit(spectra_ids)
         self.q_app.set_pd_tracks(self._tracks)
         self.close()
