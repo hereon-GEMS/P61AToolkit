@@ -263,18 +263,6 @@ class MainPlot3D(GlPlot3D):
     def redraw_fit_centers(self, ys):
         del self._fit_tracks[:]
 
-        if self.show_fit_centers:
-            data = self.q_app.get_genfit_pc()
-            if not isinstance(data, pd.Series):
-                for col in data.columns:
-                    yy = ys.copy()
-                    yy = yy[pd.notna(data[col])]
-                    xx = data[col][pd.notna(data[col])]
-                    xx, zz = xx.map(lambda arg: arg[0]), xx.map(lambda arg: arg[1])
-                    xx, yy, zz = xx.to_numpy(), yy, zz.to_numpy()
-                    pos = self.transform_xyz(xx, yy, zz)
-                    self._fit_tracks.append(gl.GLLinePlotItem(pos=pos, color='#ffffff', antialias=True))
-
     @log_ex_time
     def redraw_data(self, *args, **kwargs):
         ids = self.q_app.get_active_ids()

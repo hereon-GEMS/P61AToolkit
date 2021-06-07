@@ -68,13 +68,13 @@ class SeqFitPopUp(QDialog):
             self.close()
             return
 
-        # fit_ids = [k for k in self.selection_list.proxy.selected if self.selection_list.proxy.selected[k]]
         fit_ids = self.selection_list.get_selected()
         fit_type = self.combo.currentIndex()
 
         if fit_type == 1:
-            self.q_app.data.loc[fit_ids, 'GeneralFitResult'] = [self.q_app.get_general_result(
-                self.q_app.get_selected_idx())] * len(fit_ids)
+            raise NotImplementedError('Fit type 1 not supported')
+            # self.q_app.data.loc[fit_ids, 'GeneralFitResult'] = [self.q_app.get_general_result(
+            #     self.q_app.get_selected_idx())] * len(fit_ids)
 
         if self.q_app.get_selected_idx() in fit_ids:
             fit_ids.remove(self.q_app.get_selected_idx())
@@ -107,8 +107,9 @@ class SeqFitPopUp(QDialog):
             return
 
         if self.combo.currentIndex() == 2:
-            self.q_app.data.loc[idx, 'GeneralFitResult'] = \
-                copy.deepcopy(self.q_app.data.loc[prev_idx, 'GeneralFitResult'])
+            raise NotImplementedError('Fit type 2 not supported')
+            # self.q_app.data.loc[idx, 'GeneralFitResult'] = \
+            #     copy.deepcopy(self.q_app.data.loc[prev_idx, 'GeneralFitResult'])
 
         if self.cb_peaks.isChecked() and not self.cb_bckg.isChecked():
             self.parent().on_peak_fit_btn(idx=idx)

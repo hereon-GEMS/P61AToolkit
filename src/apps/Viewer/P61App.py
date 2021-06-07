@@ -102,7 +102,7 @@ class P61App(QApplication):
 
         # data storage for one-per-dataset items
         self.data = pd.DataFrame(columns=('DataX', 'DataY', 'DeadTime', 'Channel', 'DataID', 'ScreenName', 'Active',
-                                          'Color', 'PeakDataList', 'BckgDataList', 'Chi2', 'GeneralFitResult', 'Motors'))
+                                          'Color', 'PeakDataList', 'BckgDataList', 'Chi2', 'Motors'))
         self.data_model = DataSetStorageModel(instance=self)
         self.motors_cols = ('eu.chi', 'eu.phi', 'eu.eta', 'eu.x', 'eu.y', 'eu.z')
         self.motors_all = set(self.motors_cols)
@@ -135,7 +135,6 @@ class P61App(QApplication):
         self.cmaps = dict((name.replace('.csv', ''), np.loadtxt(os.path.join('utils', 'cmaps', name)))
                           for name in filter(lambda arg: '.csv' in arg, os.listdir(os.path.join('utils', 'cmaps'))))
 
-        self._genfit_pc_cache = None
         self.genFitResChanged.connect(self.on_fit_res_changed)
         self.dataRowsInserted.connect(self.on_data_rows_inserted)
         self.dataRowsRemoved.connect(self.on_data_rows_removed)
@@ -167,27 +166,6 @@ class P61App(QApplication):
     def on_data_ac(self):
         self.logger.debug('on_data_ac: handling dataActiveChanged')
         self._genfit_pc_cache = None
-
-    def get_genfit_pc(self):
-        if self._genfit_pc_cache is not None:
-            return self._genfit_pc_cache
-
-        ids = self.get_active_ids()
-        data = self.data.loc[ids, 'GeneralFitResult']
-
-        def get_xy(row):
-            if row is None:
-                return pd.Series({})
-            else:
-                res = dict()
-                for cmp in row.model.components:
-                    if (cmp.prefix + 'center' in row.params) and (cmp.prefix + 'height' in row.params):
-                        res[cmp.prefix] = [row.params[cmp.prefix + 'center'].value,
-                                           row.params[cmp.prefix + 'height'].value]
-                return pd.Series(res)
-
-        self._genfit_pc_cache = data.apply(get_xy)
-        return self._genfit_pc_cache
 
     def insert_rows(self, position, rows):
         d1, d2 = self.data[:position], self.data[position:]
@@ -276,15 +254,6 @@ class P61App(QApplication):
             self.logger.debug('set_bckg_data_list: Emitting bckgListChanged([%d])' % (idx, ))
             self.bckgListChanged.emit([idx])
 
-    def get_general_result(self, idx):
-        return self.data.loc[idx, 'GeneralFitResult']
-
-    def set_general_result(self, idx, result, emit=True):
-        self.data.loc[idx, 'GeneralFitResult'] = result
-        if emit:
-            self.logger.debug('set_general_result: Emitting genFitResChanged([%d])' % (idx))
-            self.genFitResChanged.emit([idx])
-
     def get_pd_tracks(self):
         if self.peak_tracks is None:
             return []
@@ -320,10 +289,7 @@ class P61App(QApplication):
 
     @log_ex_time
     def sort_data(self, **kwargs):
-        if kwargs['by'] == 'GeneralFitResult':
-            self.data['_tmp'] = self.data['GeneralFitResult'].apply(lambda x: 0 if x is None else x.chisqr)
-            kwargs['by'] = '_tmp'
-        elif kwargs['by'] not in self.data.columns:
+        if kwargs['by'] not in self.data.columns:
             self.data['_tmp'] = self.data['Motors'].apply(
                 lambda x: 0 if x is None else (0 if x[kwargs['by']] is None else x[kwargs['by']])
             )

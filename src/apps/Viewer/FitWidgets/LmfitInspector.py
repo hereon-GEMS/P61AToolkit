@@ -252,6 +252,7 @@ class LmfitInspectorModel(QAbstractItemModel):
                             (peak_list[parent_row].md_p_bounds[data[1]][0], value)
 
                     peak_list[parent_row].md_params[data[1]] = ufloat(value, np.nan)
+                    peak_list[parent_row].upd_nref_params()
 
                     if data[1] == 'center':
                         peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
@@ -261,11 +262,13 @@ class LmfitInspectorModel(QAbstractItemModel):
                 elif ii.column() == 3:
                     peak_list[parent_row].md_p_bounds[data[1]] = \
                         (value, peak_list[parent_row].md_p_bounds[data[1]][1])
+                    peak_list[parent_row].upd_nref_params()
                     self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
                     return True
                 elif ii.column() == 4:
                     peak_list[parent_row].md_p_bounds[data[1]] = \
                         (peak_list[parent_row].md_p_bounds[data[1]][0], value)
+                    peak_list[parent_row].upd_nref_params()
                     self.q_app.set_peak_data_list(self.q_app.get_selected_idx(), peak_list)
                     return True
         else:

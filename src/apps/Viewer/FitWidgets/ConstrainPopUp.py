@@ -4,7 +4,7 @@ import logging
 from P61App import P61App
 from DatasetManager import DatasetSelector
 from FitWidgets.FloatEdit import FloatEdit
-from lmfit_utils import constrain_params
+# from lmfit_utils import constrain_params
 
 
 class ConstrainPopUp(QDialog):
@@ -113,14 +113,15 @@ class ConstrainPopUp(QDialog):
         ids = self.list_to.get_selected()
 
         for idx in ids:
-            md = self.q_app.get_general_result(idx)
-            if md is None:
-                continue
-
-            md = constrain_params(md, self.center_vary.value, self.height_min.value, self.height_max.value,
-                                  self.sigma_min.value, self.sigma_max.value)
-
-            self.q_app.set_general_result(idx, md)
+            pass
+            # md = self.q_app.get_general_result(idx)
+            # if md is None:
+            #     continue
+            #
+            # md = constrain_params(md, self.center_vary.value, self.height_min.value, self.height_max.value,
+            #                       self.sigma_min.value, self.sigma_max.value)
+            #
+            # self.q_app.set_general_result(idx, md)
         self.close()
 
 

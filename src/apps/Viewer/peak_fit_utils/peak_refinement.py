@@ -147,6 +147,9 @@ def fit_peaks(peak_list, bckg_list, xx, yy):
     peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
 
     for peak in peak_list:
-        peak.upd_nref_params()
+        lb, rb = peak.md_params['center'].n - peak.md_params['base'].n * peak.md_params['sigma'].n, \
+                 peak.md_params['center'].n + peak.md_params['base'].n * peak.md_params['sigma'].n
+
+        peak.upd_nref_params(lr_bh=np.interp([lb, rb], xx, yy_calc_bckg))
     chi2, peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
     return chi2, bckg_list, peak_list

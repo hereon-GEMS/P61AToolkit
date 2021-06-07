@@ -146,19 +146,6 @@ class MainPlot2D(pg.GraphicsLayoutWidget):
             self._line_ax.removeItem(self._fit_scatters[ii])
             self._fit_scatters.pop(ii)
 
-        data = self.q_app.get_genfit_pc()
-        if not isinstance(data, pd.Series):
-            for col in data.columns:
-                xx = data[col][pd.notna(data[col])]
-                xx, yy = xx.map(lambda arg: arg[0]), xx.map(lambda arg: arg[1])
-                xx, yy = xx.to_numpy(), yy.to_numpy()
-
-                xx *= 1e3
-                yy.fill(np.max(yy) * 1.1)
-
-                self._fit_scatters.append(pg.ScatterPlotItem(xx, yy, pen='#ff0000', brush='#ff0000'))
-                self._line_ax.addItem(self._fit_scatters[-1])
-
     @property
     def show_known_regions(self):
         return self._show_known_regions

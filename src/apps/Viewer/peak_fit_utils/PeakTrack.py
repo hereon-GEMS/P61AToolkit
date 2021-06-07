@@ -18,12 +18,6 @@ class PeakData:
         """
 
         """
-        self._cx = cx
-        self._cy = cy
-        self._l_ip = l_ip
-        self._r_ip = r_ip
-        self._l_b = l_b
-        self._r_b = r_b
         self._l_bh = l_bh
         self._r_bh = r_bh
 
@@ -36,32 +30,40 @@ class PeakData:
         self.md_p_bounds = dict()
         self.md_p_refine = dict()
 
-        self.make_md_params()
+        self.make_md_params(cx, cy, l_ip, r_ip)
 
-    def make_md_params(self):
+    def make_md_params(self, _cx, _cy, _l_ip, _r_ip):
         self.md_params, self.md_p_bounds = dict(), dict()
 
         if self.md_name == 'PseudoVoigt':
-            self.md_params['width'] = ufloat(self.peak_width, np.NAN)
+            self.md_params['width'] = ufloat(_r_ip - _l_ip, np.NAN)
             self.md_params['sigma'] = self.md_params['width'] / (2. * np.sqrt(2. * np.log(2)))
-            self.md_params['center'] = ufloat(self.cx, np.NAN)
-            self.md_params['amplitude'] = self.peak_height * np.sqrt(2. * np.pi) * \
-                                          self.md_params['sigma'] / np.sqrt(2. * np.log(2))
-            self.md_params['height'] = ufloat(self.peak_height, np.NAN)
+
+            self.md_params['center'] = ufloat(_cx, np.NAN)
+
+            # this amplitude-height relationship is only correct at fraction = 0
+            self.md_params['height'] = ufloat(np.abs(_cy - self.bckg_height), np.NAN)
+            self.md_params['amplitude'] = self.md_params['height'] * self.md_params['sigma'] * \
+                                          (np.sqrt(2. * np.pi) / np.sqrt(2. * np.log(2)))
+
             self.md_params['fraction'] = ufloat(0., np.NAN)
+
             self.md_params['base'] = ufloat(3., np.NAN)
             self.md_params['overlap_base'] = ufloat(1e-2, np.NAN)
             self.md_params['rwp'] = ufloat(np.NAN, np.NAN)
             self.md_params['chi2'] = ufloat(np.NAN, np.NAN)
 
             self.md_p_bounds['width'] = (0., np.inf)
-            # self.md_p_bounds['sigma'] = (0.9 * self.md_params['sigma'].n, 1.1 * self.md_params['sigma'].n)
-            self.md_p_bounds['sigma'] = (1e-4, 1.0)
+            self.md_p_bounds['sigma'] = (0.1 * self.md_params['sigma'].n, 2. * self.md_params['sigma'].n)
+
             self.md_p_bounds['center'] = (self.md_params['center'].n - .5 * self.md_params['width'].n,
                                           self.md_params['center'].n + .5 * self.md_params['width'].n)
+
             self.md_p_bounds['amplitude'] = (0., 1e7)
             self.md_p_bounds['height'] = (0., np.inf)
+
             self.md_p_bounds['fraction'] = (0., 1.)
+
             self.md_p_bounds['base'] = (0., np.inf)
             self.md_p_bounds['overlap_base'] = (0., np.inf)
             self.md_p_bounds['rwp'] = (0., np.inf)
@@ -72,22 +74,37 @@ class PeakData:
             self.md_p_refine['amplitude'] = True
             self.md_p_refine['fraction'] = True
 
-    def upd_nref_params(self):
+    def upd_nref_params(self, lr_bh=None):
+        """
+        Update values of the parameters that are not refined
+        :return:
+        """
         if self.md_name == 'PseudoVoigt':
             self.md_params['width'] = self.md_params['sigma'] * (2. * np.sqrt(2. * np.log(2)))
-            self.md_params['height'] = self.md_params['amplitude'] / (
-                        np.sqrt(2. * np.pi) * self.md_params['sigma'] / np.sqrt(2. * np.log(2)))
+            self.md_params['height'] = (((1 - self.md_params['fraction']) * self.md_params['amplitude']) / (
+            (self.md_params['sigma'] * np.sqrt(np.pi / np.log(2.)))) + (
+                                                    self.md_params['fraction'] * self.md_params['amplitude']) / (
+                                        (np.pi * self.md_params['sigma'])))
 
             self.md_p_bounds['width'] = (
                 self.md_p_bounds['sigma'][0] * (2. * np.sqrt(2. * np.log(2))),
                 self.md_p_bounds['sigma'][1] * (2. * np.sqrt(2. * np.log(2)))
             )
-            self.md_p_bounds['height'] = (self.md_p_bounds['amplitude'][0] / (
-                    np.sqrt(2. * np.pi) * self.md_params['sigma'].n / np.sqrt(2. * np.log(2))),
-                                          self.md_p_bounds['amplitude'][1] / (
-                                                  np.sqrt(2. * np.pi) * self.md_params['sigma'].n / np.sqrt(
-                                              2. * np.log(2)))
-                                          )
+
+            self.md_p_bounds['height'] = (
+                (((1 - self.md_params['fraction'].n) * self.md_p_bounds['amplitude'][0]) / (
+                    (self.md_params['sigma'].n * np.sqrt(np.pi / np.log(2.)))) + (
+                         self.md_params['fraction'].n * self.md_p_bounds['amplitude'][0]) / (
+                     (np.pi * self.md_params['sigma'].n))),
+                (((1 - self.md_params['fraction'].n) * self.md_p_bounds['amplitude'][1]) / (
+                    (self.md_params['sigma'].n * np.sqrt(np.pi / np.log(2.)))) + (
+                         self.md_params['fraction'].n * self.md_p_bounds['amplitude'][1]) / (
+                     (np.pi * self.md_params['sigma'].n)))
+            )
+
+            if lr_bh is not None:
+                self._l_bh = lr_bh[0]
+                self._l_bh = lr_bh[1]
 
     def md_param_keys(self):
         ref = tuple(k for k in self.md_params if k in self.md_p_refine)
@@ -95,25 +112,30 @@ class PeakData:
         return ref + n_ref
 
     def __copy__(self):
-        return PeakData(self._idx, self._cx, self._cy,
-                        self._l_ip, self._r_ip,
-                        self._l_b, self._r_b, self._l_bh, self._r_bh)
+        return PeakData(self._idx, self.cx, self.cy,
+                        self.l_ip, self.r_ip,
+                        self.l_b, self.r_b, self._l_bh, self._r_bh)
 
     @property
     def cx(self):
-        return self._cx
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['center'].n
+        else:
+            raise NotImplementedError('Property cx is not implemented for peak model %s' % self.md_name)
 
     @cx.setter
     def cx(self, val):
-        self._cx = val
+        if self.md_name == 'PseudoVoigt':
+            self.md_params['center'] = ufloat(val, np.nan)
+        else:
+            raise NotImplementedError('Property cx.setter is not implemented for peak model %s' % self.md_name)
 
     @property
     def cy(self):
-        return self._cy
-
-    @cy.setter
-    def cy(self, val):
-        self._cy = val
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['height'].n + np.mean([self._l_bh, self._l_bh])
+        else:
+            raise NotImplementedError('Property cy is not implemented for peak model %s' % self.md_name)
 
     @property
     def idx(self):
@@ -128,20 +150,11 @@ class PeakData:
         return np.mean([self._l_bh, self._r_bh])
 
     @property
-    def peak_height(self):
-        return np.abs(self.cy - self.bckg_height)
-
-    @property
-    def peak_width(self):
-        return self._r_ip - self._l_ip
-
-    @property
     def l_b(self):
-        return self._l_b
-
-    @l_b.setter
-    def l_b(self, val):
-        self._l_b = val
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['center'].n - self.md_params['sigma'].n * self.md_params['base'].n
+        else:
+            raise NotImplementedError('Property cy is not implemented for peak model %s' % self.md_name)
 
     @property
     def l_bh(self):
@@ -153,11 +166,10 @@ class PeakData:
 
     @property
     def r_b(self):
-        return self._r_b
-
-    @r_b.setter
-    def r_b(self, val):
-        self._r_b = val
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['center'].n + self.md_params['sigma'].n * self.md_params['base'].n
+        else:
+            raise NotImplementedError('Property cy is not implemented for peak model %s' % self.md_name)
 
     @property
     def r_bh(self):
@@ -169,19 +181,17 @@ class PeakData:
 
     @property
     def l_ip(self):
-        return self._l_ip
-
-    @l_ip.setter
-    def l_ip(self, val):
-        self._l_ip = val
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['center'].n - 0.5 * self.md_params['width'].n
+        else:
+            raise NotImplementedError('Property cy is not implemented for peak model %s' % self.md_name)
 
     @property
     def r_ip(self):
-        return self._r_ip
-
-    @r_ip.setter
-    def r_ip(self, val):
-        self._r_ip = val
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['center'].n + 0.5 * self.md_params['width'].n
+        else:
+            raise NotImplementedError('Property cy is not implemented for peak model %s' % self.md_name)
 
     @property
     def track(self):
@@ -298,10 +308,6 @@ class PeakDataTrack:
     def shift_xs(self, by=0.):
         for peak in self._peaks:
             peak.cx += by
-            peak.l_b += by
-            peak.r_b += by
-            peak.l_ip += by
-            peak.r_ip += by
 
     def compress_energies(self, new_range):
         avg_e = np.mean(self.cxs)
@@ -320,7 +326,3 @@ class PeakDataTrack:
                 shift = 0.
 
             peak.cx += shift
-            peak.l_b += shift
-            peak.r_b += shift
-            peak.l_ip += shift
-            peak.r_ip += shift

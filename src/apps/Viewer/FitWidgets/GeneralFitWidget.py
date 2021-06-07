@@ -194,17 +194,18 @@ class GeneralFitWidget(QWidget):
             return
 
         def expand_result(row):
-            if row['GeneralFitResult'] is None:
-                return row.drop(labels=['GeneralFitResult'])
-            else:
-                row['chi2'] = row['GeneralFitResult'].chisqr
-                for p in row['GeneralFitResult'].params:
-                    if any(map(lambda x: x in p, ('center', 'height', 'amplitude', 'sigma', 'fwhm', 'fraction',
-                                                  'rwp2', 'chi2'))):
-                        row[p] = row['GeneralFitResult'].params[p].value
-                    if any(map(lambda x: x in p, ('center', 'height', 'amplitude', 'sigma', 'fwhm', 'fraction'))):
-                        row[p + '_std'] = row['GeneralFitResult'].params[p].stderr
-                return row.drop(labels=['GeneralFitResult'])
+            return row
+            # if row['GeneralFitResult'] is None:
+            #     return row.drop(labels=['GeneralFitResult'])
+            # else:
+            #     row['chi2'] = row['GeneralFitResult'].chisqr
+            #     for p in row['GeneralFitResult'].params:
+            #         if any(map(lambda x: x in p, ('center', 'height', 'amplitude', 'sigma', 'fwhm', 'fraction',
+            #                                       'rwp2', 'chi2'))):
+            #             row[p] = row['GeneralFitResult'].params[p].value
+            #         if any(map(lambda x: x in p, ('center', 'height', 'amplitude', 'sigma', 'fwhm', 'fraction'))):
+            #             row[p + '_std'] = row['GeneralFitResult'].params[p].stderr
+            #     return row.drop(labels=['GeneralFitResult'])
 
         def expand_motors(row):
             if row['Motors'] is None:
@@ -234,7 +235,6 @@ class GeneralFitWidget(QWidget):
 
         result = pd.DataFrame()
         result = result.append(self.q_app.data.loc[self.q_app.data['Active'], ['ScreenName', 'DeadTime',
-                                                                               'GeneralFitResult',
                                                                                'Motors']])
         result = result.apply(expand_result, axis=1)
         result = result.apply(expand_motors, axis=1)
