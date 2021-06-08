@@ -144,11 +144,113 @@ class PeakData:
             raise NotImplementedError('Property cx.setter is not implemented for peak model %s' % self.md_name)
 
     @property
+    def cx_bounds(self):
+        if self.md_name == 'PseudoVoigt':
+            return self.md_p_bounds['center']
+        else:
+            raise NotImplementedError('Property cx is not implemented for peak model %s' % self.md_name)
+
+    @cx_bounds.setter
+    def cx_bounds(self, val):
+        if self.md_name == 'PseudoVoigt':
+            self.md_p_bounds['center'] = val
+        else:
+            raise NotImplementedError('Property cx is not implemented for peak model %s' % self.md_name)
+
+    @property
     def cy(self):
         if self.md_name == 'PseudoVoigt':
             return self.md_params['height'].n + np.mean([self._l_bh, self._l_bh])
         else:
             raise NotImplementedError('Property cy is not implemented for peak model %s' % self.md_name)
+
+    @property
+    def amplitude(self):
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['amplitude'].n
+        else:
+            raise NotImplementedError('Property amplitude is not implemented for peak model %s' % self.md_name)
+
+    @amplitude.setter
+    def amplitude(self, val):
+        if self.md_name == 'PseudoVoigt':
+            self.md_params['amplitude'] = ufloat(val, np.nan)
+            self.upd_nref_params()
+        else:
+            raise NotImplementedError('Property amplitude.setter is not implemented for peak model %s' % self.md_name)
+
+    @property
+    def amplitude_bounds(self):
+        if self.md_name == 'PseudoVoigt':
+            return self.md_p_bounds['amplitude']
+        else:
+            raise NotImplementedError('Property amplitude_bounds is not implemented for peak model %s' % self.md_name)
+
+    @amplitude_bounds.setter
+    def amplitude_bounds(self, val):
+        if self.md_name == 'PseudoVoigt':
+            self.md_p_bounds['amplitude'] = val
+            self.upd_nref_params()
+        else:
+            raise NotImplementedError('Property amplitude_bounds is not implemented for peak model %s' % self.md_name)
+
+    @property
+    def sigma(self):
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['sigma'].n
+        else:
+            raise NotImplementedError('Property sigma is not implemented for peak model %s' % self.md_name)
+
+    @sigma.setter
+    def sigma(self, val):
+        if self.md_name == 'PseudoVoigt':
+            self.md_params['sigma'] = ufloat(val, np.nan)
+            self.upd_nref_params()
+        else:
+            raise NotImplementedError('Property sigma.setter is not implemented for peak model %s' % self.md_name)
+
+    @property
+    def sigma_bounds(self):
+        if self.md_name == 'PseudoVoigt':
+            return self.md_p_bounds['sigma']
+        else:
+            raise NotImplementedError('Property sigma_bounds is not implemented for peak model %s' % self.md_name)
+
+    @sigma_bounds.setter
+    def sigma_bounds(self, val):
+        if self.md_name == 'PseudoVoigt':
+            self.md_p_bounds['sigma'] = val
+            self.upd_nref_params()
+        else:
+            raise NotImplementedError('Property sigma_bounds.setter is not implemented for peak model %s' % self.md_name)
+
+    @property
+    def base(self):
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['base'].n
+        else:
+            raise NotImplementedError('Property base is not implemented for peak model %s' % self.md_name)
+
+    @base.setter
+    def base(self, val):
+        if self.md_name == 'PseudoVoigt':
+            self.md_params['base'] = ufloat(val, np.nan)
+        else:
+            raise NotImplementedError('Property base.setter is not implemented for peak model %s' % self.md_name)
+
+    @property
+    def overlap_base(self):
+        if self.md_name == 'PseudoVoigt':
+            return self.md_params['overlap_base'].n
+        else:
+            raise NotImplementedError('Property overlap_base is not implemented for peak model %s' % self.md_name)
+
+    @overlap_base.setter
+    def overlap_base(self, val):
+        if self.md_name == 'PseudoVoigt':
+            self.md_params['overlap_base'] = ufloat(val, np.nan)
+        else:
+            raise NotImplementedError('Property overlap_base.setter is not implemented for peak model %s' % self.md_name)
 
     @property
     def idx(self):
@@ -252,12 +354,36 @@ class PeakDataTrack:
         self._peaks = list(sorted(self._peaks, key=lambda x: x.idx))
 
     @property
-    def series(self):
-        xs, ys = [], []
+    def export_ref_params(self):
+        ids, cs, c_mins, c_maxs, amps, amp_mins, amp_maxs, sigs, sig_mins, sig_maxs, bases, o_bases = \
+            [], [], [], [], [], [], [], [], [], [], [], []
         for peak in self._peaks:
-            xs.append(peak.idx)
-            ys.append(peak.cx)
-        return pd.Series(data=ys, index=xs)
+            ids.append(peak.idx)
+            cs.append(peak.cx)
+            amps.append(peak.amplitude)
+            sigs.append(peak.sigma)
+            bases.append(peak.base)
+            o_bases.append(peak.overlap_base)
+
+            cx_min, cx_max = peak.cx_bounds
+            c_mins.append(cx_min)
+            c_maxs.append(cx_max)
+
+            a_min, a_max = peak.amplitude_bounds
+            amp_mins.append(a_min)
+            amp_maxs.append(a_max)
+
+            s_min, s_max = peak.sigma_bounds
+            sig_mins.append(s_min)
+            sig_maxs.append(s_max)
+
+        return pd.DataFrame(data={
+            'center': cs, 'amplitude': amps, 'sigma': sigs,
+            'base': bases, 'overlap_base': o_bases,
+            'center_min': c_mins, 'center_max': c_maxs,
+            'amplitude_min': amp_mins, 'amplitude_max': amp_maxs,
+            'sigma_min': sig_mins, 'sigma_max': sig_maxs
+        }, index=ids)
 
     @property
     def ids(self):
@@ -294,6 +420,24 @@ class PeakDataTrack:
     @property
     def r_ips(self):
         return [peak.r_ip for peak in self._peaks]
+
+    @property
+    def bases(self):
+        return [peak.base for peak in self._peaks]
+
+    @bases.setter
+    def bases(self, val):
+        for peak in self._peaks:
+            peak.base = val
+
+    @property
+    def overlap_bases(self):
+        return [peak.overlap_base for peak in self._peaks]
+
+    @overlap_bases.setter
+    def overlap_bases(self, val):
+        for peak in self._peaks:
+            peak.overlap_base = val
 
     def __getitem__(self, item):
         for peak in self._peaks:

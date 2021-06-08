@@ -62,7 +62,7 @@ class AutoFindWidget(QWidget):
                                    'for all remaining peaks.')
         self.dist_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=5E-1)
         self.prom_label = QLabel('Prominence')
-        self.prom_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=10.)
+        self.prom_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=1e3)
         self.width_label = QLabel('Width')
         self.width_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=5E-2)
         self.width_label.setToolTip('Required minimal width of peaks. Either a number or None.')
