@@ -339,7 +339,7 @@ def sin2PsiAnalysis(data, maxPsi=None):
 def multiWavelengthAnalysis(data, maxPsi=None):
 	prefixes = list(sorted(
 		set(col.split('_')[0] for col in data.keys() if 'center' in col),
-		key=lambda px: np.mean(data['_'.join((px, 'center'))])))
+		key=lambda px: np.mean(data['_'.join((px, 'depth'))])))
 	phiVals = data['phi']
 	psiVals = data['psi']
 	tauMean = np.zeros(len(prefixes))
@@ -386,8 +386,9 @@ def multiWavelengthAnalysis(data, maxPsi=None):
 		integralWidth[p, 0:len(curMeanIB)] = curMeanIB
 		plotData[str(hklList[p])] = curPlotData
 	# resData: hklList, s1Dec, hs2Dec, tauMean, aStar, aStarErr, stresses, accuracy, mVals???, bVals???
-	resData = {'hklList': hklList, 's1Dec': s1Dec, 'hs2Dec': hs2Dec, 'tauMean': tauMean, 'dStar100': dStarVals,
-		'dStar100Err': dStarErrVals, 'stresses': stresses, 'accuracy': accuracy, 'integralWidth': integralWidth}
+	sort_idx = np.argsort(tauMean)
+	resData = {'hklList': hklList[sort_idx], 's1Dec': s1Dec[sort_idx], 'hs2Dec': hs2Dec[sort_idx], 'tauMean': tauMean[sort_idx], 'dStar100': dStarVals[sort_idx],
+		'dStar100Err': dStarErrVals[sort_idx], 'stresses': stresses[sort_idx], 'accuracy': accuracy[sort_idx], 'integralWidth': integralWidth[sort_idx]}
 	return resData, plotData
 
 
@@ -619,8 +620,9 @@ def multiUniversalPlotAnalysis(data, maxPsi=None, minDistPsiStar=0.15,
 	tauRes = tauRes[np.argsort(tauRes)]
 	resData = {'tauVals': tauRes, 'stresses': stresses, 'accuracy': errVals, 'hklVals': hklRes,
 		'psiVals': psiRes, 'validCount': validCounter}
-	resDataS33 = {'tauMean': tauS33, 'dStar100': aStarVals, 'dStar100Err': aStarErrVals, 's33': s33,
-		'dev_s33': dev_s33, 'hklList': hklList}
+	sort_idx = np.argsort(tauS33)
+	resDataS33 = {'tauMean': tauS33[sort_idx], 'dStar100': aStarVals[sort_idx], 'dStar100Err': aStarErrVals[sort_idx], 's33': s33[sort_idx],
+		'dev_s33': dev_s33[sort_idx], 'hklList': hklList[sort_idx]}
 	return resData, resDataS33
 
 

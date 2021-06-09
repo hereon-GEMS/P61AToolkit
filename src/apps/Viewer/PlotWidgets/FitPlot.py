@@ -61,7 +61,7 @@ class FitPlot(pg.GraphicsLayoutWidget):
         self.logger.debug('on_pt_changed: Handling peakTracksChanged')
         self.redraw_data()
 
-    @log_ex_time
+    @log_ex_time()
     def redraw_data(self):
         self.clear_axes()
         self._line_ax.addLegend()

@@ -263,7 +263,7 @@ class MainPlot3D(GlPlot3D):
     def redraw_fit_centers(self, ys):
         del self._fit_tracks[:]
 
-    @log_ex_time
+    @log_ex_time()
     def redraw_data(self, *args, **kwargs):
         ids = self.q_app.get_active_ids()
         ys = np.linspace(0., 1., len(ids)) + self.lines_origin[1]

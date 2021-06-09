@@ -287,7 +287,7 @@ class P61App(QApplication):
             self.logger.debug('set_hkl_peaks: Emitting hklPeaksChanged')
             self.hklPeaksChanged.emit()
 
-    @log_ex_time
+    @log_ex_time()
     def sort_data(self, **kwargs):
         if kwargs['by'] not in self.data.columns:
             self.data['_tmp'] = self.data['Motors'].apply(

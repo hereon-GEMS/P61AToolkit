@@ -116,7 +116,7 @@ class IntervalOptimizer:
 
         return self.peak_list
 
-@log_ex_time
+@log_ex_time(logger=logger)
 def fit_peaks(peak_list, bckg_list, xx, yy):
     intervals = get_peak_intervals(peak_list)
 
