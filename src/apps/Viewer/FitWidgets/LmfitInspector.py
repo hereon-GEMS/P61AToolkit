@@ -166,12 +166,12 @@ class LmfitInspectorModel(QAbstractItemModel):
         if index.column() == 0 and data[0] is not None:
             return QAbstractItemModel.flags(self, index) | Qt.ItemIsUserCheckable
         elif index.column() == 1 and isinstance(index.internalPointer().itemData, tuple):
-            if data[1] not in ('width', 'height', 'rwp', 'chi2'):
+            if data[1] not in ('width', 'height', 'rwp2', 'chi2'):
                 return QAbstractItemModel.flags(self, index) | Qt.ItemIsEditable
             else:
                 return QAbstractItemModel.flags(self, index)
         elif index.column() in (3, 4) and isinstance(index.internalPointer().itemData, tuple):
-            if data[1] not in ('width', 'height', 'rwp', 'chi2') and index.parent().row() >= len(self._bckg_list):
+            if data[1] not in ('width', 'height', 'rwp2', 'chi2') and index.parent().row() >= len(self._bckg_list):
                 return QAbstractItemModel.flags(self, index) | Qt.ItemIsEditable
             else:
                 return QAbstractItemModel.flags(self, index)

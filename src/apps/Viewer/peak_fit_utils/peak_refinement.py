@@ -2,14 +2,13 @@ from multiprocessing import Pool, cpu_count
 from scipy.optimize import least_squares
 from uncertainties import ufloat
 import numpy as np
-from matplotlib import pyplot as plt
 import logging
-
-logger = logging.getLogger('peak_fit_utils')
 
 from peak_fit_utils.models import peak_models, background_models
 from peak_fit_utils.metrics import upd_metrics
 from utils import log_ex_time
+
+logger = logging.getLogger('peak_fit_utils')
 
 
 def get_peak_intervals(peak_list):
@@ -117,7 +116,7 @@ class IntervalOptimizer:
 
         return self.peak_list
 
-
+@log_ex_time
 def fit_peaks(peak_list, bckg_list, xx, yy):
     intervals = get_peak_intervals(peak_list)
 

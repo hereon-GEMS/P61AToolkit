@@ -28,7 +28,7 @@ def upd_metrics(peak_list, bckg_list, xx, yy):
             (y_calc_peaks + yy_calc_bckg)[(xx > xmin) & (xx < xmax)]
         )
 
-        peak.md_params['rwp'] = ufloat(mcs['rwp2'], np.NAN)
+        peak.md_params['rwp2'] = ufloat(mcs['rwp2'], np.NAN)
         peak.md_params['chi2'] = ufloat(mcs['chi2'], np.NAN)
 
     if len(bckg_list) == 0:

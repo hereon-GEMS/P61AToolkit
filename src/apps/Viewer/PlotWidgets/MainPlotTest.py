@@ -19,7 +19,6 @@ class MainPlot3DTestWidget(QWidget):
         self.cb_p = QCheckBox('Show peaks')
         self.cb_t = QCheckBox('Show tracks')
         self.cb_hkl = QCheckBox('Show hkl')
-        self.cb_f = QCheckBox('Show fit')
 
         layout = QGridLayout()
         self.setLayout(layout)
@@ -28,15 +27,21 @@ class MainPlot3DTestWidget(QWidget):
         layout.addWidget(self.cb_p,    1, 3, 1, 1)
         layout.addWidget(self.cb_t,    1, 4, 1, 1)
         layout.addWidget(self.cb_hkl,  1, 5, 1, 1)
-        layout.addWidget(self.cb_f,    1, 6, 1, 1)
-        layout.addWidget(self.p3d,     2, 1, 1, 6)
+        layout.addWidget(self.p3d,     2, 1, 1, 5)
 
         self.cb_surf.clicked.connect(self.on_surf_click)
         self.cb_col.clicked.connect(self.on_col_click)
         self.cb_p.clicked.connect(self.on_p_click)
         self.cb_t.clicked.connect(self.on_t_click)
         self.cb_hkl.clicked.connect(self.on_hkl_click)
-        self.cb_f.clicked.connect(self.on_f_click)
+
+        self.cb_surf.setChecked(True)
+        self.cb_p.setChecked(True)
+        self.cb_t.setChecked(True)
+
+        self.on_surf_click()
+        self.on_p_click()
+        self.on_t_click()
 
     def on_surf_click(self):
         if self.cb_surf.isChecked():
@@ -68,12 +73,6 @@ class MainPlot3DTestWidget(QWidget):
         else:
             self.p3d.plot.show_known_regions = False
 
-    def on_f_click(self):
-        if self.cb_f.isChecked():
-            self.p3d.plot.show_fit_centers = True
-        else:
-            self.p3d.plot.show_fit_centers = False
-
 
 class MainPlot2DTestWidget(QWidget):
     def __init__(self, parent=None):
@@ -85,20 +84,23 @@ class MainPlot2DTestWidget(QWidget):
         self.cb_p = QCheckBox('Show peaks')
         self.cb_t = QCheckBox('Show tracks')
         self.cb_hkl = QCheckBox('Show hkl')
-        self.cb_f = QCheckBox('Show fit')
 
         layout = QGridLayout()
         self.setLayout(layout)
         layout.addWidget(self.cb_p, 1, 1, 1, 1)
         layout.addWidget(self.cb_t, 1, 2, 1, 1)
         layout.addWidget(self.cb_hkl, 1, 3, 1, 1)
-        layout.addWidget(self.cb_f, 1, 4, 1, 1)
-        layout.addWidget(self.p2d, 2, 1, 1, 4)
+        layout.addWidget(self.p2d, 2, 1, 1, 3)
 
         self.cb_p.clicked.connect(self.on_p_click)
         self.cb_t.clicked.connect(self.on_t_click)
         self.cb_hkl.clicked.connect(self.on_hkl_click)
-        self.cb_f.clicked.connect(self.on_f_click)
+
+        self.cb_p.setChecked(True)
+        self.cb_t.setChecked(True)
+
+        self.on_p_click()
+        self.on_t_click()
 
     def on_p_click(self):
         if self.cb_p.isChecked():
@@ -117,9 +119,3 @@ class MainPlot2DTestWidget(QWidget):
             self.p2d.show_known_regions = True
         else:
             self.p2d.show_known_regions = False
-
-    def on_f_click(self):
-        if self.cb_f.isChecked():
-            self.p2d.show_fit_centers = True
-        else:
-            self.p2d.show_fit_centers = False

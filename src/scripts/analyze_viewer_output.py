@@ -16,7 +16,8 @@ if __name__ == '__main__':
     density = 7.874  # g/cm3
 
     peaks_paths = [
-        r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\stress_1-4.csv',
+        # r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\stress_1-4.csv',
+        r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\test.csv'
     ]
     abs_path = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\src\apps\Viewer\cryst_utils\NIST_abs\Fe.csv'
     dec_path = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\dec\bccFe.csv'

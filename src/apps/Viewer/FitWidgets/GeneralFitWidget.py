@@ -198,17 +198,6 @@ class GeneralFitWidget(QWidget):
                                                     for (k, val) in track[row.name].export_ref_params().items()}))
                         row.name = name
                 return row.drop(labels=['PeakDataList'])
-            # if row['GeneralFitResult'] is None:
-            #     return row.drop(labels=['GeneralFitResult'])
-            # else:
-            #     row['chi2'] = row['GeneralFitResult'].chisqr
-            #     for p in row['GeneralFitResult'].params:
-            #         if any(map(lambda x: x in p, ('center', 'height', 'amplitude', 'sigma', 'fwhm', 'fraction',
-            #                                       'rwp2', 'chi2'))):
-            #             row[p] = row['GeneralFitResult'].params[p].value
-            #         if any(map(lambda x: x in p, ('center', 'height', 'amplitude', 'sigma', 'fwhm', 'fraction'))):
-            #             row[p + '_std'] = row['GeneralFitResult'].params[p].stderr
-            #     return row.drop(labels=['GeneralFitResult'])
 
         def expand_motors(row):
             if row['Motors'] is None:
@@ -244,6 +233,7 @@ class GeneralFitWidget(QWidget):
         result = add_phase_data(result)
 
         columns = list(sorted(result.columns))
+        print(columns)
         columns.remove('ScreenName')
         result = result[['ScreenName'] + columns]
 

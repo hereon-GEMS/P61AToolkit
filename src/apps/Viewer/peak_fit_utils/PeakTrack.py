@@ -50,7 +50,7 @@ class PeakData:
 
             self.md_params['base'] = ufloat(3., np.NAN)
             self.md_params['overlap_base'] = ufloat(1e-2, np.NAN)
-            self.md_params['rwp'] = ufloat(np.NAN, np.NAN)
+            self.md_params['rwp2'] = ufloat(np.NAN, np.NAN)
             self.md_params['chi2'] = ufloat(np.NAN, np.NAN)
 
             self.md_p_bounds['width'] = (0., np.inf)
@@ -66,7 +66,7 @@ class PeakData:
 
             self.md_p_bounds['base'] = (0., np.inf)
             self.md_p_bounds['overlap_base'] = (0., np.inf)
-            self.md_p_bounds['rwp'] = (0., np.inf)
+            self.md_p_bounds['rwp2'] = (0., np.inf)
             self.md_p_bounds['chi2'] = (0., np.inf)
 
             self.md_p_refine['sigma'] = True
