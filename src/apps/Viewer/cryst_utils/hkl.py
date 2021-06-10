@@ -14,7 +14,7 @@ def a_vals2lattice_dists(a_val, h, k, l):
     return a_val / (h ** 2 + k ** 2 + l ** 2) ** 0.5
 
 
-def hkl_generator2(phase, lat_a, lat_b, lat_c, tth, energy_range=None, unique=True):
+def hkl_generator2(phase, lat_a, lat_b, lat_c, tth, energy_range=None, unique=False):
     """
     provided by Guilherme and adapted
 

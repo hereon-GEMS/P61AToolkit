@@ -227,13 +227,12 @@ class GeneralFitWidget(QWidget):
 
         result = pd.DataFrame()
         result = result.append(self.q_app.data.loc[self.q_app.data['Active'],
-                                                   ['ScreenName', 'DeadTime', 'PeakDataList', 'Motors', 'Chi2']])
+                                                   ['ScreenName', 'Channel', 'DeadTime', 'PeakDataList', 'Motors', 'Chi2']])
         result = result.apply(expand_peaks, axis=1)
         result = result.apply(expand_motors, axis=1)
         result = add_phase_data(result)
 
         columns = list(sorted(result.columns))
-        print(columns)
         columns.remove('ScreenName')
         result = result[['ScreenName'] + columns]
 

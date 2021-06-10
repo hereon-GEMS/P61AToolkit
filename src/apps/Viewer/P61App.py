@@ -104,7 +104,7 @@ class P61App(QApplication):
         self.data = pd.DataFrame(columns=('DataX', 'DataY', 'DeadTime', 'Channel', 'DataID', 'ScreenName', 'Active',
                                           'Color', 'PeakDataList', 'BckgDataList', 'Chi2', 'Motors'))
         self.data_model = DataSetStorageModel(instance=self)
-        self.motors_cols = ('eu.chi', 'eu.phi', 'eu.eta', 'eu.x', 'eu.y', 'eu.z')
+        self.motors_cols = ('eu.chi', 'eu.phi', 'eu.beta', 'eu.alpha', 'eu.x', 'eu.y', 'eu.z')
         self.motors_all = set(self.motors_cols)
 
         self.peak_search_range = None

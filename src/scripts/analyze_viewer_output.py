@@ -3,6 +3,8 @@ import numpy as np
 from itertools import permutations
 from functools import reduce
 
+from PyQt5.QtWidgets import QFileDialog
+
 from libraries.stress.separated import multiWavelengthAnalysis as multiWavelengthAnalysis2, \
     multiUniversalPlotAnalysis as multiUniversalPlotAnalysis2,\
     plotMultiWavelength, plotStrainFreeLatticeSpacing, plotStresses, plotUniversalPlot
@@ -16,35 +18,15 @@ if __name__ == '__main__':
     density = 7.874  # g/cm3
 
     peaks_paths = [
-        # r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\stress_1-4.csv',
         r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\test.csv'
     ]
+
     abs_path = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\src\apps\Viewer\cryst_utils\NIST_abs\Fe.csv'
     dec_path = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\dec\bccFe.csv'
 
     # reading all data
     dd = reduce(lambda a, b: pd.concat((a, b), axis=0, ignore_index=True),
                 (pd.read_csv(pp, index_col=0) for pp in peaks_paths))
-
-    # paths1 = [
-    #     r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\src\scripts\Scan1_CD_P61.dat',
-    #     r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\src\scripts\Scan2_CD_P61.dat',
-    #     r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\src\scripts\Scan3_CD_P61.dat',
-    #     r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\src\scripts\Scan4_CD_P61.dat'
-    # ]
-    #
-    # dd = reduce(lambda a, b: pd.concat((a, b), axis=0, ignore_index=True),
-    #              (pd.read_csv(pp, sep='\t', skiprows=1) for pp in paths1))
-    # cols = [col for col in dd.columns if (('_dspac' in col) or('_s1' in col) or ('_hs2' in col) or ('_depth' in col))]
-    # dd = dd.drop(cols, axis=1)
-    # dd = dd.rename(columns={'chi': 'eu.chi', 'phi': 'eu.phi', 'psi': 'eu.psi', 'eta': 'eu.eta',
-    #                         'x': 'eu.x', 'y': 'eu.y', 'z': 'eu.z'})
-    # dd = dd.rename(columns=lambda x: x if '_err' not in x else x.replace('_err', '_std'))
-    # dd['eu.chi'] = np.zeros(dd.shape[0])
-    # prefixes = set(col.split('_')[0] for col in dd.columns if 'center' in col)
-    # for prefix in prefixes:
-    #     if '_'.join((prefix, 'h')) in dd.columns:
-    #         dd['_'.join((prefix, 'phase'))] = ['Unknown'] * dd.shape[0]
 
     absorption = pd.read_csv(abs_path, comment='#')
     dec = pd.read_csv(dec_path, index_col=None, comment='#')
