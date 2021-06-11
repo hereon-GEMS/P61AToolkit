@@ -193,6 +193,8 @@ class TrackEditPopUp(QDialog):
 
         for spectra_idx in spectra_ids:
             peak_list = self.q_app.get_peak_data_list(spectra_idx)
+            if peak_list is None:
+                peak_list = []
             for track_idx in self._track_ids:
                 if spectra_idx not in self._tracks[track_idx].ids:
                     new_peak = self._tracks[track_idx].predict_by_average(spectra_idx,
@@ -206,11 +208,12 @@ class TrackEditPopUp(QDialog):
             # if we're editing multiple tracks (hence c_val will be None), we don't touch track's mean value,
             # only adjust peaks that go outside [min, max] range.
             # if we're editing one track, we can both shift its mean and compress the variance
-            c_val = self.ed_center_v.get_value()
             c_min = min(self.ed_center_mi.get_value(), 0)
             c_max = max(self.ed_center_ma.get_value(), 0)
 
             for track_idx in self._track_ids:
+                c_val = self.ed_center_v.get_value()
+
                 if c_val is not None:
                     c_shift = c_val - np.mean(self._tracks[track_idx].cxs)
                     for spectra_idx in self._tracks[track_idx].ids:
