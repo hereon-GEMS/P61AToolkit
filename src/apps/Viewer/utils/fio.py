@@ -32,13 +32,20 @@ def read_fio(f_name):
             return header, data
 
         data = pd.DataFrame(columns=list(columns.values()))
-        t_row_line = re.compile(r'^' + r'\s+([\d\.+-eE]+)' * len(columns) + r'\n')
+        # t_row_line = re.compile(r'^' + r'\s+([\d\.+-eE]+)' * len(columns) + r'\n')
+        t_row_line = re.compile(r'^' + r'\s+([\w]+)' * len(columns) + r'\n')
+
+        def _float(s):
+            try:
+                return float(s)
+            except ValueError:
+                return None
 
         for line in lines[lines.index('%d\n') + ii + 1:]:
             m = t_row_line.match(line)
             if m is not None:
                 vals = m.groups()
-                row = {columns[i + 1]: float(vals[i]) for i in range(len(columns))}
+                row = {columns[i + 1]: _float(vals[i]) for i in range(len(columns))}
                 data.loc[data.shape[0]] = row
 
     return header, data

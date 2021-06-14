@@ -1,6 +1,7 @@
 import re
 import os
 import pandas as pd
+import numpy as np
 import logging
 from collections import defaultdict
 from PyQt5.QtWidgets import QFileDialog
@@ -47,14 +48,21 @@ class P61AFioReader:
                 return pd.DataFrame(columns=self.q_app.data.columns)
 
             metadata = pd.DataFrame(columns=list(columns.values()) + list(static_motpos.keys()))
-            t_row_line = re.compile(r'^' + r'\s+([\d\.+-eE]+)' * len(columns) + r'\n')
+            # t_row_line = re.compile(r'^' + r'\s+([\d\.+-eE]+)' * len(columns) + r'\n')
+            t_row_line = re.compile(r'^' + r'\s+([\w\.+-]+)' * len(columns) + r'\n')
+
+            def _float(s):
+                try:
+                    return float(s)
+                except ValueError:
+                    return np.nan
 
             for line in lines[lines.index('%d\n') + ii + 1:]:
                 m = t_row_line.match(line)
                 if m is not None:
                     vals = m.groups()
                     row = static_motpos.copy()
-                    row.update({columns[i + 1]: float(vals[i]) for i in range(len(columns))})
+                    row.update({columns[i + 1]: _float(vals[i]) for i in range(len(columns))})
                     metadata.loc[metadata.shape[0]] = row
 
             if 'xspress3_index' not in metadata.columns:
@@ -100,22 +108,13 @@ class P61AFioReader:
                 self.logger.error(
                     'read: Found no matches in %s for xspress3_index %s' % (dd, str(f_ids)))
 
-            # reader = P61ANexusReader()
-            # opened = pd.DataFrame(columns=self.q_app.data.columns)
-            # for idx, row in metadata.iterrows():
-            #     try:
-            #         data = reader.read(fs_to_open[int(row['xspress3_index'])])
-            #         md = defaultdict(lambda: None)
-            #         md.update(metadata.loc[idx].to_dict())
-            #         data['Motors'] = [md.copy() for _ in range(data.shape[0])]
-            #         opened = pd.concat((opened, data), ignore_index=True)
-            #         self.logger.info('read: opened %s' % fs_to_open[int(row['xspress3_index'])])
-            #     except Exception as e:
-            #         self.logger.info(str(e))
-
             result = pd.DataFrame(columns=('FNames', 'Motors'))
             for idx, row in metadata.iterrows():
                 md = defaultdict(lambda: None)
-                md.update(metadata.loc[idx].to_dict())
+                md.update(metadata.loc[idx].to_dict().items())
+                ks = set(md.keys())
+                for k in ks:
+                    if np.isnan(md[k]):
+                        md[k] = None
                 result.loc[result.shape[0]] = {'FNames': fs_to_open[int(row['xspress3_index'])], 'Motors': md.copy()}
             return result
