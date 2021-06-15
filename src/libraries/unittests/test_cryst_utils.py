@@ -19,7 +19,3 @@ class TestBragg(TestCase):
             self.assertTrue(np.all(np.isclose(plane['d'], bragg(en=plane['e'], tth=self.tth)['d'], rtol=1e-2)))
             self.assertTrue(np.all(np.isclose(plane['e'], bragg(d=plane['d'], en=plane['e'])['en'], rtol=1e-2)))
             self.assertTrue(np.isclose(self.tth, bragg(d=plane['d'], en=plane['e'])['tth'], rtol=1e-2))
-
-
-if __name__ == '__main__':
-    unittest.main()

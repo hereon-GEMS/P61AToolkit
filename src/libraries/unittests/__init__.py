@@ -1,1 +1,2 @@
-from cryst_utils import TestBragg
+from test_cryst_utils import TestBragg
+from test_beamline_utils import TestM2A
