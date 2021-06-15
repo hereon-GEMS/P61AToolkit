@@ -21,7 +21,7 @@ if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
 from PyQt5.QtWidgets import QMainWindow, QGridLayout, QWidget, QTabWidget, QSystemTrayIcon
 from PyQt5.QtGui import QIcon
 import sys
-from PlotWidgets import MainPlot2DTestWidget, MainPlot3DTestWidget
+from PlotWidgets import MainPlot2DTestWidget, MainPlot3DTestWidget, MainPlotAvgTestWidget
 from DatasetManager import DatasetManager
 from FitWidgets import GeneralFitWidget
 from PeakTrackerWidgets import AutoFindWidget
@@ -68,7 +68,7 @@ class P61Viewer(QMainWindow):
         self.dsm_w = DatasetManager(parent=self.tab1)
 
         self.plot_tabs = QTabWidget(parent=self.tab1)
-        self.plot_2d = MainPlot2DTestWidget(parent=self.plot_tabs)
+        self.plot_2d = MainPlotAvgTestWidget(parent=self.plot_tabs)
         self.plot_3d = MainPlot3DTestWidget(parent=self.plot_tabs)
         self.plot_tabs.addTab(self.plot_2d, '2D')
         self.plot_tabs.addTab(self.plot_3d, '3D')

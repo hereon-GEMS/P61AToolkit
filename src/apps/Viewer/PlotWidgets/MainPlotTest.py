@@ -3,7 +3,7 @@ import logging
 
 
 from P61App import P61App
-from PlotWidgets import MainPlot3D, MainPlot3DWidget, MainPlot2D
+from PlotWidgets import MainPlot3D, MainPlot3DWidget, MainPlot2D, MainPlotAvg
 
 
 class MainPlot3DTestWidget(QWidget):
@@ -81,6 +81,53 @@ class MainPlot2DTestWidget(QWidget):
         self.logger = logging.getLogger(str(self.__class__))
 
         self.p2d = MainPlot2D(parent=self)
+        self.cb_p = QCheckBox('Show peaks')
+        self.cb_t = QCheckBox('Show tracks')
+        self.cb_hkl = QCheckBox('Show hkl')
+
+        layout = QGridLayout()
+        self.setLayout(layout)
+        layout.addWidget(self.cb_p, 1, 1, 1, 1)
+        layout.addWidget(self.cb_t, 1, 2, 1, 1)
+        layout.addWidget(self.cb_hkl, 1, 3, 1, 1)
+        layout.addWidget(self.p2d, 2, 1, 1, 3)
+
+        self.cb_p.clicked.connect(self.on_p_click)
+        self.cb_t.clicked.connect(self.on_t_click)
+        self.cb_hkl.clicked.connect(self.on_hkl_click)
+
+        self.cb_p.setChecked(True)
+        self.cb_t.setChecked(True)
+
+        self.on_p_click()
+        self.on_t_click()
+
+    def on_p_click(self):
+        if self.cb_p.isChecked():
+            self.p2d.show_pt_points = True
+        else:
+            self.p2d.show_pt_points = False
+
+    def on_t_click(self):
+        if self.cb_t.isChecked():
+            self.p2d.show_pt_tracks = True
+        else:
+            self.p2d.show_pt_tracks = False
+
+    def on_hkl_click(self):
+        if self.cb_hkl.isChecked():
+            self.p2d.show_known_regions = True
+        else:
+            self.p2d.show_known_regions = False
+
+
+class MainPlotAvgTestWidget(QWidget):
+    def __init__(self, parent=None):
+        QWidget.__init__(self, parent=parent)
+        self.q_app = P61App.instance()
+        self.logger = logging.getLogger(str(self.__class__))
+
+        self.p2d = MainPlotAvg(parent=self)
         self.cb_p = QCheckBox('Show peaks')
         self.cb_t = QCheckBox('Show tracks')
         self.cb_hkl = QCheckBox('Show hkl')

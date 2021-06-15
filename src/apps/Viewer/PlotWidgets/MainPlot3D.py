@@ -179,8 +179,6 @@ class MainPlot3D(GlPlot3D):
                 surf_zz.append(pos[:, 2].copy())
                 surf_yy.append(np.array([ymap[idx]] * surf_zz[-1].shape[0]))
             surf_xx, surf_yy, surf_zz = np.concatenate(surf_xx), np.concatenate(surf_yy), np.concatenate(surf_zz)
-            # surf_xx, surf_yy, surf_zz = np.array(surf_xx), np.array(surf_yy), np.array(surf_zz)
-            # surf_xx, surf_yy, surf_zz = surf_xx.flatten(), surf_yy.flatten(), surf_zz.flatten()
 
             surf_data = np.array([surf_xx, surf_yy]).T
             grid_xx = np.linspace(np.min(surf_xx), np.max(surf_xx), 4096)
