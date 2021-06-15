@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QAbstractItemView, QGridLayout, QPushButton, QLabel, QComboBox, QProgressDialog, \
-    QCheckBox
+from PyQt5.QtWidgets import QDialog, QGridLayout, QPushButton, QLabel, QComboBox, QProgressDialog, QCheckBox
 from PyQt5.Qt import Qt
 import copy
 import logging
@@ -69,12 +68,41 @@ class SeqFitPopUp(QDialog):
             return
 
         fit_ids = self.selection_list.get_selected()
+        start_idx = self.q_app.get_selected_idx()
         fit_type = self.combo.currentIndex()
 
         if fit_type == 1:
-            raise NotImplementedError('Fit type 1 not supported')
-            # self.q_app.data.loc[fit_ids, 'GeneralFitResult'] = [self.q_app.get_general_result(
-            #     self.q_app.get_selected_idx())] * len(fit_ids)
+            # initiating all fit models from current
+            raise NotImplementedError('Init all from current is not supported')
+            # copying background
+            bckg_list = self.q_app.get_bckg_data_list(start_idx)
+            for idx in fit_ids:
+                self.q_app.set_bckg_data_list(idx, copy.deepcopy(bckg_list), emit=False)
+            self.q_app.bckgListChanged.emit(fit_ids)
+
+            # copying peaks
+            tracks = self.q_app.get_pd_tracks()
+            for fit_idx in fit_ids:
+                peak_list = self.q_app.get_peak_data_list(fit_idx)
+                for track in tracks:
+                    if fit_idx in track.ids and start_idx in track.ids:
+                        track[fit_idx].cx = track[start_idx].cx
+                        track[fit_idx].cx_bounds = track[start_idx].cx_bounds
+                        track[fit_idx].amplitude = track[start_idx].amplitude
+                        track[fit_idx].amplitude_bounds = track[start_idx].amplitude_bounds
+                        track[fit_idx].sigma = track[start_idx].sigma
+                        track[fit_idx].sigma_bounds = track[start_idx].sigma_bounds
+                        track[fit_idx].base = track[start_idx].base
+                        track[fit_idx].overlap_base = track[start_idx].overlap_base
+                    elif fit_idx in track.ids:
+                        pass
+                    elif start_idx in track.ids:
+                        pass
+                    else:
+                        pass
+
+            self.q_app.peakListChanged.emit(fit_ids)
+            self.q_app.peakTracksChanged.emit()
 
         if self.q_app.get_selected_idx() in fit_ids:
             fit_ids.remove(self.q_app.get_selected_idx())
@@ -107,7 +135,7 @@ class SeqFitPopUp(QDialog):
             return
 
         if self.combo.currentIndex() == 2:
-            raise NotImplementedError('Fit type 2 not supported')
+            raise NotImplementedError('Sequential from current is not supported')
             # self.q_app.data.loc[idx, 'GeneralFitResult'] = \
             #     copy.deepcopy(self.q_app.data.loc[prev_idx, 'GeneralFitResult'])
 
