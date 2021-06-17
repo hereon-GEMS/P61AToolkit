@@ -9,8 +9,11 @@ import pandas as pd
 import numpy as np
 import os
 import logging
+import json
+from collections import defaultdict
 from utils import log_ex_time
 from DataSetStorageModel import DataSetStorageModel
+from peak_fit_utils import PeakData
 
 
 class P61App(QApplication):
@@ -107,10 +110,10 @@ class P61App(QApplication):
         self.motors_cols = ('eu.chi', 'eu.phi', 'eu.bet', 'eu.alp', 'eu.x', 'eu.y', 'eu.z')
         self.motors_all = set(self.motors_cols)
 
-        self.peak_search_range = None
         self.peak_tracks = None
         self.hkl_phases = None
         self.hkl_peaks = None
+        self.proj_f_name = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\test.json'
 
         self.logger = logging.getLogger(str(self.__class__))
         self.thread_pool = QThreadPool(parent=self)
@@ -153,19 +156,15 @@ class P61App(QApplication):
 
     def on_fit_res_changed(self, ids):
         self.logger.debug('on_fit_res_changed: handling genFitResChanged')
-        self._genfit_pc_cache = None
 
     def on_data_rows_inserted(self):
         self.logger.debug('on_data_rows_inserted: handling dataRowsInserted')
-        self._genfit_pc_cache = None
 
     def on_data_rows_removed(self):
         self.logger.debug('on_data_rows_removed: handling dataRowsRemoved')
-        self._genfit_pc_cache = None
 
     def on_data_ac(self):
         self.logger.debug('on_data_ac: handling dataActiveChanged')
-        self._genfit_pc_cache = None
 
     def insert_rows(self, position, rows):
         d1, d2 = self.data[:position], self.data[position:]
@@ -309,11 +308,77 @@ class P61App(QApplication):
 
         self.data.apply(reindex_peaks, axis=1)
 
-        self._genfit_pc_cache = None
-
         if self.peak_tracks is not None:
             for pt in self.peak_tracks:
                 pt.sort_ids()
 
         self.logger.debug('sort_data: Emitting dataSorted')
         self.dataSorted.emit()
+
+    def save_proj_as(self, f_name=None):
+        if f_name is not None:
+            self.proj_f_name = f_name
+
+        """
+        'DataX', 'DataY', 'DeadTime', 'Channel', 'DataID', 'ScreenName', 'Active',
+        'Color', 'PeakDataList', 'BckgDataList', 'Chi2', 'Motors'
+        """
+        all_data = []
+        for idx in self.data.index:
+            row_data = dict()
+            for k in ('DataX', 'DataY'):
+                row_data[k] = self.data.loc[idx, k].tolist()
+            for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Motors'):
+                row_data[k] = self.data.loc[idx, k]
+
+            row_data['PeakDataList'] = []
+            if self.data.loc[idx, 'PeakDataList'] is not None:
+                for peak in self.data.loc[idx, 'PeakDataList']:
+                    row_data['PeakDataList'].append(peak.to_dict())
+
+            all_data.append(row_data)
+
+        json.dump(all_data, open(self.proj_f_name, 'w'))
+        self.logger.debug('save_proj_as: saved as %s' % str(self.proj_f_name))
+
+    def load_proj_from(self, f_name=None):
+        if f_name is not None:
+            self.proj_f_name = f_name
+
+        rows = list(self.data.index)
+        self.data_model.removeRows(0, len(rows))
+        self.dataRowsRemoved.emit(rows)
+        self.peak_tracks = None
+        self.hkl_phases = None
+        self.hkl_peaks = None
+
+        raw_data = json.load(open(self.proj_f_name, 'r'))
+        pr_data = pd.DataFrame(columns=self.data.columns)
+        self.peak_tracks = dict()
+
+        # process the data
+        for row in raw_data:
+            pr_row = {c: None for c in pr_data.columns}
+            pr_row.update({
+                'DataX': np.array(row['DataX']),
+                'DataY': np.array(row['DataY']),
+                'Motors': defaultdict(lambda arg: None, row['Motors']),
+                'Color': next(self.params['ColorWheel']),
+                'Active': True,
+                'PeakDataList': [PeakData.from_dict(peak) for peak in row['PeakDataList']],
+                **{k: row[k] for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2')}
+            })
+            pr_data.loc[pr_data.shape[0]] = pr_row
+
+        self.data_model.insertRows(0, len(raw_data))
+        self.data[0:len(raw_data)] = pr_data
+        self.data_model.dataChanged.emit(
+            self.data_model.index(0, 0),
+            self.data_model.index(len(raw_data), self.data_model.columnCount())
+        )
+
+        self.logger.debug('on_tw_result: Emitting dataRowsInserted(%d, %d)' % (0, len(raw_data)))
+        self.dataRowsInserted.emit(0, len(raw_data))
+
+        self.peak_tracks = list(self.peak_tracks.values())
+        self.peakTracksChanged.emit()

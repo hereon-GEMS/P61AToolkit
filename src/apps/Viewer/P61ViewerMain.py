@@ -18,7 +18,7 @@ if hasattr(Qt, 'AA_EnableHighDpiScaling'):
 if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
     QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
-from PyQt5.QtWidgets import QMainWindow, QGridLayout, QWidget, QTabWidget, QSystemTrayIcon
+from PyQt5.QtWidgets import QMainWindow, QGridLayout, QWidget, QTabWidget, QSystemTrayIcon, QMenu, QAction
 from PyQt5.QtGui import QIcon
 import sys
 from PlotWidgets import MainPlot2DTestWidget, MainPlot3DTestWidget, MainPlotAvgTestWidget
@@ -53,6 +53,7 @@ class P61Viewer(QMainWindow):
         :param parent:
         """
         QMainWindow.__init__(self, parent=parent)
+        self.q_app = P61App.instance()
         self.logger = logging.getLogger(str(self.__class__))
 
         # initiate self
@@ -73,9 +74,25 @@ class P61Viewer(QMainWindow):
         self.plot_tabs.addTab(self.plot_2d, '2D')
         self.plot_tabs.addTab(self.plot_3d, '3D')
 
+        # 2nd tab
         self.peak_af = AutoFindWidget(parent=self.tab1)
         self.peak_tl = PeakTrackList(parent=self.tab1)
         self.phase_ed = PhaseConstructor(parent=self.tab1)
+
+        # menu
+        mb = self.menuBar()
+        fileMenu = QMenu("&File", self)
+        helpMenu = QMenu("&Help", self)
+        self._act_open = QAction('Open', self)
+        self._act_save = QAction('Save', self)
+        self._act_reload = QAction('Reload', self)
+        self._act_save_as = QAction('Save as', self)
+        self._act_export = QAction('Export spectra', self)
+        self._act_tutorial = QAction('Tutorial', self)
+        fileMenu.addActions([self._act_open, self._act_reload, self._act_save, self._act_save_as, self._act_export])
+        helpMenu.addActions([self._act_tutorial])
+        mb.addMenu(fileMenu)
+        mb.addMenu(helpMenu)
 
         tab1_layout = QGridLayout()
         tab1_layout.addWidget(self.peak_af, 1, 1, 1, 1)
@@ -97,6 +114,20 @@ class P61Viewer(QMainWindow):
         self.cw.addTab(self.fit_w, 'Peak fit')
 
         self.logger.debug('Initialization complete')
+
+        self._act_save.triggered.connect(self.on_act_save)
+        self._act_save_as.triggered.connect(self.on_act_save_as)
+        self._act_reload.triggered.connect(self.on_act_reload)
+
+    def on_act_save(self):
+        self.q_app.save_proj_as(f_name=None)
+
+    def on_act_save_as(self):
+        # TODO: request file name
+        self.q_app.save_proj_as(f_name=None)
+
+    def on_act_reload(self):
+        self.q_app.load_proj_from(f_name=None)
 
 
 if __name__ == '__main__':

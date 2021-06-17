@@ -145,10 +145,6 @@ class AutoFindWidget(QWidget):
             yy = self.q_app.data.loc[idx, 'DataY']
             xx = self.q_app.data.loc[idx, 'DataX']
 
-            if self.q_app.peak_search_range is not None:
-                yy = yy[(xx < self.q_app.peak_search_range[1]) & (xx > self.q_app.peak_search_range[0])]
-                xx = xx[(xx < self.q_app.peak_search_range[1]) & (xx > self.q_app.peak_search_range[0])]
-
             if params['distance'] is not None:
                 params['distance'] /= np.abs(np.max(xx) - np.min(xx)) / xx.shape[0]
                 params['distance'] = params['distance'] if params['distance'] >= 1. else 1.

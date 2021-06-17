@@ -124,6 +124,29 @@ class PeakData:
 
         return result
 
+    def to_dict(self):
+        result = dict()
+
+        result['bh'] = (self._l_bh, self._r_bh)
+        result['track'] = self._track.get_track_idx() if self._track is not None else None
+        result['idx'] = self._idx
+        result['md_name'] = self.md_name
+        result['md_prefix'] = self.md_prefix
+        result['md_params'] = {k: (self.md_params[k].n, self.md_params[k].s) for k in self.md_params.keys()}
+        result['md_p_bounds'] = self.md_p_bounds
+        result['md_p_refine'] = self.md_p_refine
+        return result
+
+    @classmethod
+    def from_dict(cls, data):
+        result = cls(idx=data['idx'], cx=0, cy=0, l_ip=0, r_ip=0, l_b=0, r_b=0, l_bh=0, r_bh=0, model=data['md_name'])
+        result.md_prefix = data['md_prefix']
+        result.md_params = {k: ufloat(*data['md_params'][k]) for k in data['md_params'].keys()}
+        result.md_p_bounds = data['md_p_bounds']
+        result.md_p_refine = data['md_p_refine']
+        print(data['track'])
+        return result
+
     def __copy__(self):
         return PeakData(self._idx, self.cx, self.cy,
                         self.l_ip, self.r_ip,
@@ -323,9 +346,16 @@ class PeakDataTrack:
     """
     Stores peaks that are in the same position across all spectra
     """
+    track_idx = 0
+
     def __init__(self, pd: PeakData):
         self._peaks = []
         self.append(pd)
+        self._idx = PeakDataTrack.track_idx
+        PeakDataTrack.track_idx += 1
+
+    def get_track_idx(self):
+        return self._idx
 
     def __copy__(self):
         peaks = [copy.copy(peak) for peak in self._peaks]
