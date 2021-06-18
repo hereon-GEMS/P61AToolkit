@@ -144,7 +144,7 @@ class PeakData:
         result.md_params = {k: ufloat(*data['md_params'][k]) for k in data['md_params'].keys()}
         result.md_p_bounds = data['md_p_bounds']
         result.md_p_refine = data['md_p_refine']
-        print(data['track'])
+        result.track_id = data['track']
         return result
 
     def __copy__(self):
@@ -337,8 +337,8 @@ class PeakData:
 
     @track.setter
     def track(self, val):
-        if not isinstance(val, (type(None), PeakDataTrack)):
-            raise ValueError('Track should be PeakDataTrack or None')
+        # if not isinstance(val, (type(None), PeakDataTrack)):
+        #     raise ValueError('Track should be PeakDataTrack or None')
         self._track = val
 
 

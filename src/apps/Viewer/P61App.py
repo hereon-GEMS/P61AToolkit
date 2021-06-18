@@ -13,7 +13,7 @@ import json
 from collections import defaultdict
 from utils import log_ex_time
 from DataSetStorageModel import DataSetStorageModel
-from peak_fit_utils import PeakData
+from peak_fit_utils import PeakData, PeakDataTrack
 
 
 class P61App(QApplication):
@@ -359,19 +359,31 @@ class P61App(QApplication):
         # process the data
         for row in raw_data:
             pr_row = {c: None for c in pr_data.columns}
+
+            peak_list = [PeakData.from_dict(peak) for peak in row['PeakDataList']]
+            for peak in peak_list:
+                if peak.track_id is not None:
+                    if peak.track_id not in self.peak_tracks:
+                        self.peak_tracks[peak.track_id] = PeakDataTrack(peak)
+                    else:
+                        self.peak_tracks[peak.track_id].append(peak)
+                del peak.track_id
+
             pr_row.update({
                 'DataX': np.array(row['DataX']),
                 'DataY': np.array(row['DataY']),
                 'Motors': defaultdict(lambda arg: None, row['Motors']),
                 'Color': next(self.params['ColorWheel']),
                 'Active': True,
-                'PeakDataList': [PeakData.from_dict(peak) for peak in row['PeakDataList']],
+                'PeakDataList': peak_list,
                 **{k: row[k] for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2')}
             })
             pr_data.loc[pr_data.shape[0]] = pr_row
 
         self.data_model.insertRows(0, len(raw_data))
         self.data[0:len(raw_data)] = pr_data
+        self.peak_tracks = list(sorted(self.peak_tracks.values(), key=lambda x: np.mean(x.cxs)))
+
         self.data_model.dataChanged.emit(
             self.data_model.index(0, 0),
             self.data_model.index(len(raw_data), self.data_model.columnCount())
@@ -379,6 +391,4 @@ class P61App(QApplication):
 
         self.logger.debug('on_tw_result: Emitting dataRowsInserted(%d, %d)' % (0, len(raw_data)))
         self.dataRowsInserted.emit(0, len(raw_data))
-
-        self.peak_tracks = list(self.peak_tracks.values())
         self.peakTracksChanged.emit()
