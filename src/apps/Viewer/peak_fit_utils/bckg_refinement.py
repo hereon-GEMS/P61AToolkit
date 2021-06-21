@@ -4,10 +4,10 @@ from scipy.optimize import least_squares
 
 import logging
 
-logger = logging.getLogger('peak_fit_utils')
-
 from peak_fit_utils.models import peak_models, background_models
 from peak_fit_utils.metrics import upd_metrics
+
+logger = logging.getLogger('peak_fit_utils')
 
 
 class BckgData:
@@ -61,6 +61,26 @@ class BckgData:
         for ii in range(len(new_coefs)):
             self._poly_coefs[ii] = new_coefs[ii]
         self._poly_coefs[len(new_coefs):] = 0.
+
+    def to_dict(self):
+        result = dict()
+        result['md_name'] = self.md_name
+        result['md_params'] = {k: (self.md_params[k].n, self.md_params[k].s) for k in self.md_params.keys()}
+        result['md_p_bounds'] = self.md_p_bounds
+        result['md_p_refine'] = self.md_p_refine
+        if self.md_name == 'Chebyshev':
+            result['poly_coefs'] = self._poly_coefs[:int(self.md_params['degree'].n) + 1].tolist()
+        return result
+
+    @classmethod
+    def from_dict(cls, data):
+        result = cls(model=data['md_name'])
+        result.md_params = {k: ufloat(*data['md_params'][k]) for k in data['md_params'].keys()}
+        result.md_p_bounds = data['md_p_bounds']
+        result.md_p_refine = data['md_p_refine']
+        if result.md_name == 'Chebyshev':
+            result.set_poly_coefs(data['poly_coefs'])
+        return result
 
 
 def fit_bckg(peak_list, bckg_list, xx, yy):

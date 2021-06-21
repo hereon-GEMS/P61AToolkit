@@ -13,7 +13,7 @@ import json
 from collections import defaultdict
 from utils import log_ex_time
 from DataSetStorageModel import DataSetStorageModel
-from peak_fit_utils import PeakData, PeakDataTrack
+from peak_fit_utils import PeakData, PeakDataTrack, BckgData
 
 
 class P61App(QApplication):
@@ -331,10 +331,11 @@ class P61App(QApplication):
             for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Motors'):
                 row_data[k] = self.data.loc[idx, k]
 
-            row_data['PeakDataList'] = []
-            if self.data.loc[idx, 'PeakDataList'] is not None:
-                for peak in self.data.loc[idx, 'PeakDataList']:
-                    row_data['PeakDataList'].append(peak.to_dict())
+            for k in ('PeakDataList', 'BckgDataList'):
+                row_data[k] = []
+                if self.data.loc[idx, k] is not None:
+                    for item in self.data.loc[idx, k]:
+                        row_data[k].append(item.to_dict())
 
             all_data.append(row_data)
 
@@ -372,10 +373,11 @@ class P61App(QApplication):
             pr_row.update({
                 'DataX': np.array(row['DataX']),
                 'DataY': np.array(row['DataY']),
-                'Motors': defaultdict(lambda arg: None, row['Motors']),
+                'Motors': defaultdict(lambda arg: None, row['Motors']) if row['Motors'] is not None else None,
                 'Color': next(self.params['ColorWheel']),
                 'Active': True,
                 'PeakDataList': peak_list,
+                'BckgDataList': [BckgData.from_dict(bckg) for bckg in row['BckgDataList']],
                 **{k: row[k] for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2')}
             })
             pr_data.loc[pr_data.shape[0]] = pr_row
