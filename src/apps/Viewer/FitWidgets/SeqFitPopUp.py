@@ -73,7 +73,7 @@ class SeqFitPopUp(QDialog):
 
         if fit_type == 1:
             # initiating all fit models from current
-            raise NotImplementedError('Init all from current is not supported')
+            # raise NotImplementedError('Init all from current is not supported')
             # copying background
             bckg_list = self.q_app.get_bckg_data_list(start_idx)
             for idx in fit_ids:

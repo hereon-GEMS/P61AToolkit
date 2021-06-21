@@ -488,9 +488,9 @@ class PeakDataTrack:
         mrip = np.average(self.r_ips, weights=weights)
 
         data_y = data_y[(data_x <= mrb) & (data_x >= mlb)]
-        cy = np.max(data_y) - np.min(data_y) + 1
+        cy = float(np.max(data_y) - np.min(data_y) + 1)
 
-        return PeakData(idx, mcx, cy, mlip, mrip, mlb, mrb, np.min(data_y), np.min(data_y))
+        return PeakData(idx, mcx, cy, mlip, mrip, mlb, mrb, float(np.min(data_y)), float(np.min(data_y)))
 
     def shift_xs(self, by=0.):
         for peak in self._peaks:

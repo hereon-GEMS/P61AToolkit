@@ -47,5 +47,6 @@ peak_models = {
 
 background_models = {
     'Chebyshev': polynomial,
-    'Interpolation': lambda x, *args, **kwargs: np.zeros(x.shape)
+    # 'Interpolation': lambda x, *args, **kwargs: np.zeros(x.shape)
+    'Interpolation': lambda x, *args, **kwargs: kwargs['func'](x)
 }

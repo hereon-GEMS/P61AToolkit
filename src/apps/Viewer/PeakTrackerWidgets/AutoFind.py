@@ -115,7 +115,10 @@ class AutoFindWidget(QWidget):
         tracks = []
 
         for idx in ids:
-            for pdt in self.q_app.get_peak_data_list(idx):
+            peak_list = self.q_app.get_peak_data_list(idx)
+            if peak_list is None:
+                continue
+            for pdt in peak_list:
                 for track in tracks:
                     if track.dist(pdt) <= tw:
                         track.append(pdt)

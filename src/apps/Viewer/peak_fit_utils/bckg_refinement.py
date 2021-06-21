@@ -1,11 +1,14 @@
 import numpy as np
 from uncertainties import ufloat
 from scipy.optimize import least_squares
+import copy
 
 import logging
 
 from peak_fit_utils.models import peak_models, background_models
 from peak_fit_utils.metrics import upd_metrics
+from peak_fit_utils.peak_refinement import get_peak_intervals
+from utils import log_ex_time
 
 logger = logging.getLogger('peak_fit_utils')
 
@@ -19,6 +22,7 @@ class BckgData:
         self.md_p_refine = dict()
 
         self._poly_coefs = np.zeros(100) + 1
+        self._interp_fn = lambda x: np.zeros(x.shape)
         self.make_md_params()
 
     def make_md_params(self):
@@ -53,7 +57,8 @@ class BckgData:
                     result['c%d' % ii] = self._poly_coefs[ii]
             return result
         elif self.md_name == 'Interpolation':
-            return dict()
+            result = {'func': self._interp_fn}
+            return result
         else:
             return dict()
 
@@ -83,6 +88,19 @@ class BckgData:
         return result
 
 
+class InterpFunc:
+    def __init__(self, ixs, iys):
+        self.ixs = ixs
+        self.iys = iys
+
+    def __call__(self, x):
+        result = np.zeros(x.shape)
+        cond = (x < np.max(self.ixs)) & (x > np.min(self.ixs))
+        result[cond] = np.interp(x[cond], self.ixs, self.iys)
+        return result
+
+
+@log_ex_time(logger=logger)
 def fit_bckg(peak_list, bckg_list, xx, yy):
     y_calc_peaks = np.zeros(yy.shape)
 
@@ -90,25 +108,36 @@ def fit_bckg(peak_list, bckg_list, xx, yy):
         y_calc_peaks += peak_models[peak.md_name](xx, **{name: peak.md_params[name].n for name in peak.md_params})
 
     for bc_md in bckg_list:
-        iy = (yy - y_calc_peaks)[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
-        ix = xx[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
+        if bc_md.md_name != 'Interpolation':
+            iy = (yy - y_calc_peaks)[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
+            ix = xx[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
 
-        logger.info('fit_bckg: refining background on [%d, %d]' % (bc_md.md_params['xmin'].n,
-                                                                                     bc_md.md_params['xmax'].n))
+            logger.info('fit_bckg: refining background on [%d, %d]' % (bc_md.md_params['xmin'].n,
+                                                                                         bc_md.md_params['xmax'].n))
 
-        def residuals(x, *args, **kwargs):
-            y_calc = background_models[bc_md.md_name](ix, xmin=bc_md.md_params['xmin'].n,
-                                                      xmax=bc_md.md_params['xmax'].n,
-                                                      **{'c%d' % ii: val for ii, val in enumerate(x)})
-            return ((iy - y_calc) / np.max(iy)) ** 2
+            def residuals(x, *args, **kwargs):
+                y_calc = background_models[bc_md.md_name](ix, xmin=bc_md.md_params['xmin'].n,
+                                                          xmax=bc_md.md_params['xmax'].n,
+                                                          **{'c%d' % ii: val for ii, val in enumerate(x)})
+                return ((iy - y_calc) / np.max(iy)) ** 2
 
-        x0 = bc_md.func_params
-        x0.pop('xmin')
-        x0.pop('xmax')
-        x0 = [x0[k] for k in sorted(x0.keys())]
+            x0 = bc_md.func_params
+            x0.pop('xmin')
+            x0.pop('xmax')
+            x0 = [x0[k] for k in sorted(x0.keys())]
 
-        opt_result = least_squares(residuals, x0=x0, ftol=1e-12, xtol=1e-12, gtol=1e-12, max_nfev=1000)
-        bc_md.set_poly_coefs(opt_result.x)
+            opt_result = least_squares(residuals, x0=x0, ftol=1e-12, xtol=1e-12, gtol=1e-12, max_nfev=1000)
+            bc_md.set_poly_coefs(opt_result.x)
+        else:
+            interp_xs = xx.copy()
+            interp_ys = yy.copy()
+            interp_xs = interp_xs[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
+            interp_ys = interp_ys[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
+            for ll, rr, _ in get_peak_intervals(peak_list):
+                interp_ys = interp_ys[(interp_xs < ll) | (interp_xs > rr)]
+                interp_xs = interp_xs[(interp_xs < ll) | (interp_xs > rr)]
+
+            bc_md._interp_fn = InterpFunc(interp_xs, interp_ys)
 
     chi2, peak_list = upd_metrics(peak_list, bckg_list, xx, yy)
 

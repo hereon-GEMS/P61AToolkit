@@ -339,7 +339,8 @@ class P61App(QApplication):
                 if self.data.loc[idx, k] is not None:
                     for item in self.data.loc[idx, k]:
                         row_data[k].append(item.to_dict())
-
+            for k in row_data:
+                print(type(row_data[k]))
             all_data.append(row_data)
 
         json.dump(all_data, open(self.proj_f_name, 'w'))
