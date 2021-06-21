@@ -18,7 +18,7 @@ if hasattr(Qt, 'AA_EnableHighDpiScaling'):
 if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
     QtWidgets.QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
-from PyQt5.QtWidgets import QMainWindow, QGridLayout, QWidget, QTabWidget, QSystemTrayIcon, QMenu, QAction
+from PyQt5.QtWidgets import QMainWindow, QGridLayout, QWidget, QTabWidget, QSystemTrayIcon, QMenu, QAction, QFileDialog
 from PyQt5.QtGui import QIcon
 import sys
 from PlotWidgets import MainPlot2DTestWidget, MainPlot3DTestWidget, MainPlotAvgTestWidget
@@ -118,13 +118,37 @@ class P61Viewer(QMainWindow):
         self._act_save.triggered.connect(self.on_act_save)
         self._act_save_as.triggered.connect(self.on_act_save_as)
         self._act_reload.triggered.connect(self.on_act_reload)
+        self._act_open.triggered.connect(self.on_act_open)
+
+    def on_act_open(self):
+        fd = QFileDialog()
+        f_name, _ = fd.getOpenFileName(
+            self,
+            'Open project',
+            r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs',
+            'All Files (*);;JSON files (*.json)',
+            options=QFileDialog.Options()
+        )
+        if f_name != '':
+            self.q_app.load_proj_from(f_name=f_name)
 
     def on_act_save(self):
-        self.q_app.save_proj_as(f_name=None)
+        if self.q_app.proj_f_name is None:
+            self.on_act_save_as()
+        else:
+            self.q_app.save_proj_as(f_name=None)
 
     def on_act_save_as(self):
-        # TODO: request file name
-        self.q_app.save_proj_as(f_name=None)
+        fd = QFileDialog()
+        f_name, _ = fd.getSaveFileName(
+            self,
+            'Save project as',
+            r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs',
+            'All Files (*);;JSON files (*.json)',
+            options=QFileDialog.Options()
+        )
+        if f_name != '':
+            self.q_app.save_proj_as(f_name=f_name)
 
     def on_act_reload(self):
         self.q_app.load_proj_from(f_name=None)

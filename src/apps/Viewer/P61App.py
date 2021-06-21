@@ -113,7 +113,7 @@ class P61App(QApplication):
         self.peak_tracks = None
         self.hkl_phases = None
         self.hkl_peaks = None
-        self.proj_f_name = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\test.json'
+        self.proj_f_name = None
 
         self.logger = logging.getLogger(str(self.__class__))
         self.thread_pool = QThreadPool(parent=self)
@@ -319,6 +319,9 @@ class P61App(QApplication):
         if f_name is not None:
             self.proj_f_name = f_name
 
+        if self.proj_f_name is None:
+            return
+
         """
         'DataX', 'DataY', 'DeadTime', 'Channel', 'DataID', 'ScreenName', 'Active',
         'Color', 'PeakDataList', 'BckgDataList', 'Chi2', 'Motors'
@@ -345,6 +348,9 @@ class P61App(QApplication):
     def load_proj_from(self, f_name=None):
         if f_name is not None:
             self.proj_f_name = f_name
+
+        if self.proj_f_name is None:
+            return
 
         rows = list(self.data.index)
         self.data_model.removeRows(0, len(rows))
