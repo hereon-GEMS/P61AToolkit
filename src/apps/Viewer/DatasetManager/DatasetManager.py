@@ -159,10 +159,17 @@ class DatasetManager(QWidget):
             files, _ = fd.getOpenFileNames(
                 self,
                 'Add spectra',
-                r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs',
-                'All Files (*);;NEXUS files (*.nxs)',
+                self.q_app.data_dir,
+                'FIO Files (*.fio);;NEXUS files (*.nxs);;All files (*)',
                 options=QFileDialog.Options()
             )
+
+        if not files:
+            return
+
+        self.q_app.data_dir = os.path.commonpath(files)
+        if files[-1][-4:] == '.fio':
+            self.q_app.proj_f_name_hint = os.path.basename(files[-1]).replace('.fio', '.json')
 
         self.progress = QProgressDialog("Opening files", "Cancel", 0, len(files))
         fw = FileOpenWorker(files)
@@ -268,7 +275,10 @@ class DatasetManager(QWidget):
             return
         fd = QFileDialog()
         fd.setOption(fd.ShowDirsOnly, True)
-        dirname = fd.getExistingDirectory(self, caption='Export spectra to')
+        dirname = fd.getExistingDirectory(self, 'Export spectra as csv', os.path.join(self.q_app.data_dir, '..'))
+
+        if not dirname:
+            return
 
         rows = [idx.row() for idx in self.view.selectedIndexes()]
         rows = sorted(set(rows))

@@ -48,7 +48,7 @@ class GeneralFitWidget(QWidget):
         self.peaks_fit_btn = QPushButton('Fit peaks')
         self.full_fit_btn = QPushButton('Fit this')
         self.fit_mult_btn = QPushButton('Fit multiple')
-        self.export_btn = QPushButton('Export')
+        self.export_btn = QPushButton('Export peaks')
         self.plot_w = FitPlot(parent=self)
 
         self.lmfit_inspector = LmfitInspector(fitPlot=self.plot_w)
@@ -180,7 +180,8 @@ class GeneralFitWidget(QWidget):
         w.exec_()
 
     def on_export_button(self):
-        f_name, _ = QFileDialog.getSaveFileName(self, "Save fit data as csv", "", "All Files (*);;CSV (*.csv)")
+        f_name, _ = QFileDialog.getSaveFileName(self, "Save fit data as csv", self.q_app.data_dir,
+                                                "All Files (*);;CSV (*.csv)")
         if not f_name:
             return
 

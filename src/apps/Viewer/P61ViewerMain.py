@@ -8,6 +8,7 @@ This python file serves as the executable script for the application.
 
 Launches the :code:`P61App` (QApplication_ child class) and a :code:`P61Viewer` (QMainWindow_ child class) instances.
 """
+import os.path
 
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
@@ -121,16 +122,29 @@ class P61Viewer(QMainWindow):
         self._act_open.triggered.connect(self.on_act_open)
 
     def on_act_open(self):
+        if self.q_app.proj_f_name is not None:
+            def_path = os.path.dirname(self.q_app.proj_f_name)
+        elif self.q_app.proj_f_name is None and self.q_app.data_dir is not None:
+            def_path = self.q_app.data_dir
+        else:
+            def_path = '.'
+
+        if self.q_app.proj_f_name_hint is not None:
+            def_path = os.path.join(def_path, self.q_app.proj_f_name_hint)
+
         fd = QFileDialog()
         f_name, _ = fd.getOpenFileName(
             self,
             'Open project',
-            r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs',
-            'All Files (*);;JSON files (*.json)',
+            def_path,
+            'All Files (*);;Python3 pickled files (*.pickle)',
             options=QFileDialog.Options()
         )
-        if f_name != '':
-            self.q_app.load_proj_from(f_name=f_name)
+
+        if not f_name:
+            return
+
+        self.q_app.load_proj_from(f_name=f_name)
 
     def on_act_save(self):
         if self.q_app.proj_f_name is None:
@@ -139,13 +153,20 @@ class P61Viewer(QMainWindow):
             self.q_app.save_proj_as(f_name=None)
 
     def on_act_save_as(self):
+        if self.q_app.proj_f_name is not None:
+            def_path = self.q_app.proj_f_name
+        elif self.q_app.proj_f_name is None and self.q_app.data_dir is not None:
+            def_path = self.q_app.data_dir
+        else:
+            def_path = '.'
+
         fd = QFileDialog()
         f_name, _ = fd.getSaveFileName(
             self,
             'Save project as',
-            r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs',
-            'All Files (*);;JSON files (*.json)',
-            options=QFileDialog.Options()
+            def_path,
+            'All Files (*);;Python3 pickled files (*.pickle)',
+            options=QFileDialog.Options(),
         )
         if f_name != '':
             self.q_app.save_proj_as(f_name=f_name)

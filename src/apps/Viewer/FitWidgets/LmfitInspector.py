@@ -5,8 +5,8 @@ import json
 from uncertainties import ufloat
 
 
-from PyQt5.QtWidgets import QWidget, QPushButton, QGridLayout, QMenu, QAction, QInputDialog, QTreeView, \
-    QStyledItemDelegate, QStyleOptionViewItem, QHeaderView, QFileDialog, QCheckBox
+from PyQt5.QtWidgets import QWidget, QPushButton, QGridLayout, QMenu, QAction, QTreeView, \
+    QStyledItemDelegate, QStyleOptionViewItem, QHeaderView
 from PyQt5.Qt import QAbstractItemModel, Qt, QModelIndex, QVariant
 
 from FitWidgets.CopyPopUp import CopyPopUp

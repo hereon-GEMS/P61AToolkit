@@ -10,6 +10,7 @@ import numpy as np
 import os
 import logging
 import json
+import pickle
 from collections import defaultdict
 from utils import log_ex_time
 from DataSetStorageModel import DataSetStorageModel
@@ -113,7 +114,10 @@ class P61App(QApplication):
         self.peak_tracks = None
         self.hkl_phases = None
         self.hkl_peaks = None
+
         self.proj_f_name = None
+        self.proj_f_name_hint = None
+        self.data_dir = None
 
         self.logger = logging.getLogger(str(self.__class__))
         self.thread_pool = QThreadPool(parent=self)
@@ -322,28 +326,31 @@ class P61App(QApplication):
         if self.proj_f_name is None:
             return
 
-        """
-        'DataX', 'DataY', 'DeadTime', 'Channel', 'DataID', 'ScreenName', 'Active',
-        'Color', 'PeakDataList', 'BckgDataList', 'Chi2', 'Motors'
-        """
         all_data = []
         for idx in self.data.index:
             row_data = dict()
             for k in ('DataX', 'DataY'):
                 row_data[k] = self.data.loc[idx, k].tolist()
-            for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Motors'):
+            for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2'):
                 row_data[k] = self.data.loc[idx, k]
+
+            row_data['Motors'] = dict(self.data.loc[idx, 'Motors'])
 
             for k in ('PeakDataList', 'BckgDataList'):
                 row_data[k] = []
                 if self.data.loc[idx, k] is not None:
                     for item in self.data.loc[idx, k]:
                         row_data[k].append(item.to_dict())
-            for k in row_data:
-                print(type(row_data[k]))
             all_data.append(row_data)
 
-        json.dump(all_data, open(self.proj_f_name, 'w'))
+        try:
+            all_data = pickle.dumps(all_data)
+        except Exception as e:
+            self.logger.error('save_proj_as: could not save file, pickle failed with exception: %s' % str(e))
+
+        with open(self.proj_f_name, 'wb') as f:
+            f.write(all_data)
+
         self.logger.debug('save_proj_as: saved as %s' % str(self.proj_f_name))
 
     def load_proj_from(self, f_name=None):
@@ -360,7 +367,10 @@ class P61App(QApplication):
         self.hkl_phases = None
         self.hkl_peaks = None
 
-        raw_data = json.load(open(self.proj_f_name, 'r'))
+        # raw_data = json.load(open(self.proj_f_name, 'r'))
+        with open(self.proj_f_name, 'rb') as f:
+            raw_data = pickle.loads(f.read())
+
         pr_data = pd.DataFrame(columns=self.data.columns)
         self.peak_tracks = dict()
 
