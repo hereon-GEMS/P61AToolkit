@@ -133,7 +133,7 @@ def fit_bckg(peak_list, bckg_list, xx, yy):
             interp_ys = yy.copy()
             interp_xs = interp_xs[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
             interp_ys = interp_ys[(xx > bc_md.md_params['xmin'].n) & (xx < bc_md.md_params['xmax'].n)]
-            for ll, rr, _ in get_peak_intervals(peak_list):
+            for ll, rr, *_ in get_peak_intervals(peak_list):
                 interp_ys = interp_ys[(interp_xs < ll) | (interp_xs > rr)]
                 interp_xs = interp_xs[(interp_xs < ll) | (interp_xs > rr)]
 
