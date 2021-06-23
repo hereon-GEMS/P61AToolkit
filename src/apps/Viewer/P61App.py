@@ -422,6 +422,7 @@ class P61App(QApplication):
 
         self.logger.debug('on_tw_result: Emitting dataRowsInserted(%d, %d)' % (0, len(raw_data)))
         self.dataRowsInserted.emit(0, len(raw_data))
+        self.dataActiveChanged.emit(self.data.index.tolist())
         self.peakTracksChanged.emit()
         self.hklPhasesChanged.emit()
         self.hklPeaksChanged.emit()
