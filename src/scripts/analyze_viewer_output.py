@@ -18,11 +18,11 @@ if __name__ == '__main__':
     density = 7.874  # g/cm3
 
     peaks_paths = [
-        r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\test.csv'
+        r'..\..\data\peaks\test.csv'
     ]
 
-    abs_path = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\src\apps\Viewer\cryst_utils\NIST_abs\Fe.csv'
-    dec_path = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\dec\bccFe.csv'
+    abs_path = r'..\apps\Viewer\cryst_utils\NIST_abs\Fe.csv'
+    dec_path = r'..\..\data\dec\bccFe.csv'
 
     # reading all data
     dd = reduce(lambda a, b: pd.concat((a, b), axis=0, ignore_index=True),

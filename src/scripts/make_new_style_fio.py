@@ -12,9 +12,9 @@ from utils import read_fio, write_fio
 
 
 if __name__ == '__main__':
-    dd = r'N:\4all\intern\wpd\p61a\Software\P61Viewer\Data for testing\Nowfal'  # where all the .nxs files are
+    dd = r''  # where all the .nxs files are
     old_fio = os.path.join(dd, 'motpos.fio')  # name of the old style fio file
-    rd = r'C:\Users\dovzheng\Experiments\Nowfal'  # directory to save the results to
+    rd = r''  # directory to save the results to
     mot_names = 'eu.chi', 'eu.phi'
     exp_name = 'sample01'
 
