@@ -9,11 +9,12 @@ import pandas as pd
 import numpy as np
 import os
 import logging
-import json
+
 import pickle
 from collections import defaultdict
 from utils import log_ex_time
 from DataSetStorageModel import DataSetStorageModel
+from cryst_utils import PhaseData
 from peak_fit_utils import PeakData, PeakDataTrack, BckgData
 
 
@@ -326,12 +327,12 @@ class P61App(QApplication):
         if self.proj_f_name is None:
             return
 
-        all_data = []
+        spectra = []
         for idx in self.data.index:
             row_data = dict()
             for k in ('DataX', 'DataY'):
                 row_data[k] = self.data.loc[idx, k].tolist()
-            for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2'):
+            for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Active'):
                 row_data[k] = self.data.loc[idx, k]
 
             row_data['Motors'] = dict(self.data.loc[idx, 'Motors'])
@@ -341,7 +342,13 @@ class P61App(QApplication):
                 if self.data.loc[idx, k] is not None:
                     for item in self.data.loc[idx, k]:
                         row_data[k].append(item.to_dict())
-            all_data.append(row_data)
+            spectra.append(row_data)
+
+        all_data = {
+            'spectra': spectra,
+            'hkl_peaks': self.hkl_peaks,
+            'hkl_phases': [phase.to_dict() for phase in self.hkl_phases] if self.hkl_phases else None
+        }
 
         try:
             all_data = pickle.dumps(all_data)
@@ -375,6 +382,11 @@ class P61App(QApplication):
         self.peak_tracks = dict()
 
         # process the data
+        self.hkl_peaks = raw_data['hkl_peaks']
+        self.hkl_phases = [PhaseData.from_dict(phase) for phase in raw_data['hkl_phases']] \
+            if raw_data['hkl_phases'] else None
+        raw_data = raw_data['spectra']
+
         for row in raw_data:
             pr_row = {c: None for c in pr_data.columns}
 
@@ -395,7 +407,7 @@ class P61App(QApplication):
                 'Active': True,
                 'PeakDataList': peak_list,
                 'BckgDataList': [BckgData.from_dict(bckg) for bckg in row['BckgDataList']],
-                **{k: row[k] for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2')}
+                **{k: row[k] for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Active')}
             })
             pr_data.loc[pr_data.shape[0]] = pr_row
 
@@ -411,3 +423,60 @@ class P61App(QApplication):
         self.logger.debug('on_tw_result: Emitting dataRowsInserted(%d, %d)' % (0, len(raw_data)))
         self.dataRowsInserted.emit(0, len(raw_data))
         self.peakTracksChanged.emit()
+        self.hklPhasesChanged.emit()
+        self.hklPeaksChanged.emit()
+
+    def export_fit(self, f_name):
+        tracks = self.get_pd_tracks()
+        prefixes = ['pv%d' % ii for ii in range(len(tracks))]
+
+        def expand_peaks(row):
+            if row['PeakDataList'] is None:
+                return row.drop(labels=['PeakDataList'])
+            else:
+                for track, prefix in zip(tracks, prefixes):
+                    if row.name in track.ids:
+                        name = row.name
+                        row = row.append(pd.Series({'_'.join((prefix, k)): val
+                                                    for (k, val) in track[row.name].export_ref_params().items()}))
+                        row.name = name
+                return row.drop(labels=['PeakDataList'])
+
+        def expand_motors(row):
+            if row['Motors'] is None:
+                for motor in self.motors_all:
+                    row[motor] = None
+            else:
+                for motor in self.motors_all:
+                    row[motor] = row['Motors'][motor]
+            return row.drop(labels=['Motors'])
+
+        def add_phase_data(df):
+            peak_centers = df.filter(regex='center$', axis=1)
+            peak_centers = peak_centers.mean()
+            for phase in self.get_hkl_peaks():
+                peaks = self.hkl_peaks[phase]
+                for peak in peaks:
+                    _pc = peak_centers[(peak_centers < peak['e'] + peak['de']) &
+                                       (peak_centers > peak['e'] - peak['de'])]
+                    if _pc.shape[0] > 0:
+                        label = (_pc - peak['e']).abs().idxmin()
+                        df[label.replace('center', 'h')] = [peak['h']] * df.shape[0]
+                        df[label.replace('center', 'k')] = [peak['k']] * df.shape[0]
+                        df[label.replace('center', 'l')] = [peak['l']] * df.shape[0]
+                        df[label.replace('center', '3gamma')] = [peak['3g']] * df.shape[0]
+                        df[label.replace('center', 'phase')] = [phase] * df.shape[0]
+            return df
+
+        result = pd.DataFrame()
+        result = result.append(self.data.loc[self.data['Active'],
+                                             ['ScreenName', 'Channel', 'DeadTime', 'PeakDataList', 'Motors', 'Chi2']])
+        result = result.apply(expand_peaks, axis=1)
+        result = result.apply(expand_motors, axis=1)
+        result = add_phase_data(result)
+
+        columns = list(sorted(result.columns))
+        columns.remove('ScreenName')
+        result = result[['ScreenName'] + columns]
+
+        result.to_csv(f_name)
