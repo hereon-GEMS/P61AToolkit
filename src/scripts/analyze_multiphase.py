@@ -22,8 +22,6 @@ import numpy as np
 from itertools import permutations
 from functools import reduce
 
-from PyQt5.QtWidgets import QFileDialog
-
 from libraries.stress.separated import multiWavelengthAnalysis as multiWavelengthAnalysis2, \
     multiUniversalPlotAnalysis as multiUniversalPlotAnalysis2,\
     plotMultiWavelength, plotStrainFreeLatticeSpacing, plotStresses, plotUniversalPlot
