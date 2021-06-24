@@ -77,7 +77,7 @@ class P61App(QApplication):
 
     """
     name = 'P61A::Viewer'
-    version = '1.0.0'
+    version = '1.0.0'  # + ' build 2021-06-24'
 
     dataRowsInserted = pyqtSignal(int, int)
     dataRowsRemoved = pyqtSignal(list)
@@ -415,14 +415,14 @@ class P61App(QApplication):
         self.data[0:len(raw_data)] = pr_data
         self.peak_tracks = list(sorted(self.peak_tracks.values(), key=lambda x: np.mean(x.cxs)))
 
+        self.dataRowsInserted.emit(0, len(raw_data))
         self.data_model.dataChanged.emit(
             self.data_model.index(0, 0),
             self.data_model.index(len(raw_data), self.data_model.columnCount())
         )
-
-        self.logger.debug('on_tw_result: Emitting dataRowsInserted(%d, %d)' % (0, len(raw_data)))
-        self.dataRowsInserted.emit(0, len(raw_data))
         self.dataActiveChanged.emit(self.data.index.tolist())
+        self.dataSorted.emit()
+        # self.logger.debug('on_tw_result: Emitting dataRowsInserted(%d, %d)' % (0, len(raw_data)))
         self.peakTracksChanged.emit()
         self.hklPhasesChanged.emit()
         self.hklPeaksChanged.emit()

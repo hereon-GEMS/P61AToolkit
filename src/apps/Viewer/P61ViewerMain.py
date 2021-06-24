@@ -137,7 +137,7 @@ class P61Viewer(QMainWindow):
             self,
             'Open project',
             def_path,
-            'All Files (*);;Python3 pickled files (*.pickle)',
+            'Python3 pickled files (*.pickle);;All Files (*)',
             options=QFileDialog.Options()
         )
 
@@ -165,7 +165,7 @@ class P61Viewer(QMainWindow):
             self,
             'Save project as',
             def_path,
-            'All Files (*);;Python3 pickled files (*.pickle)',
+            'Python3 pickled files (*.pickle);;All Files (*)',
             options=QFileDialog.Options(),
         )
         if f_name != '':
