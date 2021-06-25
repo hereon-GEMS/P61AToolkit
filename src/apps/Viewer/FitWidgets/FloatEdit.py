@@ -61,16 +61,18 @@ class FloatEdit(QLineEdit):
         match = self.on_text_changed()
         if match:
             gd = defaultdict(lambda *args: None, match.groupdict())
+            print(gd)
 
             if gd['inf'] is not None:
                 self._value = np.float(gd['inf'])
             elif gd['none'] is not None:
                 self._value = None
             elif gd['main'] is not None:
-                self._value = float(gd['main'])
-                if gd['decimal'] is not None:
-                    self._value += (float(gd['decimal']) if self._value >= 0
-                                    else -float(gd['decimal'])) * 10 ** (-len(gd['decimal']))
+                self._value = float(gd['main'] + (gd['decimal'] if gd['decimal'] is not None else ''))
+                # self._value = float(gd['main'])
+                # if gd['decimal'] is not None:
+                #     self._value += (float(gd['decimal']) if self._value >= 0
+                #                     else -float(gd['decimal'])) * 10 ** (-len(gd['decimal']))
                 if gd['exp'] is not None:
                     self._value *= 10 ** (int(gd['exp']))
             self._upd()
