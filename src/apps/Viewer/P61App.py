@@ -77,7 +77,7 @@ class P61App(QApplication):
 
     """
     name = 'P61A::Viewer'
-    version = '1.0.0'  # + ' build 2021-06-24'
+    version = '1.0.0'  # + ' build 2021-06-25'
 
     dataRowsInserted = pyqtSignal(int, int)
     dataRowsRemoved = pyqtSignal(list)
@@ -402,13 +402,17 @@ class P61App(QApplication):
             pr_row.update({
                 'DataX': np.array(row['DataX']),
                 'DataY': np.array(row['DataY']),
-                'Motors': defaultdict(lambda arg: None, row['Motors']) if row['Motors'] is not None else None,
+                'Motors': defaultdict(lambda *args: None, row['Motors']) if row['Motors'] is not None else None,
                 'Color': next(self.params['ColorWheel']),
                 'Active': True,
                 'PeakDataList': peak_list,
                 'BckgDataList': [BckgData.from_dict(bckg) for bckg in row['BckgDataList']],
                 **{k: row[k] for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Active')}
             })
+
+            if row['Motors'] is not None:
+                self.motors_all.update(row['Motors'].keys())
+
             pr_data.loc[pr_data.shape[0]] = pr_row
 
         self.data_model.insertRows(0, len(raw_data))

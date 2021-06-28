@@ -109,7 +109,7 @@ class DatasetManager(QWidget):
         self.context_menu = QMenu(self)
         self.context_menu.triggered.connect(self.on_cm_triggered)
 
-        for mt in self.q_app.motors_all:
+        for mt in sorted(self.q_app.motors_all):
             self.cm_actions.append(self.context_menu.addAction(mt))
             self.cm_actions[-1].setCheckable(True)
             self.cm_actions[-1].setChecked(mt in self.q_app.motors_cols)
