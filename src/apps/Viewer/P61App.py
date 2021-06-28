@@ -77,7 +77,7 @@ class P61App(QApplication):
 
     """
     name = 'P61A::Viewer'
-    version = '1.0.0'  # + ' build 2021-06-25'
+    version = '1.0.0' + ' build 2021-06-28'
 
     dataRowsInserted = pyqtSignal(int, int)
     dataRowsRemoved = pyqtSignal(list)
@@ -124,7 +124,8 @@ class P61App(QApplication):
         self.thread_pool = QThreadPool(parent=self)
 
         self.config = {
-            'use_threads': True
+            'use_threads': True,
+            'downsample_3d': True
         }
 
         # data storage for one-per application items

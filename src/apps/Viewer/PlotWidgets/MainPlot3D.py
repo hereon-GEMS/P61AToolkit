@@ -181,8 +181,14 @@ class MainPlot3D(GlPlot3D):
             surf_xx, surf_yy, surf_zz = np.concatenate(surf_xx), np.concatenate(surf_yy), np.concatenate(surf_zz)
 
             surf_data = np.array([surf_xx, surf_yy]).T
-            grid_xx = np.linspace(np.min(surf_xx), np.max(surf_xx), 4096)
-            grid_yy = ys.copy()
+
+            if not self.q_app.config['downsample_3d']:
+                grid_xx = np.linspace(np.min(surf_xx), np.max(surf_xx), 4096)
+                grid_yy = ys.copy()
+            else:
+                grid_xx = np.linspace(np.min(surf_xx), np.max(surf_xx), 1024)
+                grid_yy = np.linspace(np.min(surf_yy), np.max(surf_yy), 100)
+
             grid_xy = (
                 np.array([grid_xx] * grid_yy.shape[0]), np.array([grid_yy] * grid_xx.shape[0]).T
             )
