@@ -61,7 +61,6 @@ class FloatEdit(QLineEdit):
         match = self.on_text_changed()
         if match:
             gd = defaultdict(lambda *args: None, match.groupdict())
-            print(gd)
 
             if gd['inf'] is not None:
                 self._value = np.float(gd['inf'])
