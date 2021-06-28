@@ -275,7 +275,8 @@ class DatasetManager(QWidget):
             return
         fd = QFileDialog()
         fd.setOption(fd.ShowDirsOnly, True)
-        dirname = fd.getExistingDirectory(self, 'Export spectra as csv', os.path.join(self.q_app.data_dir, '..'))
+        dirname = fd.getExistingDirectory(self, 'Export spectra as csv',
+                                          os.path.join(self.q_app.data_dir, '..') if self.q_app.data_dir else None)
 
         if not dirname:
             return
