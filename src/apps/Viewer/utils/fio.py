@@ -33,7 +33,7 @@ def read_fio(f_name):
 
         data = pd.DataFrame(columns=list(columns.values()))
         # t_row_line = re.compile(r'^' + r'\s+([\d\.+-eE]+)' * len(columns) + r'\n')
-        t_row_line = re.compile(r'^' + r'\s+([\w]+)' * len(columns) + r'\n')
+        t_row_line = re.compile(r'^' + r'\s+([\w\.+-]+)' * len(columns) + r'\n')
 
         def _float(s):
             try:
