@@ -129,3 +129,6 @@ dmypy.json
 *.DS_Store
 
 bin
+src/scripts/tmp
+
+*.pickle
