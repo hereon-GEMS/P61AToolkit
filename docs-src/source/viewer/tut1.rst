@@ -14,10 +14,11 @@ with motor positions will be created, and next to it a directory by the same nam
 different motor positions.
 
 In P61A::Viewer you can import just NeXuS files (without motor positions and other metadata) and FIO files
-(with all coorresponding spectra and metadata) using the ``+`` button.
+(with all corresponding spectra and metadata) using the ``+`` button.
 
-For this tutorial we have prepared a simple dataset you can download here. As a first step,
-import the dataset by pressing the ``+`` button on the Viewer and selecting the FIO file.
+For this tutorial we have prepared a simple dataset you can download
+`here <https://github.com/P61A-software/P61AToolkit/tree/master/data/tutorials>`_.
+As a first step, import the dataset by pressing the ``+`` button on the Viewer and selecting the FIO file.
 
 *************
 Project files
