@@ -66,3 +66,56 @@ following criteria:
 
 If you want to learn more about the algorithm, you can find its description
 `here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html>`_.
+
+For the tutorial dataset the appropriate parameters are: ``Height 1000.``, ``Distance 2.``, ``Width 0.3``,
+``Prominence 800.``. After you have set the values, press ``Find`` button and perform the search over all spectra.
+
+To get a sense of what these parameters mean, we recommend you play around with the values: change them one by one,
+repeat the search, and see at what value of each parameter peaks start disappearing.
+
+*************
+Peak tracking
+*************
+
+After the peak search has found all appropriate peaks in all specified spectra, you can organize peaks into tracks.
+Tracks should follow the same physical peak over all analysed spectra. Since different datasets may have different variance in
+peak positions between spectra, you have to define the **Track window**: maximal distance between the peak positions in
+the neighbouring spectra. The algorithm connects two closest peaks in the neighbouring spectra if the distance between
+them is less than the **Track window** value.
+
+For the tutorial dataset to be tracked properly, the **Track window** should be set to 1.
+When you press ``Make tracks`` button, tracks should appear on the plot.
+To understand what exactly **Track window** does, try playing around with it, increase or decrease it.
+
+***************
+Peak refinement
+***************
+
+To refine the automatically generated peak positions, go to the ``Peak fit`` tab.
+
+Every peak has a set of refineable parameters: **center**, **amplitude**, **sigma**, etc., and a set of non-refineable
+parameters.
+The way refinement works in P61A::Viewer is that every peak is only evaluated and refined over its **base** which
+is measured in sigmas (usually values between 3 and 7 give good results, depending on the peak's "skirt" and surrounding
+background).
+
+Parameter **overlap_base** is also measured in sigmas and determines if peaks next to each other should be refined
+together or separately: if for two peaks their overlap bases do in fact overlap, they will be refined together on an
+interval made from combining their **bases**. By default **overlap_base** is set relatively small, so that every peak is
+refined on its own. However, if you notice a drop in fit quality due to a couple of peaks being interdependent,
+increasing their **overlap_base** until they are refined together may solve the issue.
+
+In addition to the refineable parameters, **base**, and **overlap_base** there are also convenience parameters like
+**height** and **width**, and per-peak fit quality metrics **rwp2** and **chi2**.
+
+The dataset for this tutorial is relatively uncomplicated, so the automated peak search has done a good job initiating
+the peak parameters. So the only thing left to do is to launch the refinement:
+
+* ``Fit peaks`` will refine peak parameters in the current spectra,
+* ``Fit Background`` will do nothing in this dataset, since we have not added any background models
+* ``Fit this`` will run peak and background fits in sequence until convergence is reached
+* ``Fit multiple`` will let you run any of the options above on multiple spectra with additional options like
+  initiating all fit models from current one.
+
+For this dataset if you just run ``Fit multiple`` in its default mode on all spectra you should get reasonable fit
+quality.
