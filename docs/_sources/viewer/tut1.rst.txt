@@ -109,7 +109,7 @@ In addition to the refineable parameters, **base**, and **overlap_base** there a
 **height** and **width**, and per-peak fit quality metrics **rwp2** and **chi2**.
 
 The dataset for this tutorial is relatively uncomplicated, so the automated peak search has done a good job initiating
-the peak parameters. So the only thing left to do is to launch the refinement:
+the peak parameters. The only thing left to do is to launch the refinement:
 
 * ``Fit peaks`` will refine peak parameters in the current spectra,
 * ``Fit Background`` will do nothing in this dataset, since we have not added any background models
@@ -119,3 +119,10 @@ the peak parameters. So the only thing left to do is to launch the refinement:
 
 For this dataset if you just run ``Fit multiple`` in its default mode on all spectra you should get reasonable fit
 quality.
+
+***********
+Peak export
+***********
+
+After you are happy with the quality of the refinement, you can export the results using ``Export peaks`` button.
+It is not important for the purposes of this tutorial, but will be important further on.

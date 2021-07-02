@@ -100,6 +100,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#peak-search">Peak search</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#peak-tracking">Peak tracking</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#peak-refinement">Peak refinement</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peak-export">Peak export</a></li>
 </ul>
 </li>
 </ul>
@@ -259,7 +260,7 @@ increasing their <strong>overlap_base</strong> until they are refined together m
 <p>In addition to the refineable parameters, <strong>base</strong>, and <strong>overlap_base</strong> there are also convenience parameters like
 <strong>height</strong> and <strong>width</strong>, and per-peak fit quality metrics <strong>rwp2</strong> and <strong>chi2</strong>.</p>
 <p>The dataset for this tutorial is relatively uncomplicated, so the automated peak search has done a good job initiating
-the peak parameters. So the only thing left to do is to launch the refinement:</p>
+the peak parameters. The only thing left to do is to launch the refinement:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Fit</span> <span class="pre">peaks</span></code> will refine peak parameters in the current spectra,</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Fit</span> <span class="pre">Background</span></code> will do nothing in this dataset, since we have not added any background models</p></li>
@@ -269,6 +270,11 @@ initiating all fit models from current one.</p></li>
 </ul>
 <p>For this dataset if you just run <code class="docutils literal notranslate"><span class="pre">Fit</span> <span class="pre">multiple</span></code> in its default mode on all spectra you should get reasonable fit
 quality.</p>
+</div>
+<div class="section" id="peak-export">
+<h2>Peak export<a class="headerlink" href="#peak-export" title="Permalink to this headline">¶</a></h2>
+<p>After you are happy with the quality of the refinement, you can export the results using <code class="docutils literal notranslate"><span class="pre">Export</span> <span class="pre">peaks</span></code> button.
+It is not important for the purposes of this tutorial, but will be important further on.</p>
 </div>
 </div>
 
