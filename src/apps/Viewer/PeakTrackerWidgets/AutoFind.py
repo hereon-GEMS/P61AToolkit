@@ -54,8 +54,8 @@ class AutoFindWidget(QWidget):
         self.height_label = QLabel('Height')
         self.height_label.setToolTip('Required minimal height of peaks. Either a number or None.')
         self.height_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=20.)
-        self.thr_label = QLabel('Threshhold')
-        self.thr_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=None)
+        # self.thr_label = QLabel('Threshhold')
+        # self.thr_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=None)
         self.dist_label = QLabel('Distance')
         self.dist_label.setToolTip('Required minimal horizontal distance between neighbouring peaks.\n'
                                    'Smaller peaks are removed first until the condition is fulfilled '
@@ -66,9 +66,9 @@ class AutoFindWidget(QWidget):
         self.width_label = QLabel('Width')
         self.width_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=5E-2)
         self.width_label.setToolTip('Required minimal width of peaks. Either a number or None.')
-        self.cutoff_label = QLabel('Cutoff')
-        self.cutoff_edit = FloatEdit(inf_allowed=True, none_allowed=True, init_val=5.)
-        self.cutoff_label.setToolTip('Peak base cutoff measured in sigmas.')
+        # self.cutoff_label = QLabel('Cutoff')
+        # self.cutoff_edit = FloatEdit(inf_allowed=True, none_allowed=True, init_val=5.)
+        # self.cutoff_label.setToolTip('Peak base cutoff measured in sigmas.')
         self.tw_label = QLabel('Track window')
         self.tw_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=3E-1)
         self.tw_label.setToolTip('Max peak shift between the spectra.')
@@ -92,14 +92,14 @@ class AutoFindWidget(QWidget):
         layout.addWidget(self.width_label, 4, 1, 1, 1)
         layout.addWidget(self.width_edit, 4, 2, 1, 1)
 
-        layout.addWidget(self.thr_label, 5, 1, 1, 1)
-        layout.addWidget(self.thr_edit, 5, 2, 1, 1)
+        # layout.addWidget(self.thr_label, 5, 1, 1, 1)
+        # layout.addWidget(self.thr_edit, 5, 2, 1, 1)
 
         layout.addWidget(self.prom_label, 6, 1, 1, 1)
         layout.addWidget(self.prom_edit, 6, 2, 1, 1)
 
-        layout.addWidget(self.cutoff_label, 7, 1, 1, 1)
-        layout.addWidget(self.cutoff_edit, 7, 2, 1, 1)
+        # layout.addWidget(self.cutoff_label, 7, 1, 1, 1)
+        # layout.addWidget(self.cutoff_edit, 7, 2, 1, 1)
 
         # layout.addWidget(self.btn_this, 8, 1, 1, 1)
         layout.addWidget(self.btn_all, 8, 2, 1, 1)
@@ -132,14 +132,14 @@ class AutoFindWidget(QWidget):
     def on_btn_this(self, *args, idx=-1, emit=True):
         params = {
             'height': self.height_edit.get_value(),
-            'threshold': self.thr_edit.get_value(),
+            # 'threshold': self.thr_edit.get_value(),
             'distance': self.dist_edit.get_value(),
             'prominence': self.prom_edit.get_value(),
             'width': self.width_edit.get_value()
         }
-        cutoff = self.cutoff_edit.get_value()
-        if cutoff is None:
-            cutoff = np.inf
+        # cutoff = self.cutoff_edit.get_value()
+        # if cutoff is None:
+        #     cutoff = np.inf
 
         if idx == -1:
             idx = self.q_app.get_selected_idx()
@@ -165,17 +165,17 @@ class AutoFindWidget(QWidget):
             right_ips = np.interp(result_idx[1]['right_ips'], np.arange(0, xx.shape[0]), xx)
             width_heights = result_idx[1]['width_heights']
 
-            if cutoff < np.inf:
-                g_sigmas = (right_ips - left_ips) / (2. * np.sqrt(2. * np.log(2)))
-                left_bases = pos_x - cutoff * g_sigmas
-                right_bases = pos_x + cutoff * g_sigmas
-                left_bases_heights = np.interp(left_bases, xx, yy)
-                right_bases_heights = np.interp(right_bases, xx, yy)
-            else:
-                left_bases = xx[result_idx[1]['left_bases']]
-                right_bases = xx[result_idx[1]['right_bases']]
-                left_bases_heights = yy[result_idx[1]['left_bases']]
-                right_bases_heights = yy[result_idx[1]['right_bases']]
+            # if cutoff < np.inf:
+            #     g_sigmas = (right_ips - left_ips) / (2. * np.sqrt(2. * np.log(2)))
+            #     left_bases = pos_x - cutoff * g_sigmas
+            #     right_bases = pos_x + cutoff * g_sigmas
+            #     left_bases_heights = np.interp(left_bases, xx, yy)
+            #     right_bases_heights = np.interp(right_bases, xx, yy)
+            # else:
+            left_bases = xx[result_idx[1]['left_bases']]
+            right_bases = xx[result_idx[1]['right_bases']]
+            left_bases_heights = yy[result_idx[1]['left_bases']]
+            right_bases_heights = yy[result_idx[1]['right_bases']]
 
             sort_ids = np.argsort(left_bases)
             peak_data_list = []
