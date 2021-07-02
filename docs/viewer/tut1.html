@@ -97,6 +97,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#import">Import</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#project-files">Project files</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#view-sort">View / Sort</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#peak-search">Peak search</a></li>
 </ul>
 </li>
 </ul>
@@ -206,11 +207,24 @@ To avoid frustration, please save your analysis regularly.</p>
 <p>The dataset for this tutorial is called <code class="docutils literal notranslate"><span class="pre">SDP</span></code>, which stands for Shifting Double Peaks.
 Purpose of this tutorial is to show you how P61A::Viewer treats peaks during sequential refinement.</p>
 <p>First step of sequential refinement is organizing your data. You can sort the datasets by
-name, detector dead time, fit quality and metadata values by clicking on the column headers of the dataset table.
+name, detector dead time, fit quality, and metadata values by clicking on the column headers of the dataset table.
 You can also add / remove columns from the table by right-clicking the header, and selecting metadata variables in the
 popup menu.</p>
 <p>In this dataset values for <code class="docutils literal notranslate"><span class="pre">eu.x</span></code>, <code class="docutils literal notranslate"><span class="pre">eu.y</span></code> and <code class="docutils literal notranslate"><span class="pre">eu.z</span></code> are random. You can sort the data by them to see how it
 looks, but to continue we need to have data sorted by Name or <code class="docutils literal notranslate"><span class="pre">xspress3_index</span></code>.</p>
+</div>
+<div class="section" id="peak-search">
+<h2>Peak search<a class="headerlink" href="#peak-search" title="Permalink to this headline">¶</a></h2>
+<p>The peak search algorithm in P61A::Viewer searches for local maxima in the datasets, and then filters them by the
+following criteria:</p>
+<ol class="arabic simple">
+<li><p><strong>Height:</strong> Minimal height of the point to be considered a peak.</p></li>
+<li><p><strong>Distance:</strong> Minimal distance between two peaks in keV.</p></li>
+<li><p><strong>Width:</strong> Minimal width (FWHM) of the peak in keV.</p></li>
+<li><p><strong>Prominence:</strong> Minimal distance between the peak and the surrounding baseline.</p></li>
+</ol>
+<p>If you want to learn more about the algorithm, you can find its description
+<a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html">here</a>.</p>
 </div>
 </div>
 

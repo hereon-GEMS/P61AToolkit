@@ -42,9 +42,27 @@ The dataset for this tutorial is called ``SDP``, which stands for Shifting Doubl
 Purpose of this tutorial is to show you how P61A::Viewer treats peaks during sequential refinement.
 
 First step of sequential refinement is organizing your data. You can sort the datasets by
-name, detector dead time, fit quality and metadata values by clicking on the column headers of the dataset table.
+name, detector dead time, fit quality, and metadata values by clicking on the column headers of the dataset table.
 You can also add / remove columns from the table by right-clicking the header, and selecting metadata variables in the
 popup menu.
 
 In this dataset values for ``eu.x``, ``eu.y`` and ``eu.z`` are random. You can sort the data by them to see how it
 looks, but to continue we need to have data sorted by Name or ``xspress3_index``.
+
+***********
+Peak search
+***********
+
+The peak search algorithm in P61A::Viewer searches for local maxima in the datasets, and then filters them by the
+following criteria:
+
+1. **Height:** Minimal height of the point to be considered a peak.
+
+2. **Distance:** Minimal distance between two peaks in keV.
+
+3. **Width:** Minimal width (FWHM) of the peak in keV.
+
+4. **Prominence:** Minimal distance between the peak and the surrounding baseline.
+
+If you want to learn more about the algorithm, you can find its description
+`here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html>`_.
