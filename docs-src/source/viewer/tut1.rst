@@ -39,7 +39,7 @@ transfer them from one computer to another.
 View / Sort
 ***********
 
-The dataset for this tutorial is called ``SDP``, which stands for Shifting Double Peaks.
+The dataset for this tutorial is called ``sdp_00001``, which stands for Shifting Double Peaks.
 Purpose of this tutorial is to show you how P61A::Viewer treats peaks during sequential refinement.
 
 First step of sequential refinement is organizing your data. You can sort the datasets by

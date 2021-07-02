@@ -23,6 +23,7 @@ Tutorials
    :maxdepth: 1
 
    tut1.rst
+   tut2.rst
 
 ***************
 Module overview
