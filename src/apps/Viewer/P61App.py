@@ -3,7 +3,7 @@ src/P61App.py
 ====================
 
 """
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox
 from PyQt5.QtCore import pyqtSignal, QThreadPool
 import pandas as pd
 import numpy as np
@@ -77,7 +77,7 @@ class P61App(QApplication):
 
     """
     name = 'P61A::Viewer'
-    version = '1.0.0' + ' build 2021-06-28'
+    version = '1.0.0' + ' build 2021-07-06'
 
     dataRowsInserted = pyqtSignal(int, int)
     dataRowsRemoved = pyqtSignal(list)
@@ -432,6 +432,35 @@ class P61App(QApplication):
         self.peakTracksChanged.emit()
         self.hklPhasesChanged.emit()
         self.hklPeaksChanged.emit()
+
+    def export_spectra_csv(self, ids):
+        fd = QFileDialog()
+        fd.setOption(fd.ShowDirsOnly, True)
+        dirname = fd.getExistingDirectory(None, 'Export spectra as csv',
+                                          os.path.join(self.data_dir, '..') if self.data_dir else None)
+
+        if not dirname:
+            return
+
+        names = self.data.loc[ids, 'ScreenName'].apply(lambda x: x.replace(':', '_').replace('.', '_') + '.csv')
+        overlap = set(os.listdir(dirname)) & set(names)
+        ret = QMessageBox.Ok
+
+        if overlap:
+            msg = QMessageBox(None)
+            msg.setText('Warning! The following files will be overwritten')
+            msg.setInformativeText('\n'.join(sorted(overlap)))
+            msg.setIcon(QMessageBox.Warning)
+            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            ret = msg.exec()
+
+        if ret == QMessageBox.Ok:
+            for ii in ids:
+                data = self.data.loc[ii, ['DataX', 'DataY', 'ScreenName']]
+                f_name = data['ScreenName'].replace(':', '_').replace('.', '_') + '.csv'
+                data = pd.DataFrame(data={'eV': 1E3 * data['DataX'], 'counts': data['DataY']})
+                data = data[['eV', 'counts']]
+                data.to_csv(os.path.join(dirname, f_name), header=True, index=False)
 
     def export_fit(self, f_name):
         tracks = self.get_pd_tracks()

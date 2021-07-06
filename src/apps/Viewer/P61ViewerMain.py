@@ -23,7 +23,7 @@ from PyQt5.QtWidgets import QMainWindow, QGridLayout, QWidget, QTabWidget, QSyst
 from PyQt5.QtGui import QIcon
 import sys
 from PlotWidgets import MainPlot2DTestWidget, MainPlot3DTestWidget, MainPlotAvgTestWidget
-from DatasetManager import DatasetManager
+from DatasetManager import DatasetManager, ExportPopUp
 from FitWidgets import GeneralFitWidget
 from PeakTrackerWidgets import AutoFindWidget
 from PeakTrackerWidgets import PeakTrackList
@@ -32,6 +32,7 @@ from PhaseAssignmentWidgets import PhaseConstructor
 from P61App import P61App
 
 import logging
+import webbrowser
 
 
 class P61Viewer(QMainWindow):
@@ -89,7 +90,7 @@ class P61Viewer(QMainWindow):
         self._act_reload = QAction('Reload', self)
         self._act_save_as = QAction('Save as', self)
         self._act_export = QAction('Export spectra', self)
-        self._act_tutorial = QAction('Tutorial', self)
+        self._act_tutorial = QAction('Documentation', self)
         fileMenu.addActions([self._act_open, self._act_reload, self._act_save, self._act_save_as, self._act_export])
         helpMenu.addActions([self._act_tutorial])
         mb.addMenu(fileMenu)
@@ -120,6 +121,8 @@ class P61Viewer(QMainWindow):
         self._act_save_as.triggered.connect(self.on_act_save_as)
         self._act_reload.triggered.connect(self.on_act_reload)
         self._act_open.triggered.connect(self.on_act_open)
+        self._act_export.triggered.connect(self.on_act_export)
+        self._act_tutorial.triggered.connect(lambda: webbrowser.open('https://p61a-software.github.io/P61AToolkit/'))
 
     def on_act_open(self):
         if self.q_app.proj_f_name is not None:
@@ -173,6 +176,10 @@ class P61Viewer(QMainWindow):
 
     def on_act_reload(self):
         self.q_app.load_proj_from(f_name=None)
+
+    def on_act_export(self):
+        w = ExportPopUp(parent=self)
+        w.exec_()
 
 
 if __name__ == '__main__':

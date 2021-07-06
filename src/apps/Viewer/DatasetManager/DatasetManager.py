@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import logging
 
+from .ExportPopUp import ExportPopUp
 from P61App import P61App
 from ThreadIO import Worker
 from DatasetIO import DatasetReaders
@@ -273,36 +274,9 @@ class DatasetManager(QWidget):
     def bexport_onclick(self):
         if self.progress is not None:
             return
-        fd = QFileDialog()
-        fd.setOption(fd.ShowDirsOnly, True)
-        dirname = fd.getExistingDirectory(self, 'Export spectra as csv',
-                                          os.path.join(self.q_app.data_dir, '..') if self.q_app.data_dir else None)
 
-        if not dirname:
-            return
-
-        rows = [idx.row() for idx in self.view.selectedIndexes()]
-        rows = sorted(set(rows))
-
-        names = self.q_app.data.loc[rows, 'ScreenName'].apply(lambda x: x.replace(':', '_').replace('.', '_') + '.csv')
-        overlap = set(os.listdir(dirname)) & set(names)
-        ret = QMessageBox.Ok
-
-        if overlap:
-            msg = QMessageBox(self)
-            msg.setText('Warning! The following files will be overwritten')
-            msg.setInformativeText('\n'.join(sorted(overlap)))
-            msg.setIcon(QMessageBox.Warning)
-            msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            ret = msg.exec()
-
-        if ret == QMessageBox.Ok:
-            for ii in rows:
-                data = self.q_app.data.loc[ii, ['DataX', 'DataY', 'ScreenName']]
-                f_name = data['ScreenName'].replace(':', '_').replace('.', '_') + '.csv'
-                data = pd.DataFrame(data={'eV': 1E3 * data['DataX'], 'counts': data['DataY']})
-                data = data[['eV', 'counts']]
-                data.to_csv(os.path.join(dirname, f_name), header=True, index=False)
+        w = ExportPopUp(parent=self)
+        w.exec_()
 
     def checkbox_onclick(self):
         self.checkbox.setTristate(False)
