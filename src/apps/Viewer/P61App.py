@@ -336,7 +336,8 @@ class P61App(QApplication):
             for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Active'):
                 row_data[k] = self.data.loc[idx, k]
 
-            row_data['Motors'] = dict(self.data.loc[idx, 'Motors'])
+            row_data['Motors'] = dict(self.data.loc[idx, 'Motors']) \
+                if self.data.loc[idx, 'Motors'] is not None else None
 
             for k in ('PeakDataList', 'BckgDataList'):
                 row_data[k] = []

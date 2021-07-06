@@ -47,7 +47,14 @@ class P61ANexusReader:
                 frames = np.sum(f['/'.join(channel + self.hist)], axis=0)
                 frames[:20] = 0.0
                 frames[-1] = 0.0
-                kev = (np.arange(frames.shape[0]) + 0.5) * kev_per_bin
+
+                # corrections to NIST Pb and W lines
+                if ii == 0:
+                    kev = (np.arange(frames.shape[0]) + 0.5) * kev_per_bin * 1.00996553386742
+                elif ii == 1:
+                    kev = (np.arange(frames.shape[0]) + 0.5) * kev_per_bin * 1.00040624947555
+                else:
+                    kev = (np.arange(frames.shape[0]) + 0.5) * kev_per_bin
 
                 if self._replace:
                     frames[frames < 1.0] = 1.0
