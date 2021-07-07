@@ -49,10 +49,11 @@ class P61ANexusReader:
                 frames[-1] = 0.0
 
                 # corrections to NIST Pb and W lines
+                kev = np.arange(frames.shape[0]) * kev_per_bin
                 if ii == 0:
-                    kev = (np.arange(frames.shape[0]) + 0.5) * kev_per_bin * 1.00996553386742
+                    kev = np.arange(frames.shape[0]) * 0.050494483569344 + 0.029899315869827
                 elif ii == 1:
-                    kev = (np.arange(frames.shape[0]) + 0.5) * kev_per_bin * 1.00040624947555
+                    kev = np.arange(frames.shape[0]) * 0.04995786201326 + 0.106286326963684
                 else:
                     kev = (np.arange(frames.shape[0]) + 0.5) * kev_per_bin
 
