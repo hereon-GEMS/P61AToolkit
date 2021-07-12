@@ -16,4 +16,4 @@ Implementation
 
 from .GeneralFitWidget import GeneralFitWidget
 from .FloatEdit import FloatEdit
-from .LmfitInspector import LmfitInspector
+from .FitModelInspector import FitModelInspector

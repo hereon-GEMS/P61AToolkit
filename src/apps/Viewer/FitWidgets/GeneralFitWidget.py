@@ -6,7 +6,7 @@ import copy
 
 from P61App import P61App
 from DatasetManager import DatasetViewer
-from FitWidgets.LmfitInspector import LmfitInspector
+from FitWidgets.FitModelInspector import FitModelInspector
 
 from FitWidgets.SeqFitPopUp import SeqFitPopUp
 from FitWidgets.ConstrainPopUp import ConstrainPopUp
@@ -51,7 +51,7 @@ class GeneralFitWidget(QWidget):
         self.export_btn = QPushButton('Export peaks')
         self.plot_w = FitPlot(parent=self)
 
-        self.lmfit_inspector = LmfitInspector(fitPlot=self.plot_w)
+        self.lmfit_inspector = FitModelInspector(fitPlot=self.plot_w)
 
         layout = QGridLayout()
         self.setLayout(layout)

@@ -84,16 +84,20 @@ class P61Viewer(QMainWindow):
         # menu
         mb = self.menuBar()
         fileMenu = QMenu("&File", self)
+        exportMenu = QMenu("&Export", self)
         helpMenu = QMenu("&Help", self)
         self._act_open = QAction('Open', self)
         self._act_save = QAction('Save', self)
         self._act_reload = QAction('Reload', self)
         self._act_save_as = QAction('Save as', self)
-        self._act_export = QAction('Export spectra', self)
+        self._act_export_s = QAction('Spectra', self)
+        self._act_export_p = QAction('Peaks', self)
         self._act_tutorial = QAction('Documentation', self)
-        fileMenu.addActions([self._act_open, self._act_reload, self._act_save, self._act_save_as, self._act_export])
+        fileMenu.addActions([self._act_open, self._act_reload, self._act_save, self._act_save_as])
+        exportMenu.addActions([self._act_export_s, self._act_export_p])
         helpMenu.addActions([self._act_tutorial])
         mb.addMenu(fileMenu)
+        mb.addMenu(exportMenu)
         mb.addMenu(helpMenu)
 
         tab1_layout = QGridLayout()
@@ -121,7 +125,8 @@ class P61Viewer(QMainWindow):
         self._act_save_as.triggered.connect(self.on_act_save_as)
         self._act_reload.triggered.connect(self.on_act_reload)
         self._act_open.triggered.connect(self.on_act_open)
-        self._act_export.triggered.connect(self.on_act_export)
+        self._act_export_s.triggered.connect(self.on_act_export_s)
+        self._act_export_p.triggered.connect(self.on_act_export_p)
         self._act_tutorial.triggered.connect(lambda: webbrowser.open('https://p61a-software.github.io/P61AToolkit/'))
 
     def on_act_open(self):
@@ -177,9 +182,17 @@ class P61Viewer(QMainWindow):
     def on_act_reload(self):
         self.q_app.load_proj_from(f_name=None)
 
-    def on_act_export(self):
+    def on_act_export_s(self):
         w = ExportPopUp(parent=self)
         w.exec_()
+
+    def on_act_export_p(self):
+        f_name, _ = QFileDialog.getSaveFileName(self, "Save fit data as csv", self.q_app.data_dir,
+                                                "All Files (*);;CSV (*.csv)")
+        if not f_name:
+            return
+
+        self.q_app.export_fit(f_name)
 
 
 if __name__ == '__main__':

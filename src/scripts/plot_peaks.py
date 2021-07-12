@@ -3,8 +3,8 @@ from matplotlib import pyplot as plt
 
 
 if __name__ == '__main__':
-    dd = pd.read_csv(r'Z:\p61\2021\data\11009537\processed\refacier_Chi_V2\mesh_PHI3-CHI21_00949.csv')
-    x_mot = 'eu.psi'
+    dd = pd.read_csv(r'Z:\p61\2021\commissioning\c20210624_000_P61ADetP\processed\test.csv')
+    x_mot = 'Channel'
 
     prefixes = {col.split('_')[0] for col in dd.columns if (('_' in col) and ('pv' in col))}
 

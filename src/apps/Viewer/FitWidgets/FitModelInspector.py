@@ -44,7 +44,7 @@ class TreeNode(object):
         return 0
 
 
-class LmfitInspectorModel(QAbstractItemModel):
+class FitModelInspectorModel(QAbstractItemModel):
     """"""
 
     def __init__(self, parent=None):
@@ -308,7 +308,7 @@ class SpinBoxDelegate(QStyledItemDelegate):
         w.setGeometry(s.rect)
 
 
-class LmfitInspector(QWidget):
+class FitModelInspector(QWidget):
     """
 
     """
@@ -322,7 +322,7 @@ class LmfitInspector(QWidget):
         self.btn_rm_bckg = QPushButton('- background')
         self.btn_cp_bckg = QPushButton('Copy background')
 
-        self.treeview_md = LmfitInspectorModel()
+        self.treeview_md = FitModelInspectorModel()
         self._delegate = SpinBoxDelegate()
         self.treeview = QTreeView()
         self.treeview.setModel(self.treeview_md)
