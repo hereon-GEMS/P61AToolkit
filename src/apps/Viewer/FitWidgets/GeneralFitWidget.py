@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QFileDialog
+from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QFileDialog, QSpacerItem
 from PyQt5.QtCore import Qt
 import pandas as pd
 import logging
@@ -56,7 +56,7 @@ class GeneralFitWidget(QWidget):
         layout = QGridLayout()
         self.setLayout(layout)
         layout.addWidget(self.lmfit_inspector, 1, 1, 1, 3)
-        layout.addWidget(self.active_list, 2, 3, 4, 1)
+        layout.addWidget(self.active_list, 2, 3, 5, 1)
         layout.addWidget(self.bckg_fit_btn, 2, 1, 1, 1)
         layout.addWidget(self.peaks_fit_btn, 2, 2, 1, 1)
         layout.addWidget(self.full_fit_btn, 3, 1, 1, 2)
