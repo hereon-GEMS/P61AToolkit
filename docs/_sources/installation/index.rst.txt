@@ -7,8 +7,7 @@ Installation
 Download binaries
 *****************
 
-A pre-compiled version of the Viewer that requires no installation will be provided with its first release.
-For the moment we recommend you use the source code of P61A Toolkit.
+A pre-compiled version of the Viewer that requires no installation can be found `here <https://github.com/P61A-software/P61AToolkit/releases/tag/Viewer>`_.
 
 .. _install-from-source:
 

@@ -23,7 +23,7 @@ The Viewer is available as a part of the Toolkit (see: :ref:`install-from-source
 
 .. warning::
     P61A Toolkit is a young project that is constantly receiving feature and performance updates and bug fixes.
-    While we do provide executables for the Viewer, we recommend that you install the Toolkit from source code and pull updates from github before every use.
+    While we do provide `executables <https://github.com/P61A-software/P61AToolkit/releases/tag/Viewer>`_ for the Viewer, we recommend that you install the Toolkit from source code and pull updates from github before every use.
 
 ************
 P61A::Stress
