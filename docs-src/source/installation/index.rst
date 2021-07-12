@@ -23,7 +23,7 @@ However, if you do, here is our recommended technological stack:
 
 1. Python. We recommend using `Anaconda Python <https://www.anaconda.com/products/individual>`_ for its convenience and availability. Depending on your OS and Python distribution, working with packages like Qt and OpenGL can be pretty taxing. Hence, we recommend Anaconda as a convenient cross-platform solution.
 
-2. IDE (source code editor): `PyCharm <https://www.jetbrains.com/pycharm/>`_. We recommend PyCharm for its beginner friendly all-in-one approach and cross-platform availability. The community edition is free and has a lot of helpful features.
+2. IDE (source code editor): `PyCharm <https://www.jetbrains.com/pycharm/>`_. We recommend PyCharm for its beginner friendly all-in-one approach and cross-platform availability. The community edition is free and has a lot of helpful features (Virtual environment and Git integration).
 
 Setting up a PyCharm project.
 =============================

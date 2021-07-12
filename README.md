@@ -6,15 +6,6 @@ operated by
 and University of Kassel ([Institute of Materials Engineering - Metallic Materials](https://www.uni-kassel.de/maschinenbau/en/institute/institute-of-materials-engineering/departments/metallic-materials)).
 The contact person for the project is [Gleb Dovzhenko](https://hereon.de/institutes/materials_physics/x_ray_diffraction_synchrotron_radiation/team/099147/index.php.de).
 
-At the moment the Toolkit includes:
-* **Viewer:** for viewing and fitting energy dispersive diffraction data from the beamline.
-* **Stress:** for calculating near-surface residual stress distributions based on the output of the Viewer.
+For documentation, tutorials, etc. please refer to the [project website](https://p61a-software.github.io/P61AToolkit/).
 
-Currently in development are **Calculator** for modeling energy dispersive spectra and 
-**Texture** for calculating texture distributions based on the **Viewer**'s output.
-
-## Viewer
-User guide and documentation currently in development.
-
-## Stress
-User guide and documentation currently in development.
+Our list of contributors can be found [here](https://github.com/P61A-software/P61AToolkit/blob/master/CONTRIBUTORS.md).
