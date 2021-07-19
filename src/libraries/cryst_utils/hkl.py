@@ -1,3 +1,5 @@
+from xfab.tools import genhkl_all, genhkl_unique
+from xfab.sg import sgdic
 import numpy as np
 
 
@@ -62,48 +64,35 @@ def bragg(**kwargs):
     return result
 
 
-def lattice_planes(phase, lat_a, lat_b, lat_c, tth, energy_range=None):
+def lattice_planes(phase, lat_a, lat_b, lat_c, alp, bet, gam, tth, energy_range=None):
     """
 
     :param phase:
     :param lat_a:
     :param lat_b:
     :param lat_c:
+    :param alp:
+    :param bet:
+    :param gam:
     :param tth:
     :param energy_range:
     :return:
     """
-    if phase.lower() not in ('hcp', 'fcc', 'bcc'):
-        return
+    if phase not in sgdic.keys():
+        raise ValueError('Incorrect lattice type: %s' % phase)
 
-    hkl = np.array([[h, k, ll] for h in range(0, 10) for k in range(0, 10) for ll in range(0, 10)])
-    if phase.lower() == 'hcp':
-        hkl = hkl[(np.sum(hkl, axis=1) > 0) &
-                  (hkl[:, 1] <= hkl[:, 0]) &
-                  ((hkl[:, 2] % 2 == 0) |
-                   ((hkl[:, 0] + 2 * hkl[:, 1]) % 3 != 0))]
-    elif phase.lower() == 'fcc':
-        hkl = hkl[(np.sum(hkl, axis=1) > 0) &
-                  (hkl[:, 1] <= hkl[:, 0]) &
-                  (hkl[:, 2] <= hkl[:, 1]) &
-                  (np.all(hkl % 2 != 0, axis=1) |
-                   np.all(hkl % 2 == 0, axis=1))]
-    elif phase.lower() == 'bcc':
-        hkl = hkl[(np.sum(hkl, axis=1) > 0) &
-                  (hkl[:, 1] <= hkl[:, 0]) &
-                  (hkl[:, 2] <= hkl[:, 1]) &
-                  (np.sum(hkl, axis=1) % 2 == 0)]
-    if phase.lower() == 'hcp':
-        d_val = (1. / ((4. / 3. * (hkl[:, 0] ** 2 + hkl[:, 0] * hkl[:, 1] + hkl[:, 1] ** 2) / lat_a ** 2) +
-                       (hkl[:, 2] ** 2 / lat_c ** 2))) ** 0.5
-    elif phase.lower() in ('fcc', 'bcc'):
-        d_val = lat_a / np.sum(hkl ** 2, axis=1) ** 0.5
-    else:
-        d_val = np.zeros(shape=hkl.shape[0])
+    if energy_range is None:
+        energy_range = (5., 200.)
 
-    ens = 12.39842 / (2. * d_val * np.sin(np.radians(tth / 2)))
+    hkl = genhkl_unique([lat_a, lat_b, lat_c, alp, bet, gam],
+                        sgname=phase,
+                        sintlmax=np.sin(np.radians(tth / 2.)) / en_wl(en=energy_range[1])['wl'],
+                        sintlmin=np.sin(np.radians(tth / 2.)) / en_wl(en=energy_range[0])['wl'],
+                        output_stl=True)
 
-    result = np.hstack((hkl, d_val.reshape((d_val.shape[0], -1)), ens.reshape((ens.shape[0], -1))))
-    result = result[(result[:, 4] > energy_range[0]) & (result[:, 4] < energy_range[1])]
-    result = [{'h': int(ref[0]), 'k': int(ref[1]), 'l': int(ref[2]), 'd': ref[3], 'e': ref[4]} for ref in result]
-    return result
+    bragg_data = bragg(wl=np.sin(np.radians(tth / 2.)) / hkl[:, 3], tth=tth)
+    ens = bragg_data['en']
+    ds = bragg_data['d']
+
+    result = np.hstack((hkl, ds.reshape(-1, 1), ens.reshape(-1, 1)))
+    return [{'h': int(res[0]), 'k': int(res[1]), 'l': int(res[2]), 'd': res[4], 'e': res[5]} for res in result]
