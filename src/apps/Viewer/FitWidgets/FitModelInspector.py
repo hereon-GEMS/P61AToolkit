@@ -1,7 +1,5 @@
-import lmfit
 import numpy as np
 import logging
-import json
 from uncertainties import ufloat
 
 
