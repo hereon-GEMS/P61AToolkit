@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QLabel, QLineEdit, QComboBox
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit, QDoubleSpinBox
+from PyQt5.QtCore import pyqtSignal, Qt
 import logging
 
 
 from P61App import P61App
-from FitWidgets import FloatEdit
-from cryst_utils import hkl_generator2, PhaseData
+from cryst_utils import PhaseData
+from libraries.cryst_utils import lattice_planes
 
 
 class PhaseConstructor(QWidget):
@@ -31,70 +31,121 @@ class PhaseConstructor(QWidget):
 
         self.name_edt = QLineEdit(self.phases[self.ph_idx].name, parent=self)
 
-        self.lat_lbl = QLabel('Lattice', parent=self)
+        self.sg_lbl = QLabel('Space group', parent=self)
         self.a_lbl = QLabel('a', parent=self)
         self.b_lbl = QLabel('b', parent=self)
         self.c_lbl = QLabel('c', parent=self)
+        self.alp_lbl = QLabel('α', parent=self)
+        self.bet_lbl = QLabel('β', parent=self)
+        self.gam_lbl = QLabel('γ', parent=self)
         self.tth_lbl = QLabel('2Θ', parent=self)
         self.emax_lbl = QLabel('Max E', parent=self)
         self.de_lbl = QLabel('ΔE', parent=self)
 
-        self.a_edt = FloatEdit(init_val=self.phases[self.ph_idx].a, inf_allowed=False, parent=self)
-        self.b_edt = FloatEdit(init_val=self.phases[self.ph_idx].b, inf_allowed=False, parent=self)
-        self.c_edt = FloatEdit(init_val=self.phases[self.ph_idx].c, inf_allowed=False, parent=self)
-        self.tth_edt = FloatEdit(init_val=self.phases[self.ph_idx].tth, inf_allowed=False, parent=self)
-        self.emax_edt = FloatEdit(init_val=self.phases[self.ph_idx].emax, inf_allowed=False, parent=self)
-        self.de_edt = FloatEdit(init_val=self.phases[self.ph_idx].de, inf_allowed=False, parent=self)
+        self.sg_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.a_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.b_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.c_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.alp_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.bet_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.gam_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.tth_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.emax_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.de_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-        self.lat_cmb = QComboBox(parent=self)
-        self.lat_cmb.addItems(PhaseData.lat_supported())
-        self.lat_cmb.setCurrentText(self.phases[self.ph_idx].lat)
+        self.a_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=10., singleStep=0.1, suffix=' Å')
+        self.b_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=10., singleStep=0.1, suffix=' Å')
+        self.c_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=10., singleStep=0.1, suffix=' Å')
+        self.alp_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=180., suffix='°')
+        self.bet_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=180., suffix='°')
+        self.gam_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=180., suffix='°')
+        self.tth_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=20., singleStep=1., suffix='°')
+        self.emax_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=200., suffix=' keV')
+        self.de_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=2., singleStep=0.01, suffix=' keV')
+
+        self.a_edt.setValue(self.phases[self.ph_idx].a)
+        self.b_edt.setValue(self.phases[self.ph_idx].b)
+        self.c_edt.setValue(self.phases[self.ph_idx].c)
+        self.alp_edt.setValue(self.phases[self.ph_idx].alp)
+        self.bet_edt.setValue(self.phases[self.ph_idx].bet)
+        self.gam_edt.setValue(self.phases[self.ph_idx].gam)
+        self.tth_edt.setValue(self.phases[self.ph_idx].tth)
+        self.emax_edt.setValue(self.phases[self.ph_idx].emax)
+        self.de_edt.setValue(self.phases[self.ph_idx].de)
+        self.sg_edt = QLineEdit(self.phases[self.ph_idx].sgname)
 
         self.btn_next = QPushButton(self.txt_add, parent=self)
         self.btn_prev = QPushButton(self.txt_back, parent=self)
         self.btn_prev.setDisabled(True)
         self.btn_del = QPushButton('Delete', parent=self)
 
-        layout = QGridLayout()
+        layout = QVBoxLayout()
         self.setLayout(layout)
-        layout.addWidget(self.btn_prev, 1, 1, 1, 1)
-        layout.addWidget(self.name_edt, 1, 2, 1, 2)
-        layout.addWidget(self.btn_next, 1, 4, 1, 1)
 
-        layout.addWidget(self.lat_lbl, 2, 1, 1, 2)
-        layout.addWidget(self.lat_cmb, 2, 3, 1, 2)
+        l1 = QHBoxLayout()
+        l1.addWidget(self.btn_prev)
+        l1.addWidget(self.name_edt)
+        l1.addWidget(self.btn_next)
+        layout.addLayout(l1)
 
-        layout.addWidget(self.a_lbl, 3, 1, 1, 2)
-        layout.addWidget(self.a_edt, 3, 3, 1, 2)
+        l2 = QHBoxLayout()
+        l2.addWidget(self.sg_lbl)
+        l2.addWidget(self.sg_edt)
+        l2.addWidget(self.tth_lbl)
+        l2.addWidget(self.tth_edt)
+        layout.addLayout(l2)
 
-        layout.addWidget(self.b_lbl, 4, 1, 1, 2)
-        layout.addWidget(self.b_edt, 4, 3, 1, 2)
+        l3 = QHBoxLayout()
+        l3.addWidget(self.a_lbl)
+        l3.addWidget(self.a_edt)
+        l3.addWidget(self.alp_lbl)
+        l3.addWidget(self.alp_edt)
+        layout.addLayout(l3)
 
-        layout.addWidget(self.c_lbl, 5, 1, 1, 2)
-        layout.addWidget(self.c_edt, 5, 3, 1, 2)
+        l4 = QHBoxLayout()
+        l4.addWidget(self.b_lbl)
+        l4.addWidget(self.b_edt)
+        l4.addWidget(self.bet_lbl)
+        l4.addWidget(self.bet_edt)
+        layout.addLayout(l4)
 
-        layout.addWidget(self.tth_lbl, 6, 1, 1, 2)
-        layout.addWidget(self.tth_edt, 6, 3, 1, 2)
+        l5 = QHBoxLayout()
+        l5.addWidget(self.c_lbl)
+        l5.addWidget(self.c_edt)
+        l5.addWidget(self.gam_lbl)
+        l5.addWidget(self.gam_edt)
+        layout.addLayout(l5)
 
-        layout.addWidget(self.emax_lbl, 7, 1, 1, 2)
-        layout.addWidget(self.emax_edt, 7, 3, 1, 2)
+        # l6 = QHBoxLayout()
+        # l6.addWidget(self.tth_lbl)
+        # l6.addWidget(self.tth_edt)
+        # layout.addLayout(l6)
 
-        layout.addWidget(self.de_lbl, 8, 1, 1, 2)
-        layout.addWidget(self.de_edt, 8, 3, 1, 2)
+        l7 = QHBoxLayout()
+        l7.addWidget(self.emax_lbl)
+        l7.addWidget(self.emax_edt)
+        l7.addWidget(self.de_lbl)
+        l7.addWidget(self.de_edt)
+        layout.addLayout(l7)
 
-        layout.addWidget(self.btn_del, 9, 3, 1, 2)
+        l9 = QHBoxLayout()
+        l9.addWidget(self.btn_del)
+        layout.addLayout(l9)
 
         self.btn_prev.clicked.connect(self.on_btn_prev)
         self.btn_next.clicked.connect(self.on_btn_next)
         self.btn_del.clicked.connect(self.on_btn_del)
         self.name_edt.editingFinished.connect(self.on_name_ed_f)
-        self.lat_cmb.currentIndexChanged.connect(self.on_lat_cmb_changed)
-        self.a_edt.valueChanged.connect(self.on_a_changed)
-        self.b_edt.valueChanged.connect(self.on_b_changed)
-        self.c_edt.valueChanged.connect(self.on_c_changed)
-        self.tth_edt.valueChanged.connect(self.on_tth_changed)
-        self.emax_edt.valueChanged.connect(self.on_emax_changed)
-        self.de_edt.valueChanged.connect(self.on_de_changed)
+        self.sg_edt.editingFinished.connect(self.on_sg_edt_changed)
+        self.a_edt.editingFinished.connect(self.on_a_changed)
+        self.b_edt.editingFinished.connect(self.on_b_changed)
+        self.c_edt.editingFinished.connect(self.on_c_changed)
+        self.alp_edt.editingFinished.connect(self.on_alp_changed)
+        self.bet_edt.editingFinished.connect(self.on_bet_changed)
+        self.gam_edt.editingFinished.connect(self.on_gam_changed)
+        self.tth_edt.editingFinished.connect(self.on_tth_changed)
+        self.emax_edt.editingFinished.connect(self.on_emax_changed)
+        self.de_edt.editingFinished.connect(self.on_de_changed)
         self.q_app.hklPhasesChanged.connect(self.on_hklph_changed)
 
         self._upd_ui()
@@ -109,47 +160,68 @@ class PhaseConstructor(QWidget):
         self._upd_ui()
 
     def on_a_changed(self):
-        if self.phases[self.ph_idx].a != self.a_edt.get_value():
-            self.phases[self.ph_idx].a = self.a_edt.get_value()
+        if self.phases[self.ph_idx].a != self.a_edt.value():
+            self.phases[self.ph_idx].a = self.a_edt.value()
             self._upd_ui()
             self._upd_data()
             self.q_app.set_hkl_phases(self.phases)
 
     def on_b_changed(self):
-        if self.phases[self.ph_idx].b != self.b_edt.get_value():
-            self.phases[self.ph_idx].b = self.b_edt.get_value()
+        if self.phases[self.ph_idx].b != self.b_edt.value():
+            self.phases[self.ph_idx].b = self.b_edt.value()
             self._upd_ui()
             self._upd_data()
             self.q_app.set_hkl_phases(self.phases)
 
     def on_c_changed(self):
-        if self.phases[self.ph_idx].c != self.c_edt.get_value():
-            self.phases[self.ph_idx].c = self.c_edt.get_value()
+        if self.phases[self.ph_idx].c != self.c_edt.value():
+            self.phases[self.ph_idx].c = self.c_edt.value()
+            self._upd_ui()
+            self._upd_data()
+            self.q_app.set_hkl_phases(self.phases)
+
+    def on_alp_changed(self):
+        if self.phases[self.ph_idx].alp != self.alp_edt.value():
+            self.phases[self.ph_idx].alp = self.alp_edt.value()
+            self._upd_ui()
+            self._upd_data()
+            self.q_app.set_hkl_phases(self.phases)
+
+    def on_bet_changed(self):
+        if self.phases[self.ph_idx].bet != self.bet_edt.value():
+            self.phases[self.ph_idx].bet = self.bet_edt.value()
+            self._upd_ui()
+            self._upd_data()
+            self.q_app.set_hkl_phases(self.phases)
+
+    def on_gam_changed(self):
+        if self.phases[self.ph_idx].gam != self.gam_edt.value():
+            self.phases[self.ph_idx].gam = self.gam_edt.value()
             self._upd_ui()
             self._upd_data()
             self.q_app.set_hkl_phases(self.phases)
 
     def on_tth_changed(self):
-        if self.phases[self.ph_idx].tth != self.tth_edt.get_value():
-            self.phases[self.ph_idx].tth = self.tth_edt.get_value()
+        if self.phases[self.ph_idx].tth != self.tth_edt.value():
+            self.phases[self.ph_idx].tth = self.tth_edt.value()
             self._upd_data()
             self.q_app.set_hkl_phases(self.phases)
 
     def on_emax_changed(self):
-        if self.phases[self.ph_idx].emax != self.emax_edt.get_value():
-            self.phases[self.ph_idx].emax = self.emax_edt.get_value()
+        if self.phases[self.ph_idx].emax != self.emax_edt.value():
+            self.phases[self.ph_idx].emax = self.emax_edt.value()
             self._upd_data()
             self.q_app.set_hkl_phases(self.phases)
 
     def on_de_changed(self):
-        if self.phases[self.ph_idx].de != self.de_edt.get_value():
-            self.phases[self.ph_idx].de = self.de_edt.get_value()
+        if self.phases[self.ph_idx].de != self.de_edt.value():
+            self.phases[self.ph_idx].de = self.de_edt.value()
             self._upd_data()
             self.q_app.set_hkl_phases(self.phases)
 
-    def on_lat_cmb_changed(self):
-        if self.phases[self.ph_idx].lat != self.lat_cmb.currentText():
-            self.phases[self.ph_idx].lat = self.lat_cmb.currentText()
+    def on_sg_edt_changed(self):
+        if self.phases[self.ph_idx].sgname != self.sg_edt.text():
+            self.phases[self.ph_idx].sgname = self.sg_edt.text()
             self._upd_ui()
             self._upd_data()
             self.q_app.set_hkl_phases(self.phases)
@@ -201,22 +273,20 @@ class PhaseConstructor(QWidget):
         self.name_edt.setStyleSheet("QLineEdit{border : 2px solid; border-color : %s;}" %
                                     hex(self.q_app.wheels['def_no_red'][self.ph_idx % len(self.q_app.wheels['def_no_red'])]).replace('0x', '#'))
 
-        self.lat_cmb.setCurrentText(self.phases[self.ph_idx].lat)
-        self.a_edt.set_value(self.phases[self.ph_idx].a, emit=False)
-        self.b_edt.set_value(self.phases[self.ph_idx].b, emit=False)
-        self.c_edt.set_value(self.phases[self.ph_idx].c, emit=False)
-        self.tth_edt.set_value(self.phases[self.ph_idx].tth, emit=False)
-        self.emax_edt.set_value(self.phases[self.ph_idx].emax, emit=False)
-        self.de_edt.set_value(self.phases[self.ph_idx].de, emit=False)
-
-        free = self.phases[self.ph_idx].free_abc
-        self.a_edt.setReadOnly(not free[0])
-        self.b_edt.setReadOnly(not free[1])
-        self.c_edt.setReadOnly(not free[2])
+        self.sg_edt.setText(self.phases[self.ph_idx].sgname)
+        self.a_edt.setValue(self.phases[self.ph_idx].a)
+        self.b_edt.setValue(self.phases[self.ph_idx].b)
+        self.c_edt.setValue(self.phases[self.ph_idx].c)
+        self.alp_edt.setValue(self.phases[self.ph_idx].alp)
+        self.bet_edt.setValue(self.phases[self.ph_idx].bet)
+        self.gam_edt.setValue(self.phases[self.ph_idx].gam)
+        self.tth_edt.setValue(self.phases[self.ph_idx].tth)
+        self.emax_edt.setValue(self.phases[self.ph_idx].emax)
+        self.de_edt.setValue(self.phases[self.ph_idx].de)
 
     def _upd_data(self):
         self.q_app.hkl_peaks = {
             phase.name: list(map(lambda x: dict(x, **{'de': phase.de}),
-                                 hkl_generator2(phase.lat, phase.a, phase.b, phase.c, phase.tth, (5, phase.emax))))
+                                 lattice_planes(phase.sgname, phase.a, phase.b, phase.c, phase.alp, phase.bet, phase.gam, phase.tth, (1, phase.emax))))
             for phase in self.phases}
         self.q_app.hklPeaksChanged.emit()
