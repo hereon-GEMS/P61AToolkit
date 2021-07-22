@@ -9,6 +9,7 @@ setup(name='py61a',
       url='https://p61a-software.github.io/P61AToolkit/',
       package_dir={'': '..'},
       packages=[
+          'py61a',
           'py61a.beamline_utils',
           'py61a.cryst_utils',
           'py61a.stress'

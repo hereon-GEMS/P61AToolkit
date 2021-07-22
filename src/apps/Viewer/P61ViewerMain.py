@@ -85,6 +85,7 @@ class P61Viewer(QMainWindow):
         mb = self.menuBar()
         fileMenu = QMenu("&File", self)
         exportMenu = QMenu("&Export", self)
+        calibrateMenu = QMenu("&Calibrate", self)
         helpMenu = QMenu("&Help", self)
         self._act_open = QAction('Open', self)
         self._act_save = QAction('Save', self)
@@ -93,11 +94,14 @@ class P61Viewer(QMainWindow):
         self._act_export_s = QAction('Spectra', self)
         self._act_export_p = QAction('Peaks', self)
         self._act_tutorial = QAction('Documentation', self)
+        self._act_calib_tth = QAction('Calibrate 2Θ', self)
         fileMenu.addActions([self._act_open, self._act_reload, self._act_save, self._act_save_as])
         exportMenu.addActions([self._act_export_s, self._act_export_p])
+        calibrateMenu.addActions([self._act_calib_tth])
         helpMenu.addActions([self._act_tutorial])
         mb.addMenu(fileMenu)
         mb.addMenu(exportMenu)
+        mb.addMenu(calibrateMenu)
         mb.addMenu(helpMenu)
 
         tab1_layout = QGridLayout()
@@ -127,7 +131,11 @@ class P61Viewer(QMainWindow):
         self._act_open.triggered.connect(self.on_act_open)
         self._act_export_s.triggered.connect(self.on_act_export_s)
         self._act_export_p.triggered.connect(self.on_act_export_p)
+        self._act_calib_tth.triggered.connect(self.on_act_calib_tth)
         self._act_tutorial.triggered.connect(lambda: webbrowser.open('https://p61a-software.github.io/P61AToolkit/'))
+
+    def on_act_calib_tth(self):
+        pass
 
     def on_act_open(self):
         if self.q_app.proj_f_name is not None:
