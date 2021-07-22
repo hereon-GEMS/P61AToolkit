@@ -130,5 +130,6 @@ dmypy.json
 
 bin
 src/scripts/tmp
+src/py61a/build
 
 *.pickle

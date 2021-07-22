@@ -1,4 +1,4 @@
-from xfab.tools import genhkl_all, genhkl_unique
+from xfab.tools import genhkl_unique
 from xfab.sg import sgdic
 import numpy as np
 
