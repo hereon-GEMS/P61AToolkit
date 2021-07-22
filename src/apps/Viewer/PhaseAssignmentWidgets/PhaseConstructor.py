@@ -4,7 +4,7 @@ import logging
 
 
 from P61App import P61App
-from cryst_utils import PhaseData
+from utils import PhaseData
 from py61a.cryst_utils import lattice_planes
 
 

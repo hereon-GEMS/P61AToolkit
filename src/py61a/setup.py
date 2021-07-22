@@ -1,6 +1,5 @@
 from distutils.core import setup
 
-
 setup(name='py61a',
       version='1.0',
       description='Python utilities for data analysis from P61A beamline',
@@ -12,5 +11,7 @@ setup(name='py61a',
           'py61a',
           'py61a.beamline_utils',
           'py61a.cryst_utils',
-          'py61a.stress'
+          'py61a.stress',
+          'py61a.stress.separated',
+          'py61a.stress.reimplemented',
       ])
