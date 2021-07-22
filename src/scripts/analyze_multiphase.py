@@ -22,10 +22,10 @@ import numpy as np
 from itertools import permutations
 from functools import reduce
 
-from libraries.stress.separated import multiWavelengthAnalysis as multiWavelengthAnalysis2, \
+from py61a.stress.separated import multiWavelengthAnalysis as multiWavelengthAnalysis2, \
     multiUniversalPlotAnalysis as multiUniversalPlotAnalysis2,\
     plotMultiWavelength, plotStrainFreeLatticeSpacing, plotStresses, plotUniversalPlot
-from libraries.cryst_utils import bragg
+from py61a.cryst_utils import bragg
 
 # columns that have to be present for every peak that is to be analysed
 necessary_columns = (

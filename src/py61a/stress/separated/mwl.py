@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-from libraries.cryst_utils.hkl import bragg
+from py61a.cryst_utils.hkl import bragg
 
 
 def createWeightedData(x, y, a):

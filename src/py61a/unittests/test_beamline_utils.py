@@ -2,7 +2,7 @@ from unittest import TestCase
 
 import numpy as np
 import pandas as pd
-from libraries.beamline_utils import motors_to_angles
+from py61a.beamline_utils import motors_to_angles
 
 
 class TestM2A(TestCase):

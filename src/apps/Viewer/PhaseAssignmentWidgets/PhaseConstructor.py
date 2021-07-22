@@ -5,7 +5,7 @@ import logging
 
 from P61App import P61App
 from cryst_utils import PhaseData
-from libraries.cryst_utils import lattice_planes
+from py61a.cryst_utils import lattice_planes
 
 
 class PhaseConstructor(QWidget):
@@ -98,39 +98,31 @@ class PhaseConstructor(QWidget):
         l3 = QHBoxLayout()
         l3.addWidget(self.a_lbl)
         l3.addWidget(self.a_edt)
-        l3.addWidget(self.alp_lbl)
-        l3.addWidget(self.alp_edt)
+        l3.addWidget(self.b_lbl)
+        l3.addWidget(self.b_edt)
+        l3.addWidget(self.c_lbl)
+        l3.addWidget(self.c_edt)
         layout.addLayout(l3)
 
         l4 = QHBoxLayout()
-        l4.addWidget(self.b_lbl)
-        l4.addWidget(self.b_edt)
+        l4.addWidget(self.alp_lbl)
+        l4.addWidget(self.alp_edt)
         l4.addWidget(self.bet_lbl)
         l4.addWidget(self.bet_edt)
+        l4.addWidget(self.gam_lbl)
+        l4.addWidget(self.gam_edt)
         layout.addLayout(l4)
 
         l5 = QHBoxLayout()
-        l5.addWidget(self.c_lbl)
-        l5.addWidget(self.c_edt)
-        l5.addWidget(self.gam_lbl)
-        l5.addWidget(self.gam_edt)
+        l5.addWidget(self.emax_lbl)
+        l5.addWidget(self.emax_edt)
+        l5.addWidget(self.de_lbl)
+        l5.addWidget(self.de_edt)
         layout.addLayout(l5)
 
-        # l6 = QHBoxLayout()
-        # l6.addWidget(self.tth_lbl)
-        # l6.addWidget(self.tth_edt)
-        # layout.addLayout(l6)
-
-        l7 = QHBoxLayout()
-        l7.addWidget(self.emax_lbl)
-        l7.addWidget(self.emax_edt)
-        l7.addWidget(self.de_lbl)
-        l7.addWidget(self.de_edt)
-        layout.addLayout(l7)
-
-        l9 = QHBoxLayout()
-        l9.addWidget(self.btn_del)
-        layout.addLayout(l9)
+        l6 = QHBoxLayout()
+        l6.addWidget(self.btn_del)
+        layout.addLayout(l6)
 
         self.btn_prev.clicked.connect(self.on_btn_prev)
         self.btn_next.clicked.connect(self.on_btn_next)

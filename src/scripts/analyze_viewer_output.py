@@ -5,11 +5,11 @@ from functools import reduce
 
 from PyQt5.QtWidgets import QFileDialog
 
-from libraries.stress.separated import multiWavelengthAnalysis as multiWavelengthAnalysis2, \
+from py61a.stress.separated import multiWavelengthAnalysis as multiWavelengthAnalysis2, \
     multiUniversalPlotAnalysis as multiUniversalPlotAnalysis2,\
     plotMultiWavelength, plotStrainFreeLatticeSpacing, plotStresses, plotUniversalPlot
-from libraries.stress.reimplemented import sin2psi_analysis
-from libraries.cryst_utils import bragg
+from py61a.stress.reimplemented import sin2psi_analysis
+from py61a.cryst_utils import bragg
 
 
 if __name__ == '__main__':

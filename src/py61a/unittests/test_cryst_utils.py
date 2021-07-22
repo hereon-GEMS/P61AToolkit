@@ -2,7 +2,7 @@ from unittest import TestCase
 import unittest
 
 import numpy as np
-from libraries.cryst_utils import bragg, lattice_planes
+from py61a.cryst_utils import bragg, lattice_planes
 
 
 class TestBragg(TestCase):
