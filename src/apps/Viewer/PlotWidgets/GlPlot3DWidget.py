@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QCheckBox, QPushButton
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QCheckBox, QPushButton, QDoubleSpinBox
 from PyQt5.Qt import QVector3D
 from PyQt5 import QtCore
 import pyqtgraph as pg
@@ -14,8 +14,10 @@ pg.setConfigOption('background', 'w')
 
 
 class GlPlot3DWidget(QWidget):
+    read_only_style = 'QDoubleSpinBox {background-color: rgb(70, 70, 70); color: rgb(200, 200, 200)}'
+    regular_style = 'QDoubleSpinBox {background-color: rgb(255, 255, 255);}'
+
     def __init__(self, plot, parent=None):
-        from FitWidgets import FloatEdit
 
         QWidget.__init__(self, parent=parent)
         self.q_app = P61App.instance()
@@ -27,15 +29,24 @@ class GlPlot3DWidget(QWidget):
                                         '[Z] and [X] zoom the camera in and out. ')
         self.explanation_label.setMaximumHeight(20)
         self.zscale_label = QLabel('Intensity scale')
-        self.imax_edit = FloatEdit(init_val=self.plot.imax_default)
-        self.erange_label = QLabel('Energy range (keV)')
-        self.emin_edit = FloatEdit(init_val=self.plot.emin_default)
-        self.emax_edit = FloatEdit(init_val=self.plot.emax_default)
+        # self.imax_edit = FloatEdit(init_val=self.plot.imax_default)
+        self.imax_edit = QDoubleSpinBox(parent=self, minimum=0., maximum=1e8, singleStep=1e3, decimals=0, suffix=' cts')
+        self.imax_edit.setValue(self.plot.imax_default)
+        self.erange_label = QLabel('Energy range')
+        # self.emin_edit = FloatEdit(init_val=self.plot.emin_default)
+        # self.emax_edit = FloatEdit(init_val=self.plot.emax_default)
+        self.emin_edit = QDoubleSpinBox(parent=self, minimum=0., maximum=200, singleStep=1, decimals=0, suffix=' keV')
+        self.emin_edit.setValue(self.plot.emin_default)
+        self.emax_edit = QDoubleSpinBox(parent=self, minimum=0., maximum=200, singleStep=1, decimals=0, suffix=' keV')
+        self.emax_edit.setValue(self.plot.emax_default)
         self.autoscale_cb = QCheckBox(text='Autoscale')
         self.autoscale_cb.setChecked(True)
         self.emin_edit.setReadOnly(True)
         self.emax_edit.setReadOnly(True)
         self.imax_edit.setReadOnly(True)
+        self.emin_edit.setStyleSheet(self.read_only_style)
+        self.emax_edit.setStyleSheet(self.read_only_style)
+        self.imax_edit.setStyleSheet(self.read_only_style)
         self._update_scale()
         self.view_to_default = QPushButton(u'👀')
         self.toggle_log = QPushButton('Log Z')
@@ -56,9 +67,9 @@ class GlPlot3DWidget(QWidget):
         layout.setRowStretch(2, 5)
         layout.setRowStretch(3, 1)
 
-        self.imax_edit.valueChanged.connect(self._update_scale)
-        self.emin_edit.valueChanged.connect(self._update_scale)
-        self.emax_edit.valueChanged.connect(self._update_scale)
+        self.imax_edit.editingFinished.connect(self._update_scale)
+        self.emin_edit.editingFinished.connect(self._update_scale)
+        self.emax_edit.editingFinished.connect(self._update_scale)
         self.autoscale_cb.stateChanged.connect(self._on_autoscale_sc)
         self.view_to_default.clicked.connect(self.set_view_to_default)
         self.toggle_log.clicked.connect(self.on_toggle_log)
@@ -87,22 +98,26 @@ class GlPlot3DWidget(QWidget):
     def _on_autoscale_sc(self, state):
         for edit in (self.emin_edit, self.emax_edit, self.imax_edit):
             edit.setReadOnly(bool(state))
+            if state:
+                edit.setStyleSheet(self.read_only_style)
+            else:
+                edit.setStyleSheet(self.regular_style)
         if state:
             self.autoscale()
 
     def _update_scale(self, *args, **kwargs):
         upd = False
 
-        if self.plot.emin != self.emin_edit.get_value():
-            self.plot.emin = self.emin_edit.get_value()
+        if self.plot.emin != self.emin_edit.value():
+            self.plot.emin = self.emin_edit.value()
             upd = True
 
-        if self.plot.emax != self.emax_edit.get_value():
-            self.plot.emax = self.emax_edit.get_value()
+        if self.plot.emax != self.emax_edit.value():
+            self.plot.emax = self.emax_edit.value()
             upd = True
 
-        if self.plot.imax != self.imax_edit.get_value():
-            self.plot.imax = self.imax_edit.get_value()
+        if self.plot.imax != self.imax_edit.value():
+            self.plot.imax = self.imax_edit.value()
             upd = True
 
         if upd:
@@ -110,19 +125,19 @@ class GlPlot3DWidget(QWidget):
 
     def _scale_to(self, e_min=None, e_max=None, z_max=None):
         if e_min is not None:
-            self.emin_edit.set_value(e_min, emit=False)
+            self.emin_edit.setValue(e_min)
         else:
-            self.emin_edit.set_value(self.plot.emin_default, emit=False)
+            self.emin_edit.setValue(self.plot.emin_default)
 
         if e_max is not None:
-            self.emax_edit.set_value(e_max, emit=False)
+            self.emax_edit.setValue(e_max)
         else:
-            self.emax_edit.set_value(self.plot.emax_default, emit=False)
+            self.emax_edit.setValue(self.plot.emax_default)
 
         if z_max is not None:
-            self.imax_edit.set_value(z_max, emit=True)
+            self.imax_edit.setValue(z_max)
         else:
-            self.imax_edit.set_value(self.plot.imax_default, emit=True)
+            self.imax_edit.setValue(self.plot.imax_default)
 
 
 class GlPlot3D(gl.GLViewWidget):
