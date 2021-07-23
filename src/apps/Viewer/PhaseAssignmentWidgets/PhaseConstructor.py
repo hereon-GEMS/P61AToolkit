@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit, QDoubleSpinBox
-from PyQt5.QtCore import pyqtSignal, Qt
+from PyQt5.QtCore import pyqtSignal, Qt, QSize
 import logging
 
 
@@ -89,10 +89,10 @@ class PhaseConstructor(QWidget):
         layout.addLayout(l1)
 
         l2 = QHBoxLayout()
-        l2.addWidget(self.sg_lbl)
-        l2.addWidget(self.sg_edt)
-        l2.addWidget(self.tth_lbl)
-        l2.addWidget(self.tth_edt)
+        l2.addWidget(self.sg_lbl, alignment=Qt.AlignRight, stretch=8)
+        l2.addWidget(self.sg_edt, alignment=Qt.AlignRight, stretch=2)
+        l2.addWidget(self.tth_lbl, alignment=Qt.AlignLeft, stretch=1)
+        l2.addWidget(self.tth_edt, alignment=Qt.AlignLeft, stretch=8)
         layout.addLayout(l2)
 
         l3 = QHBoxLayout()
@@ -114,10 +114,10 @@ class PhaseConstructor(QWidget):
         layout.addLayout(l4)
 
         l5 = QHBoxLayout()
-        l5.addWidget(self.emax_lbl)
-        l5.addWidget(self.emax_edt)
-        l5.addWidget(self.de_lbl)
-        l5.addWidget(self.de_edt)
+        l5.addWidget(self.emax_lbl, alignment=Qt.AlignRight, stretch=5)
+        l5.addWidget(self.emax_edt, alignment=Qt.AlignRight, stretch=3)
+        l5.addWidget(self.de_lbl, alignment=Qt.AlignLeft, stretch=1)
+        l5.addWidget(self.de_edt, alignment=Qt.AlignLeft, stretch=7)
         layout.addLayout(l5)
 
         l6 = QHBoxLayout()

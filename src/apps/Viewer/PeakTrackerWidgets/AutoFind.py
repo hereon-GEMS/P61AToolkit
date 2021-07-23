@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QPushButton, QDialog, QProgressDialog
+from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QVBoxLayout, QPushButton, QDialog, \
+    QProgressDialog, QDoubleSpinBox
 from PyQt5.Qt import Qt
 from scipy.signal import find_peaks
 import numpy as np
 
 from P61App import P61App
-from FitWidgets.FloatEdit import FloatEdit
 from DatasetManager import DatasetSelector
 from peak_fit_utils import PeakData, PeakDataTrack
 
@@ -52,65 +52,77 @@ class AutoFindWidget(QWidget):
         self.title_label = QLabel('                ')
 
         self.height_label = QLabel('Height')
-        self.height_label.setToolTip('Required minimal height of peaks. Either a number or None.')
-        self.height_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=20.)
-        # self.thr_label = QLabel('Threshhold')
-        # self.thr_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=None)
+        self.height_label.setToolTip('Minimal absolute height (see also: prominence).')
+        self.height_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        # self.height_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=20.)
+        self.height_edit = QDoubleSpinBox(parent=self, minimum=1., maximum=1e8, singleStep=1, decimals=0,
+                                          suffix=' cts')
+        self.height_edit.setValue(1e3)
+
         self.dist_label = QLabel('Distance')
-        self.dist_label.setToolTip('Required minimal horizontal distance between neighbouring peaks.\n'
+        self.dist_label.setToolTip('Minimal horizontal distance between neighbouring peaks.\n'
                                    'Smaller peaks are removed first until the condition is fulfilled '
                                    'for all remaining peaks.')
-        self.dist_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=5E-1)
-        self.prom_label = QLabel('Prominence')
-        self.prom_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=1e3)
+        self.dist_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        # self.dist_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=5E-1)
+        self.dist_edit = QDoubleSpinBox(parent=self, minimum=0., maximum=200, singleStep=1, decimals=1,
+                                          suffix=' keV')
+        self.dist_edit.setValue(0.5)
+
         self.width_label = QLabel('Width')
-        self.width_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=5E-2)
-        self.width_label.setToolTip('Required minimal width of peaks. Either a number or None.')
-        # self.cutoff_label = QLabel('Cutoff')
-        # self.cutoff_edit = FloatEdit(inf_allowed=True, none_allowed=True, init_val=5.)
-        # self.cutoff_label.setToolTip('Peak base cutoff measured in sigmas.')
+        self.width_label.setToolTip('Minimal width of peaks.')
+        self.width_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        # self.width_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=5E-2)
+        self.width_edit = QDoubleSpinBox(parent=self, minimum=0., maximum=10, singleStep=0.1, decimals=2,
+                                          suffix=' keV')
+        self.width_edit.setValue(0.05)
+
+        self.prom_label = QLabel('Prominence')
+        self.prom_label.setToolTip('Minimal height relative to surrounding background.')
+        self.prom_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        # self.prom_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=1e3)
+        self.prom_edit = QDoubleSpinBox(parent=self, minimum=1., maximum=1e8, singleStep=1., decimals=0,
+                                          suffix=' cts')
+        self.prom_edit.setValue(1e3)
+
         self.tw_label = QLabel('Track window')
-        self.tw_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=3E-1)
-        self.tw_label.setToolTip('Max peak shift between the spectra.')
+        # self.tw_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=3E-1)
+        self.tw_edit = QDoubleSpinBox(parent=self, minimum=0., maximum=2., singleStep=.1, decimals=2,
+                                          suffix=' keV')
+        self.tw_edit.setValue(0.3)
+        self.tw_label.setToolTip('Max shift in peak position between neighbouring spectra '
+                                 'for the two peaks to be on the same track.')
+        self.tw_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+
         self.btn_all = QPushButton('Find')
         self.btn_stack = QPushButton('Make tracks')
 
-        # self.btn_this.clicked.connect(self.on_btn_this)
         self.btn_all.clicked.connect(self.on_btn_all)
         self.btn_stack.clicked.connect(self.on_btn_stack)
 
-        layout = QGridLayout()
+        layout = QVBoxLayout()
         self.setLayout(layout)
-        layout.addWidget(self.title_label, 1, 1, 1, 2)
 
-        layout.addWidget(self.height_label, 2, 1, 1, 1)
-        layout.addWidget(self.height_edit, 2, 2, 1, 1)
+        l1 = QGridLayout()
 
-        layout.addWidget(self.dist_label, 3, 1, 1, 1)
-        layout.addWidget(self.dist_edit, 3, 2, 1, 1)
+        l1.addWidget(self.height_label, 1, 1, 1, 1)
+        l1.addWidget(self.height_edit, 1, 2, 1, 1)
+        l1.addWidget(self.dist_label, 1, 3, 1, 1)
+        l1.addWidget(self.dist_edit, 1, 4, 1, 1)
 
-        layout.addWidget(self.width_label, 4, 1, 1, 1)
-        layout.addWidget(self.width_edit, 4, 2, 1, 1)
+        l1.addWidget(self.width_label, 2, 1, 1, 1)
+        l1.addWidget(self.width_edit, 2, 2, 1, 1)
+        l1.addWidget(self.prom_label, 2, 3, 1, 1)
+        l1.addWidget(self.prom_edit, 2, 4, 1, 1)
+        l1.addWidget(self.btn_all, 3, 4, 1, 1)
 
-        # layout.addWidget(self.thr_label, 5, 1, 1, 1)
-        # layout.addWidget(self.thr_edit, 5, 2, 1, 1)
-
-        layout.addWidget(self.prom_label, 6, 1, 1, 1)
-        layout.addWidget(self.prom_edit, 6, 2, 1, 1)
-
-        # layout.addWidget(self.cutoff_label, 7, 1, 1, 1)
-        # layout.addWidget(self.cutoff_edit, 7, 2, 1, 1)
-
-        # layout.addWidget(self.btn_this, 8, 1, 1, 1)
-        layout.addWidget(self.btn_all, 8, 2, 1, 1)
-
-        layout.addWidget(self.tw_label, 9, 1, 1, 1)
-        layout.addWidget(self.tw_edit, 9, 2, 1, 1)
-
-        layout.addWidget(self.btn_stack, 10, 2, 1, 2)
+        l1.addWidget(self.tw_label, 4, 1, 1, 1)
+        l1.addWidget(self.tw_edit, 4, 2, 1, 1)
+        l1.addWidget(self.btn_stack, 5, 4, 1, 1)
+        layout.addLayout(l1)
 
     def on_btn_stack(self):
-        tw = self.tw_edit.get_value()
+        tw = self.tw_edit.value()
         ids = self.q_app.get_active_ids()
         tracks = []
 
@@ -131,15 +143,11 @@ class AutoFindWidget(QWidget):
 
     def on_btn_this(self, *args, idx=-1, emit=True):
         params = {
-            'height': self.height_edit.get_value(),
-            # 'threshold': self.thr_edit.get_value(),
-            'distance': self.dist_edit.get_value(),
-            'prominence': self.prom_edit.get_value(),
-            'width': self.width_edit.get_value()
+            'height': self.height_edit.value(),
+            'distance': self.dist_edit.value(),
+            'prominence': self.prom_edit.value(),
+            'width': self.width_edit.value()
         }
-        # cutoff = self.cutoff_edit.get_value()
-        # if cutoff is None:
-        #     cutoff = np.inf
 
         if idx == -1:
             idx = self.q_app.get_selected_idx()
@@ -165,13 +173,6 @@ class AutoFindWidget(QWidget):
             right_ips = np.interp(result_idx[1]['right_ips'], np.arange(0, xx.shape[0]), xx)
             width_heights = result_idx[1]['width_heights']
 
-            # if cutoff < np.inf:
-            #     g_sigmas = (right_ips - left_ips) / (2. * np.sqrt(2. * np.log(2)))
-            #     left_bases = pos_x - cutoff * g_sigmas
-            #     right_bases = pos_x + cutoff * g_sigmas
-            #     left_bases_heights = np.interp(left_bases, xx, yy)
-            #     right_bases_heights = np.interp(right_bases, xx, yy)
-            # else:
             left_bases = xx[result_idx[1]['left_bases']]
             right_bases = xx[result_idx[1]['right_bases']]
             left_bases_heights = yy[result_idx[1]['left_bases']]

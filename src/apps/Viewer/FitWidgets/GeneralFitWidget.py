@@ -1,15 +1,12 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QFileDialog, QSpacerItem
+from PyQt5.QtWidgets import QWidget, QGridLayout, QPushButton, QFileDialog
 from PyQt5.QtCore import Qt
-import pandas as pd
 import logging
-import copy
 
 from P61App import P61App
 from DatasetManager import DatasetViewer
 from FitWidgets.FitModelInspector import FitModelInspector
 
 from FitWidgets.SeqFitPopUp import SeqFitPopUp
-from FitWidgets.ConstrainPopUp import ConstrainPopUp
 from PlotWidgets import FitPlot
 from ThreadIO import Worker
 from peak_fit_utils import fit_peaks as fit_peaks2, fit_bckg as fit_bckg2, fit_to_precision as fit_to_precision2
