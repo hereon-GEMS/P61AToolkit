@@ -288,23 +288,24 @@ class PhaseConstructor(QWidget):
             self.gam_edt.setDisabled(True)
         elif cs == 'trigonal':
             self.phases[self.ph_idx].b = self.phases[self.ph_idx].a
-            self.phases[self.ph_idx].c = self.phases[self.ph_idx].a
-            self.phases[self.ph_idx].bet = self.phases[self.ph_idx].alp
-            self.phases[self.ph_idx].gam = self.phases[self.ph_idx].alp
-            self.a_edt.setDisabled(False)
-            self.b_edt.setDisabled(True)
-            self.c_edt.setDisabled(True)
-            self.alp_edt.setDisabled(False)
-            self.bet_edt.setDisabled(True)
-            self.gam_edt.setDisabled(True)
-        elif cs == 'hexagonal':
-            self.phases[self.ph_idx].b = self.phases[self.ph_idx].a
-            self.phases[self.ph_idx].bet = self.phases[self.ph_idx].alp
+            self.phases[self.ph_idx].alp = 90.
+            self.phases[self.ph_idx].bet = 90.
             self.phases[self.ph_idx].gam = 120.
             self.a_edt.setDisabled(False)
             self.b_edt.setDisabled(True)
             self.c_edt.setDisabled(False)
-            self.alp_edt.setDisabled(False)
+            self.alp_edt.setDisabled(True)
+            self.bet_edt.setDisabled(True)
+            self.gam_edt.setDisabled(True)
+        elif cs == 'hexagonal':
+            self.phases[self.ph_idx].b = self.phases[self.ph_idx].a
+            self.phases[self.ph_idx].alp = 90.
+            self.phases[self.ph_idx].bet = 90.
+            self.phases[self.ph_idx].gam = 120.
+            self.a_edt.setDisabled(False)
+            self.b_edt.setDisabled(True)
+            self.c_edt.setDisabled(False)
+            self.alp_edt.setDisabled(True)
             self.bet_edt.setDisabled(True)
             self.gam_edt.setDisabled(True)
         elif cs == 'cubic':
