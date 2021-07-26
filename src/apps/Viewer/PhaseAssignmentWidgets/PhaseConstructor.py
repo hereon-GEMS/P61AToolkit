@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit, QDoubleSpinBox
 from PyQt5.QtCore import pyqtSignal, Qt, QSize
 import logging
+import pandas as pd
+from scipy.optimize import least_squares
 
 
 from P61App import P61App
@@ -353,3 +355,39 @@ class PhaseConstructor(QWidget):
                                  lattice_planes(phase.sgname, phase.a, phase.b, phase.c, phase.alp, phase.bet, phase.gam, phase.tth, (1, phase.emax))))
             for phase in self.phases}
         self.q_app.hklPeaksChanged.emit()
+
+    def refine_tth(self):
+        peaks_data = pd.DataFrame()
+        peaks_data = peaks_data.append(self.q_app.data.loc[self.q_app.data['Active'], ['ScreenName', 'PeakDataList']])
+        peaks_data = peaks_data.apply(self.q_app.expand_peaks, axis=1)
+        peaks_data = self.q_app.add_phase_data(peaks_data)
+        peaks_data = peaks_data.drop(['ScreenName'], axis=1).mean(axis=0)
+
+        tracks = self.q_app.get_pd_tracks()
+        prefixes = ['pv%d' % ii for ii in range(len(tracks))]
+
+        observed = dict()
+        for prefix in prefixes:
+            if '_'.join((prefix, 'h')) in peaks_data.index:
+                observed['%d%d%d' % (peaks_data['_'.join((prefix, 'h'))],
+                                     peaks_data['_'.join((prefix, 'k'))],
+                                     peaks_data['_'.join((prefix, 'l'))])] = peaks_data['_'.join((prefix, 'center'))]
+
+        phase = self.phases[self.ph_idx]
+
+        def residuals(x, *args, **kwargs):
+            calc = lattice_planes(phase.sgname, phase.a, phase.b, phase.c, phase.alp, phase.bet, phase.gam, x[0],
+                           (1, phase.emax))
+            calc = {'%d%d%d' % (peak['h'], peak['k'], peak['l']): peak['e'] for peak in calc}
+
+            return sum([abs(observed[k] - calc[k]) for k in observed.keys() & calc.keys()])
+
+        try:
+            new_tth = least_squares(residuals, [phase.tth], bounds=((0., 15.))).x[0]
+            self.phases[self.ph_idx].tth = new_tth
+            self._upd_data()
+            self.q_app.set_hkl_phases(self.phases)
+
+        except Exception as e:
+            self.logger.error('Could not reach convergence')
+

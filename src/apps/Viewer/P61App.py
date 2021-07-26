@@ -462,54 +462,56 @@ class P61App(QApplication):
                 data = data[['eV', 'counts']]
                 data.to_csv(os.path.join(dirname, f_name), header=True, index=False)
 
-    def export_fit(self, f_name):
+    def expand_peaks(self, row):
         tracks = self.get_pd_tracks()
         prefixes = ['pv%d' % ii for ii in range(len(tracks))]
 
-        def expand_peaks(row):
-            if row['PeakDataList'] is None:
-                return row.drop(labels=['PeakDataList'])
-            else:
-                for track, prefix in zip(tracks, prefixes):
-                    if row.name in track.ids:
-                        name = row.name
-                        row = row.append(pd.Series({'_'.join((prefix, k)): val
-                                                    for (k, val) in track[row.name].export_ref_params().items()}))
-                        row.name = name
-                return row.drop(labels=['PeakDataList'])
+        if row['PeakDataList'] is None:
+            return row.drop(labels=['PeakDataList'])
+        else:
+            for track, prefix in zip(tracks, prefixes):
+                if row.name in track.ids:
+                    name = row.name
+                    row = row.append(pd.Series({'_'.join((prefix, k)): val
+                                                for (k, val) in track[row.name].export_ref_params().items()}))
+                    row.name = name
+            return row.drop(labels=['PeakDataList'])
 
-        def expand_motors(row):
-            if row['Motors'] is None:
-                for motor in self.motors_all:
-                    row[motor] = None
-            else:
-                for motor in self.motors_all:
-                    row[motor] = row['Motors'][motor]
-            return row.drop(labels=['Motors'])
+    def expand_motors(self, row):
+        if row['Motors'] is None:
+            for motor in self.motors_all:
+                row[motor] = None
+        else:
+            for motor in self.motors_all:
+                row[motor] = row['Motors'][motor]
+        return row.drop(labels=['Motors'])
 
-        def add_phase_data(df):
-            peak_centers = df.filter(regex='center$', axis=1)
-            peak_centers = peak_centers.mean()
-            for phase in self.get_hkl_peaks():
-                peaks = self.hkl_peaks[phase]
-                for peak in peaks:
-                    _pc = peak_centers[(peak_centers < peak['e'] + peak['de']) &
-                                       (peak_centers > peak['e'] - peak['de'])]
-                    if _pc.shape[0] > 0:
-                        label = (_pc - peak['e']).abs().idxmin()
-                        df[label.replace('center', 'h')] = [peak['h']] * df.shape[0]
-                        df[label.replace('center', 'k')] = [peak['k']] * df.shape[0]
-                        df[label.replace('center', 'l')] = [peak['l']] * df.shape[0]
-                        df[label.replace('center', '3gamma')] = [peak['3g']] * df.shape[0]
-                        df[label.replace('center', 'phase')] = [phase] * df.shape[0]
-            return df
+    def add_phase_data(self, df):
+        peak_centers = df.filter(regex='center$', axis=1)
+        peak_centers = peak_centers.mean()
+        for phase in self.get_hkl_peaks():
+            peaks = self.hkl_peaks[phase]
+            for peak in peaks:
+                _pc = peak_centers[(peak_centers < peak['e'] + peak['de']) &
+                                   (peak_centers > peak['e'] - peak['de'])]
+                if _pc.shape[0] > 0:
+                    label = (_pc - peak['e']).abs().idxmin()
+                    df[label.replace('center', 'h')] = [peak['h']] * df.shape[0]
+                    df[label.replace('center', 'k')] = [peak['k']] * df.shape[0]
+                    df[label.replace('center', 'l')] = [peak['l']] * df.shape[0]
+                    df[label.replace('center', '3gamma')] = [peak['3g']] * df.shape[0]
+                    df[label.replace('center', 'phase')] = [phase] * df.shape[0]
+        return df
+
+    def export_fit(self, f_name):
 
         result = pd.DataFrame()
         result = result.append(self.data.loc[self.data['Active'],
-                                             ['ScreenName', 'Channel', 'DeadTime', 'PeakDataList', 'Motors', 'Chi2']])
-        result = result.apply(expand_peaks, axis=1)
-        result = result.apply(expand_motors, axis=1)
-        result = add_phase_data(result)
+                                             ['ScreenName', 'Channel', 'DeadTime',
+                                              'PeakDataList', 'Motors', 'Chi2']])
+        result = result.apply(self.expand_peaks, axis=1)
+        result = result.apply(self.expand_motors, axis=1)
+        result = self.add_phase_data(result)
 
         columns = list(sorted(result.columns))
         columns.remove('ScreenName')

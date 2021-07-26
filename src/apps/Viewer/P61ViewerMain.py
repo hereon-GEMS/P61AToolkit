@@ -135,7 +135,7 @@ class P61Viewer(QMainWindow):
         self._act_tutorial.triggered.connect(lambda: webbrowser.open('https://p61a-software.github.io/P61AToolkit/'))
 
     def on_act_calib_tth(self):
-        pass
+        self.phase_ed.refine_tth()
 
     def on_act_open(self):
         if self.q_app.proj_f_name is not None:
