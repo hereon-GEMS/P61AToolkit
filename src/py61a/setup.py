@@ -6,12 +6,12 @@ setup(name='py61a',
       author='Gleb Dovzhenko',
       author_email='gleb.dovzhenko@hereon.de',
       url='https://p61a-software.github.io/P61AToolkit/',
-      package_dir={'': '..'},
+      license='GNU GPL v.3',
       packages=[
           'py61a',
           'py61a.beamline_utils',
           'py61a.cryst_utils',
           'py61a.stress',
           'py61a.stress.separated',
-          'py61a.stress.reimplemented',
-      ])
+          'py61a.stress.reimplemented']
+      )
