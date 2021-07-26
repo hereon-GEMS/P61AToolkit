@@ -286,18 +286,7 @@ class PhaseConstructor(QWidget):
             self.alp_edt.setDisabled(True)
             self.bet_edt.setDisabled(True)
             self.gam_edt.setDisabled(True)
-        elif cs == 'trigonal':
-            self.phases[self.ph_idx].b = self.phases[self.ph_idx].a
-            self.phases[self.ph_idx].alp = 90.
-            self.phases[self.ph_idx].bet = 90.
-            self.phases[self.ph_idx].gam = 120.
-            self.a_edt.setDisabled(False)
-            self.b_edt.setDisabled(True)
-            self.c_edt.setDisabled(False)
-            self.alp_edt.setDisabled(True)
-            self.bet_edt.setDisabled(True)
-            self.gam_edt.setDisabled(True)
-        elif cs == 'hexagonal':
+        elif cs in ('trigonal', 'hexagonal'):
             self.phases[self.ph_idx].b = self.phases[self.ph_idx].a
             self.phases[self.ph_idx].alp = 90.
             self.phases[self.ph_idx].bet = 90.
