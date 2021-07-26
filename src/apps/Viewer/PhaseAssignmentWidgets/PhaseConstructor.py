@@ -5,7 +5,7 @@ import logging
 
 from P61App import P61App
 from utils import PhaseData
-from py61a.cryst_utils import lattice_planes
+from py61a.cryst_utils import lattice_planes, cs_from_sg
 
 
 class PhaseConstructor(QWidget):
@@ -32,6 +32,7 @@ class PhaseConstructor(QWidget):
         self.name_edt = QLineEdit(self.phases[self.ph_idx].name, parent=self)
 
         self.sg_lbl = QLabel('Space group', parent=self)
+        self.cs_lbl = QLabel('(%s)' % cs_from_sg(self.phases[0].sgname), parent=self)
         self.a_lbl = QLabel('a', parent=self)
         self.b_lbl = QLabel('b', parent=self)
         self.c_lbl = QLabel('c', parent=self)
@@ -91,6 +92,7 @@ class PhaseConstructor(QWidget):
         l2 = QHBoxLayout()
         l2.addWidget(self.sg_lbl, alignment=Qt.AlignRight, stretch=8)
         l2.addWidget(self.sg_edt, alignment=Qt.AlignRight, stretch=2)
+        l2.addWidget(self.cs_lbl, alignment=Qt.AlignRight, stretch=2)
         l2.addWidget(self.tth_lbl, alignment=Qt.AlignLeft, stretch=1)
         l2.addWidget(self.tth_edt, alignment=Qt.AlignLeft, stretch=8)
         layout.addLayout(l2)
@@ -212,8 +214,10 @@ class PhaseConstructor(QWidget):
             self.q_app.set_hkl_phases(self.phases)
 
     def on_sg_edt_changed(self):
-        if self.phases[self.ph_idx].sgname != self.sg_edt.text():
-            self.phases[self.ph_idx].sgname = self.sg_edt.text()
+        txt = self.sg_edt.text().lower().replace(' ', '')
+
+        if self.phases[self.ph_idx].sgname != txt:
+            self.phases[self.ph_idx].sgname = txt
             self._upd_ui()
             self._upd_data()
             self.q_app.set_hkl_phases(self.phases)
@@ -242,6 +246,80 @@ class PhaseConstructor(QWidget):
         self._upd_ui()
         self._upd_data()
 
+    def enforce_cs(self, sg):
+        cs = cs_from_sg(sg)
+
+        if cs == 'triclinic':
+            self.a_edt.setDisabled(False)
+            self.b_edt.setDisabled(False)
+            self.c_edt.setDisabled(False)
+            self.alp_edt.setDisabled(False)
+            self.bet_edt.setDisabled(False)
+            self.gam_edt.setDisabled(False)
+        elif cs == 'monoclinic':
+            self.phases[self.ph_idx].alp = 90.
+            self.phases[self.ph_idx].gam = 90.
+            self.a_edt.setDisabled(False)
+            self.b_edt.setDisabled(False)
+            self.c_edt.setDisabled(False)
+            self.alp_edt.setDisabled(True)
+            self.bet_edt.setDisabled(False)
+            self.gam_edt.setDisabled(True)
+        elif cs == 'orthorombic':
+            self.phases[self.ph_idx].alp = 90.
+            self.phases[self.ph_idx].bet = 90.
+            self.phases[self.ph_idx].gam = 90.
+            self.a_edt.setDisabled(False)
+            self.b_edt.setDisabled(False)
+            self.c_edt.setDisabled(False)
+            self.alp_edt.setDisabled(True)
+            self.bet_edt.setDisabled(True)
+            self.gam_edt.setDisabled(True)
+        elif cs == 'tetragonal':
+            self.phases[self.ph_idx].b = self.phases[self.ph_idx].a
+            self.phases[self.ph_idx].alp = 90.
+            self.phases[self.ph_idx].bet = 90.
+            self.phases[self.ph_idx].gam = 90.
+            self.a_edt.setDisabled(False)
+            self.b_edt.setDisabled(True)
+            self.c_edt.setDisabled(False)
+            self.alp_edt.setDisabled(True)
+            self.bet_edt.setDisabled(True)
+            self.gam_edt.setDisabled(True)
+        elif cs == 'trigonal':
+            self.phases[self.ph_idx].b = self.phases[self.ph_idx].a
+            self.phases[self.ph_idx].c = self.phases[self.ph_idx].a
+            self.phases[self.ph_idx].bet = self.phases[self.ph_idx].alp
+            self.phases[self.ph_idx].gam = self.phases[self.ph_idx].alp
+            self.a_edt.setDisabled(False)
+            self.b_edt.setDisabled(True)
+            self.c_edt.setDisabled(True)
+            self.alp_edt.setDisabled(False)
+            self.bet_edt.setDisabled(True)
+            self.gam_edt.setDisabled(True)
+        elif cs == 'hexagonal':
+            self.phases[self.ph_idx].b = self.phases[self.ph_idx].a
+            self.phases[self.ph_idx].bet = self.phases[self.ph_idx].alp
+            self.phases[self.ph_idx].gam = 120.
+            self.a_edt.setDisabled(False)
+            self.b_edt.setDisabled(True)
+            self.c_edt.setDisabled(False)
+            self.alp_edt.setDisabled(False)
+            self.bet_edt.setDisabled(True)
+            self.gam_edt.setDisabled(True)
+        elif cs == 'cubic':
+            self.phases[self.ph_idx].b = self.phases[self.ph_idx].a
+            self.phases[self.ph_idx].c = self.phases[self.ph_idx].a
+            self.phases[self.ph_idx].alp = 90.
+            self.phases[self.ph_idx].bet = 90.
+            self.phases[self.ph_idx].gam = 90.
+            self.a_edt.setDisabled(False)
+            self.b_edt.setDisabled(True)
+            self.c_edt.setDisabled(True)
+            self.alp_edt.setDisabled(True)
+            self.bet_edt.setDisabled(True)
+            self.gam_edt.setDisabled(True)
+
     def _upd_ui(self):
         if self.ph_idx >= len(self.phases):
             self.ph_idx = 0
@@ -266,6 +344,7 @@ class PhaseConstructor(QWidget):
                                     hex(self.q_app.wheels['def_no_red'][self.ph_idx % len(self.q_app.wheels['def_no_red'])]).replace('0x', '#'))
 
         self.sg_edt.setText(self.phases[self.ph_idx].sgname)
+        self.cs_lbl.setText('(%s)' % cs_from_sg(self.phases[self.ph_idx].sgname))
         self.a_edt.setValue(self.phases[self.ph_idx].a)
         self.b_edt.setValue(self.phases[self.ph_idx].b)
         self.c_edt.setValue(self.phases[self.ph_idx].c)
@@ -277,6 +356,8 @@ class PhaseConstructor(QWidget):
         self.de_edt.setValue(self.phases[self.ph_idx].de)
 
     def _upd_data(self):
+        self.enforce_cs(self.phases[self.ph_idx].sgname)
+
         self.q_app.hkl_peaks = {
             phase.name: list(map(lambda x: dict(x, **{'de': phase.de}),
                                  lattice_planes(phase.sgname, phase.a, phase.b, phase.c, phase.alp, phase.bet, phase.gam, phase.tth, (1, phase.emax))))

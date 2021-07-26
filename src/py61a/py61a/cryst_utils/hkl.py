@@ -96,3 +96,24 @@ def lattice_planes(phase, lat_a, lat_b, lat_c, alp, bet, gam, tth, energy_range=
 
     result = np.hstack((hkl, ds.reshape(-1, 1), ens.reshape(-1, 1)))
     return [{'h': int(res[0]), 'k': int(res[1]), 'l': int(res[2]), 'd': res[4], 'e': res[5]} for res in result]
+
+
+def cs_from_sg(sg_name):
+    sg_num = int(sgdic[sg_name][2:])
+
+    if sg_num <= 2:
+        return 'triclinic'
+    elif sg_num <= 15:
+        return 'monoclinic'
+    elif sg_num <= 74:
+        return 'orthorombic'
+    elif sg_num <= 142:
+        return 'tetragonal'
+    elif sg_num <= 167:
+        return 'trigonal'
+    elif sg_num <= 194:
+        return 'hexagonal'
+    elif sg_num <= 230:
+        return 'cubic'
+    else:
+        return 'triclinic'
