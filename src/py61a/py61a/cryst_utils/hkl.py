@@ -94,8 +94,19 @@ def lattice_planes(phase, lat_a, lat_b, lat_c, alp, bet, gam, tth, energy_range=
     ens = bragg_data['en']
     ds = bragg_data['d']
 
-    result = np.hstack((hkl, ds.reshape(-1, 1), ens.reshape(-1, 1)))
-    return [{'h': int(res[0]), 'k': int(res[1]), 'l': int(res[2]), 'd': res[4], 'e': res[5]} for res in result]
+    if phase in ('fm-3m', 'im-3m'):
+        tg = 3 * (hkl[:, 0] ** 2 * hkl[:, 1] ** 2 + hkl[:, 1] ** 2 * hkl[:, 2] ** 2 + hkl[:, 2] ** 2 * hkl[:, 0] ** 2) / \
+             (hkl[:, 0] ** 2 + hkl[:, 1] ** 2 + hkl[:, 2] ** 2) ** 2
+    elif phase == 'p63/mmc':
+        tg = hkl[:, 2] ** 2 / (
+            (4./3.) * (lat_c / lat_a) ** 2 * (hkl[:, 0] ** 2 + hkl[:, 1] ** 2 + hkl[:, 0] * hkl[:, 1]) + hkl[:, 2] ** 2
+        )
+    else:
+        tg = np.zeros(shape=hkl.shape[0])
+
+    result = np.hstack((hkl, ds.reshape(-1, 1), ens.reshape(-1, 1), tg.reshape(-1, 1)))
+    return [{'h': int(res[0]), 'k': int(res[1]), 'l': int(res[2]), 'd': res[4], 'e': res[5], '3g': res[6]}
+            for res in result]
 
 
 def cs_from_sg(sg_name):
