@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QVBoxLayout, QPushButton, QDialog, \
+from PyQt5.QtWidgets import QWidget, QLabel, QGridLayout, QVBoxLayout, QHBoxLayout, QPushButton, QDialog, \
     QProgressDialog, QDoubleSpinBox
 from PyQt5.Qt import Qt
 from scipy.signal import find_peaks
@@ -114,11 +114,13 @@ class AutoFindWidget(QWidget):
         l1.addWidget(self.width_edit, 2, 2, 1, 1)
         l1.addWidget(self.prom_label, 2, 3, 1, 1)
         l1.addWidget(self.prom_edit, 2, 4, 1, 1)
-        l1.addWidget(self.btn_all, 3, 4, 1, 1)
+        l1.addWidget(self.btn_all, 3, 1, 1, 4, alignment=Qt.AlignRight)
 
-        l1.addWidget(self.tw_label, 4, 1, 1, 1)
-        l1.addWidget(self.tw_edit, 4, 2, 1, 1)
-        l1.addWidget(self.btn_stack, 5, 4, 1, 1)
+        l2 = QHBoxLayout()
+        l2.addWidget(self.tw_label, alignment=Qt.AlignLeft)
+        l2.addWidget(self.tw_edit, alignment=Qt.AlignLeft)
+        l1.addLayout(l2, 4, 1, 1, 3, alignment=Qt.AlignLeft)
+        l1.addWidget(self.btn_stack, 4, 4, 1, 1)
         layout.addLayout(l1)
 
     def on_btn_stack(self):

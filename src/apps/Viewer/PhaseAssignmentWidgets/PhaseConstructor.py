@@ -383,11 +383,11 @@ class PhaseConstructor(QWidget):
             return sum([abs(observed[k] - calc[k]) for k in observed.keys() & calc.keys()])
 
         try:
-            new_tth = least_squares(residuals, [phase.tth], bounds=((0., 15.))).x[0]
+            new_tth = least_squares(residuals, [phase.tth], bounds=(0., 15.)).x[0]
             self.phases[self.ph_idx].tth = new_tth
             self._upd_data()
             self.q_app.set_hkl_phases(self.phases)
 
         except Exception as e:
-            self.logger.error('Could not reach convergence')
+            self.logger.error('Could not reach convergence: %s' % str(e))
 
