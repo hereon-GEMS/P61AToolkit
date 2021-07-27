@@ -139,6 +139,8 @@ class GlPlot3DWidget(QWidget):
         else:
             self.imax_edit.setValue(self.plot.imax_default)
 
+        self._update_scale()
+
 
 class GlPlot3D(gl.GLViewWidget):
     emin_default = 0
