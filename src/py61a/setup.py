@@ -13,5 +13,7 @@ setup(name='py61a',
           'py61a.cryst_utils',
           'py61a.stress',
           'py61a.stress.separated',
-          'py61a.stress.reimplemented']
+          'py61a.stress.reimplemented'],
+      package_data={
+          "": ["*.csv"]}
       )

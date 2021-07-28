@@ -24,7 +24,7 @@ def mu(el, en):
     :return: linear attenuation coefficient mu [cm^-1]
     """
     lmi = np.interp(np.log(en), np.log(absorption[el]['E'] * 1e3), np.log(absorption[el]['att']))
-    return np.exp(lmi) * density
+    return np.exp(lmi) * density[el]
 
 
 def tau(mu, tth, psi, eta):
