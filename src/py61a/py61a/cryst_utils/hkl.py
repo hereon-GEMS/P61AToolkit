@@ -1,67 +1,83 @@
 from xfab.tools import genhkl_unique
 from xfab.sg import sgdic
 import numpy as np
+from typing import Union, Dict
 
 
-def en_wl(**kwargs):
+def en_wl(en: Union[float, np.ndarray, None] = None,
+          wl: Union[float, np.ndarray, None] = None
+          ) -> Dict[str, Union[float, np.ndarray]]:
     """
     Converts between photon energy in keV and wavelength in AA
-    :param kwargs: 'en' [keV] or 'wl' [AA]
+    :param en: [keV]
+    :param wl: [AA]
     :return: dictionary with keys 'en', 'wl'.
     """
-    if 'en' in kwargs and 'wl' not in kwargs:
-        return {'en': kwargs['en'], 'wl': 12.39842 / kwargs['en']}
-    elif 'wl' in kwargs and 'en' not in kwargs:
-        return {'wl': kwargs['wl'], 'en': 12.39842 / kwargs['wl']}
+    if en is not None and wl is None:
+        return {'en': en, 'wl': 12.39842 / en}
+    elif wl is not None and en is None:
+        return {'wl': wl, 'en': 12.39842 / wl}
     else:
         raise ValueError('Input kwargs are wl or en.')
 
 
-def bragg(**kwargs):
+def bragg(en: Union[float, np.ndarray, None] = None,
+          wl: Union[float, np.ndarray, None] = None,
+          k: Union[float, np.ndarray, None] = None,
+          tth: Union[float, np.ndarray, None] = None,
+          d: Union[float, np.ndarray, None] = None,
+          q: Union[float, np.ndarray, None] = None
+          ) -> Dict[str, Union[float, np.ndarray]]:
     """
-    'en' [keV] or 'wl' [AA] or 'k' [AA^-1] describing the photons
-    'tth' [deg] describing the setup geometry
-    'd' [AA] or 'q' [AA^-1] describing the sample
-    :param kwargs:
+    :param q: inverse lattice parameter [AA^-1]
+    :param d: lattice parameter [AA]
+    :param tth: 2Theta Bragg angle [deg]
+    :param k: photon scattering vector [AA^-1]
+    :param wl: photon wavelength [AA]
+    :param en: photon energy [keV]
     :return:
     """
-    if 'en' in kwargs or 'wl' in kwargs:
-        wl = en_wl(**kwargs)['wl']
+    if sum(x is not None for x in [en, wl, k, tth, d, q]) != 2:
+        raise ValueError('Too many parameters specified')
+    elif sum(x is not None for x in [en, wl, k]) > 1:
+        raise ValueError('Too many photon parameters specified')
+    elif sum(x is not None for x in [d, q]) > 1:
+        raise ValueError('Too many lattice parameters specified')
+
+    if sum(x is not None for x in [en, wl, k]) == 1:
+        if k is None:
+            tmp = en_wl(en=en, wl=wl)
+            en = tmp['en']
+            wl = tmp['wl']
+            k = 2. * np.pi / wl
+        else:
+            wl = 2. * np.pi / k
+            en = en_wl(wl=wl)['en']
     else:
-        wl = None
+        if q is not None:
+            d = 2. * np.pi / q
+        else:
+            q = 2. * np.pi / d
 
-    if wl is None and 'k' in kwargs:
-        wl = en_wl(wl=2. * np.pi / kwargs['k'])['wl']
-    elif wl is not None and 'k' in kwargs:
-        raise ValueError('Too much data: use one of three keywords: \'en\', \'wl\', \'k\'')
-
-    if 'tth' in kwargs:
-        tth = kwargs['tth']
-    else:
-        tth = None
-
-    if 'd' in kwargs and 'q' not in kwargs:
-        d = kwargs['d']
-    elif 'q' in kwargs and 'd' not in kwargs:
-        d = 2. * np.pi / kwargs['q']
-    elif 'd' not in kwargs and 'q' not in kwargs:
-        d = None
-    else:
-        raise ValueError('Too much data: use one of two keywords: \'d\', \'q\'')
-
-    if [wl is None, tth is None, d is None].count(True) != 1:
-        raise ValueError()
-
-    if d is None:
-        d = wl / (2. * np.sin(np.pi * tth / 360.))
-    elif tth is None:
-        tth = 360. * np.arcsin(wl / (2. * d)) / np.pi
-    elif wl is None:
         wl = 2. * d * np.sin(np.pi * tth / 360.)
+        en = en_wl(wl=wl)['en']
+        k = 2. * np.pi / wl
 
-    result = en_wl(wl=wl)
-    result.update({'k': 2. * np.pi / wl, 'tth': tth, 'd': d, 'q': 2. * np.pi / d})
-    return result
+        return {'en': en, 'wl': wl, 'k': k, 'tth': tth, 'd': d, 'q': q}
+
+    if sum(x is not None for x in [d, q]) == 1:
+        if q is not None:
+            d = 2. * np.pi / q
+        else:
+            q = 2. * np.pi / d
+    else:
+        d = wl / (2. * np.sin(np.pi * tth / 360.))
+        q = 2. * np.pi / d
+
+        return {'en': en, 'wl': wl, 'k': k, 'tth': tth, 'd': d, 'q': q}
+
+    tth = 360. * np.arcsin(wl / (2. * d)) / np.pi
+    return {'en': en, 'wl': wl, 'k': k, 'tth': tth, 'd': d, 'q': q}
 
 
 def lattice_planes(phase, lat_a, lat_b, lat_c, alp, bet, gam, tth, energy_range=None):
