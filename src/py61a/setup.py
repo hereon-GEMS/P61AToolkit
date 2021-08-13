@@ -10,6 +10,7 @@ setup(name='py61a',
       packages=[
           'py61a',
           'py61a.beamline_utils',
+          'py61a.viewer_utils',
           'py61a.cryst_utils',
           'py61a.stress',
           'py61a.stress.separated',

@@ -1,4 +1,4 @@
-from xfab.tools import genhkl_unique
+from xfab.tools import genhkl_unique, genhkl_all
 from xfab.sg import sgdic
 import numpy as np
 from typing import Union, Dict
@@ -80,9 +80,10 @@ def bragg(en: Union[float, np.ndarray, None] = None,
     return {'en': en, 'wl': wl, 'k': k, 'tth': tth, 'd': d, 'q': q}
 
 
-def lattice_planes(phase, lat_a, lat_b, lat_c, alp, bet, gam, tth, energy_range=None):
+def lattice_planes(phase, lat_a, lat_b, lat_c, alp, bet, gam, tth, energy_range=None, all_hkl=False):
     """
 
+    :param all_hkl:
     :param phase:
     :param lat_a:
     :param lat_b:
@@ -100,11 +101,18 @@ def lattice_planes(phase, lat_a, lat_b, lat_c, alp, bet, gam, tth, energy_range=
     if energy_range is None:
         energy_range = (5., 200.)
 
-    hkl = genhkl_unique([lat_a, lat_b, lat_c, alp, bet, gam],
-                        sgname=phase,
-                        sintlmax=np.sin(np.radians(tth / 2.)) / en_wl(en=energy_range[1])['wl'],
-                        sintlmin=np.sin(np.radians(tth / 2.)) / en_wl(en=energy_range[0])['wl'],
-                        output_stl=True)
+    if not all_hkl:
+        hkl = genhkl_unique([lat_a, lat_b, lat_c, alp, bet, gam],
+                            sgname=phase,
+                            sintlmax=np.sin(np.radians(tth / 2.)) / en_wl(en=energy_range[1])['wl'],
+                            sintlmin=np.sin(np.radians(tth / 2.)) / en_wl(en=energy_range[0])['wl'],
+                            output_stl=True)
+    else:
+        hkl = genhkl_all([lat_a, lat_b, lat_c, alp, bet, gam],
+                         sgname=phase,
+                         sintlmax=np.sin(np.radians(tth / 2.)) / en_wl(en=energy_range[1])['wl'],
+                         sintlmin=np.sin(np.radians(tth / 2.)) / en_wl(en=energy_range[0])['wl'],
+                         output_stl=True)
 
     bragg_data = bragg(wl=np.sin(np.radians(tth / 2.)) / hkl[:, 3], tth=tth)
     ens = bragg_data['en']
@@ -115,7 +123,8 @@ def lattice_planes(phase, lat_a, lat_b, lat_c, alp, bet, gam, tth, energy_range=
              (hkl[:, 0] ** 2 + hkl[:, 1] ** 2 + hkl[:, 2] ** 2) ** 2
     elif phase == 'p63/mmc':
         tg = hkl[:, 2] ** 2 / (
-            (4./3.) * (lat_c / lat_a) ** 2 * (hkl[:, 0] ** 2 + hkl[:, 1] ** 2 + hkl[:, 0] * hkl[:, 1]) + hkl[:, 2] ** 2
+                (4. / 3.) * (lat_c / lat_a) ** 2 * (hkl[:, 0] ** 2 + hkl[:, 1] ** 2 + hkl[:, 0] * hkl[:, 1]) + hkl[:,
+                                                                                                               2] ** 2
         )
     else:
         tg = np.zeros(shape=hkl.shape[0])

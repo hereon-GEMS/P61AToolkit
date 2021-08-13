@@ -20,14 +20,14 @@ class TestM2A(TestCase):
                 'Channel': [0,   1,   0,   1, ]
             }
         )
-        self.basic_output = pd.DataFrame(
-            {
-                'phi': [0., 0., 0., 0.],
-                'chi': [],
-                'psi': [90., 0., ],
-                'tth': [10., 10., 10., 10.],
-            }
-        )
+        # self.basic_output = pd.DataFrame(
+        #     {
+        #         'phi': [0., 0., 0., 0.],
+        #         'chi': [],
+        #         'psi': [90., 0., ],
+        #         'tth': [10., 10., 10., 10.],
+        #     }
+        # )
 
     def test_orthogonal(self):
         self.assertTrue(True)

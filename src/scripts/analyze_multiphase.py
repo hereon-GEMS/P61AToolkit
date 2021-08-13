@@ -25,7 +25,7 @@ from functools import reduce
 from py61a.stress.separated import multiWavelengthAnalysis as multiWavelengthAnalysis2, \
     multiUniversalPlotAnalysis as multiUniversalPlotAnalysis2,\
     plotMultiWavelength, plotStrainFreeLatticeSpacing, plotStresses, plotUniversalPlot
-from py61a.cryst_utils import bragg
+from py61a.cryst_utils import bragg, tau, mu
 
 # columns that have to be present for every peak that is to be analysed
 necessary_columns = (
@@ -38,24 +38,26 @@ necessary_columns = (
 )
 
 if __name__ == '__main__':
-    tth = 6.2  # degrees
-    a0 = 2.86  # AA
-    density = 7.874  # g/cm3
+    tth = 15.  # degrees
+    a0 = 2.8403  # AA
 
     # path to the peak data export(s) from the Viewer
     peaks_paths = [
-        r'path_to.csv'
+        r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\tut02_00001_true.csv'
+        # r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\stress_1-4.csv'
     ]
 
     # paths to absorption and DEC datasets
-    abs_path = r'..\apps\Viewer\cryst_utils\NIST_abs\Fe.csv'
-    dec_path = r'..\..\data\dec\bccFe.csv'
+    abs_element_name = 'Fe'
+    dec_path = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\dec\bccFe.csv'
 
     # reading all data
     dd = reduce(lambda a, b: pd.concat((a, b), axis=0, ignore_index=True),
                 (pd.read_csv(pp, index_col=0) for pp in peaks_paths))
 
-    absorption = pd.read_csv(abs_path, comment='#')
+    dd = dd.drop(['DeadTime', 'eu.psi'], axis=1, errors='ignore')
+
+    # absorption = pd.read_csv(abs_path, comment='#')
     dec = pd.read_csv(dec_path, index_col=None, comment='#')
 
     # only selecting peaks that have all necessary_columns
@@ -65,6 +67,7 @@ if __name__ == '__main__':
             dd = dd.drop(list(filter(lambda x: (prefix + '_') in x, dd.columns)), axis=1)
 
     prefixes = set(col.split('_')[0] for col in dd.columns if 'center' in col)
+    print(prefixes)
 
     # adding d-spacing columns to the peaks data
     for prefix in prefixes:
@@ -74,11 +77,11 @@ if __name__ == '__main__':
     dd['chi'] = dd['eu.chi']
     dd['psi'] = dd['eu.chi']
     dd['phi'] = dd['eu.phi']
-    dd['eta'] = dd['eu.bet'] + 90.
+    dd['eta'] = 90.
     dd['x'] = dd['eu.x']
     dd['y'] = dd['eu.y']
     dd['z'] = dd['eu.z']
-    dd = dd.drop(labels=['eu.chi', 'eu.phi', 'eu.x', 'eu.y', 'eu.z', 'eu.alp', 'eu.bet'], axis=1)
+    dd = dd.drop(labels=['eu.chi', 'eu.phi', 'eu.x', 'eu.y', 'eu.z', 'eu.alp', 'eu.bet', 'eu.abc'], axis=1, errors='ignore')
 
     # evaluating diffraction elastic constants (only valid for cubic lattices!!!)
     perms = pd.DataFrame(columns=dec.columns)
@@ -125,19 +128,10 @@ if __name__ == '__main__':
     prefixes = set(col.split('_')[0] for col in dd.columns if 'center' in col)
 
     # adding depth column to the peak data
-    xs, ys = [], []
     for prefix in prefixes:
-        lmi = np.interp(np.log(dd['_'.join((prefix, 'center'))]),
-                        np.log(absorption['E'] * 1e3),
-                        np.log(absorption['att']))
-        mi = np.exp(lmi) * density  # cm^-1
-        xs.append(1000 * dd['_'.join((prefix, 'center'))])
-        ys.append(10000 / mi)
-        tau = 10000 * ((np.sin(np.radians(tth / 2.)) ** 2) - (np.sin(np.radians(dd['psi'])) ** 2) +
-                       (np.cos(np.radians(tth / 2.)) ** 2) * (np.sin(np.radians(dd['psi'])) ** 2) *
-                       (np.sin(np.radians(dd['eta'])) ** 2)) / (2 * mi * np.sin(np.radians(tth / 2.)) *
-                                                                np.cos(np.radians(dd['psi'])))
-        dd['_'.join((prefix, 'depth'))] = tau  # mcm
+        dd['_'.join((prefix, 'depth'))] = tau(mu=mu(el=abs_element_name, en=dd['_'.join((prefix, 'center'))]),
+                                              tth=tth, psi=dd['psi'], eta=dd['eta'])
+        print(dd[['_'.join((prefix, 'center')), 'psi', 'eta', 'phi', '_'.join((prefix, 'depth'))]])
 
     # separating data by phase
     dd_phases = dict()
@@ -153,6 +147,8 @@ if __name__ == '__main__':
 
     # dropping unnecessary columns, dropping NANs, and running the analysis
     for phase in dd_phases:
+        pd.set_option('display.max_columns', None)
+        print(dd_phases[phase])
         dd_phases[phase] = dd_phases[phase].drop(
             ['ScreenName', 'Channel', *['_'.join((prefix, 'phase')) for prefix in prefixes]], axis=1, errors='ignore')
         dd_phases[phase] = dd_phases[phase].dropna(axis=0)

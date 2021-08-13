@@ -1,55 +1,52 @@
-import pandas as pd
+from py61a.viewer_utils import read_peaks, valid_peaks, peak_id_str
 from matplotlib import pyplot as plt
+import numpy as np
 
 
 if __name__ == '__main__':
-    dd = pd.read_csv(r'Z:\p61\2021\commissioning\c20210624_000_P61ADetP\processed\test.csv')
-    x_mot = 'Channel'
+    dd = read_peaks(r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\tut02_00001.csv')
+    x_mot = 'eu.chi'
 
-    prefixes = {col.split('_')[0] for col in dd.columns if (('_' in col) and ('pv' in col))}
+    # custom selection rule
+    dd = dd[np.isclose(dd['md']['eu.phi'], 90., rtol=1e-2)]
 
-    if x_mot is None:
-        xx = dd.index
-    elif x_mot in dd.columns:
-        xx = dd[x_mot]
+    if x_mot in dd['md'].columns:
+        dd.sort_values(by=('md', x_mot), inplace=True)
     else:
-        xx = dd.index
+        raise KeyError('Motor %s is not present in the dataset' % x_mot)
 
-    for prefix in prefixes:
-        if ('_'.join((prefix, 'h')) in dd.columns) and \
-                ('_'.join((prefix, 'k')) in dd.columns) and \
-                ('_'.join((prefix, 'l')) in dd.columns):
-            fig = plt.figure(prefix + ' [%d%d%d]' % (dd.loc[0, '_'.join((prefix, 'h'))],
-                                               dd.loc[0, '_'.join((prefix, 'k'))],
-                                               dd.loc[0, '_'.join((prefix, 'l'))]))
-            fig.suptitle(prefix + ' [%d%d%d]' % (dd.loc[0, '_'.join((prefix, 'h'))],
-                                               dd.loc[0, '_'.join((prefix, 'k'))],
-                                               dd.loc[0, '_'.join((prefix, 'l'))]))
-        else:
-            fig = plt.figure(prefix)
-            fig.suptitle(prefix)
+    for peak_id in valid_peaks(dd, valid_for='phase'):
+
+        plt.figure(peak_id_str(dd, peak_id))
 
         ax11 = plt.subplot(221)
         ax11.set_title('Height')
-        ax11.errorbar(xx, dd['_'.join((prefix, 'height'))], yerr=dd['_'.join((prefix, 'height', 'std'))])
+        ax11.errorbar(dd['md'][x_mot], dd[peak_id]['height'], yerr=dd[peak_id]['height_std'])
+        ax11.set_xlabel(x_mot)
+        ax11.set_ylabel('[cts]')
 
         ax12 = plt.subplot(222)
-        ax12.set_title('$R_{wp}^2$, $\chi^2$')
-        ax12.set_ylabel('$R_{wp}^2$', color='tab:red')
-        ax12.plot(xx, dd['_'.join((prefix, 'rwp2'))], color='tab:red')
+        ax12.set_title(r'$R_{wp}^2$, $\chi^2$')
+        ax12.set_ylabel(r'$R_{wp}^2$', color='tab:red')
+        ax12.plot(dd['md'][x_mot], dd[peak_id]['rwp2'], color='tab:red')
         ax12.tick_params(axis='y', labelcolor='tab:red')
         ax12_2 = ax12.twinx()
-        ax12_2.set_ylabel('$\chi^2$', color='tab:blue')
-        ax12_2.plot(xx, dd['_'.join((prefix, 'chi2'))], color='tab:blue')
+        ax12_2.set_ylabel(r'$\chi^2$', color='tab:blue')
+        ax12_2.plot(dd['md'][x_mot], dd[peak_id]['chi2'], color='tab:blue')
         ax12_2.tick_params(axis='y', labelcolor='tab:blue')
+        ax12.set_xlabel(x_mot)
 
         ax21 = plt.subplot(223)
         ax21.set_title('Center')
-        ax21.errorbar(xx, dd['_'.join((prefix, 'center'))], yerr=dd['_'.join((prefix, 'center', 'std'))])
+        ax21.errorbar(dd['md'][x_mot], dd[peak_id]['center'], yerr=dd[peak_id]['center_std'])
+        ax21.set_xlabel(x_mot)
+        ax21.set_ylabel('[keV]')
 
         ax22 = plt.subplot(224)
         ax22.set_title('Sigma')
-        ax22.errorbar(xx, dd['_'.join((prefix, 'sigma'))], yerr=dd['_'.join((prefix, 'sigma', 'std'))])
+        ax22.errorbar(dd['md'][x_mot], dd[peak_id]['sigma'], yerr=dd[peak_id]['sigma_std'])
+        ax22.set_xlabel(x_mot)
+        ax22.set_ylabel('[keV]')
 
         plt.tight_layout()
 

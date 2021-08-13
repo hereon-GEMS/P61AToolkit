@@ -59,3 +59,4 @@ dependencies:
   - zstd=1.4.9=h19a0ad4_0
   - pip:
     - xfab==0.0.4
+    - pycifrw
