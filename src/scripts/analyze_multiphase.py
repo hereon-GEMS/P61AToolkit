@@ -39,7 +39,7 @@ necessary_columns = (
 
 if __name__ == '__main__':
     tth = 15.  # degrees
-    a0 = 2.8403  # AA
+    a0 = 2.84034  # AA
 
     # path to the peak data export(s) from the Viewer
     peaks_paths = [
