@@ -1,4 +1,5 @@
 import numpy as np
+from uncertainties import unumpy, ufloat
 from .sin2psi import Sin2Psi
 from .hooke import hooke
 
@@ -19,22 +20,22 @@ class MultiWaveLength:
         self.depths_min = np.array(tau_min)
         self.depths_max = np.array(tau_max)
 
-        e11 = np.zeros(self.depths.shape) + np.nan
-        e12 = np.zeros(self.depths.shape) + np.nan
-        e13 = np.zeros(self.depths.shape) + np.nan
-        e22 = np.zeros(self.depths.shape) + np.nan
-        e23 = np.zeros(self.depths.shape) + np.nan
-        e33 = np.zeros(self.depths.shape) + np.nan
-        stress_tensor = np.zeros((3, 3, self.depths.size)) + np.nan
+        e11 = np.array([ufloat(np.nan, np.nan)] * self.depths.size)
+        e12 = np.array([ufloat(np.nan, np.nan)] * self.depths.size)
+        e13 = np.array([ufloat(np.nan, np.nan)] * self.depths.size)
+        e22 = np.array([ufloat(np.nan, np.nan)] * self.depths.size)
+        e23 = np.array([ufloat(np.nan, np.nan)] * self.depths.size)
+        e33 = np.array([ufloat(np.nan, np.nan)] * self.depths.size)
+        stress_tensor = np.zeros((3, 3, self.depths.size)) + ufloat(np.nan, np.nan)
 
         for ii, peak in enumerate(analysis.peaks):
             d0 = analysis.peak_md[peak]['d0']
-            e11[ii] = (analysis[peak, '0+180'].slope + analysis[peak, '0+180'].intercept - d0) / d0
-            e22[ii] = (analysis[peak, '90+270'].slope + analysis[peak, '90+270'].intercept - d0) / d0
-            e33[ii] = (0.5 * (analysis[peak, '0+180'].intercept + analysis[peak, '90+270'].intercept) - d0) / d0
+            e11[ii] = (analysis[peak, '0+180'].uslope + analysis[peak, '0+180'].uintercept - d0) / d0
+            e22[ii] = (analysis[peak, '90+270'].uslope + analysis[peak, '90+270'].uintercept - d0) / d0
+            e33[ii] = (0.5 * (analysis[peak, '0+180'].uintercept + analysis[peak, '90+270'].uintercept) - d0) / d0
 
-            e13[ii] = analysis[peak, '0-180'].slope / d0
-            e23[ii] = analysis[peak, '90-270'].slope / d0
+            e13[ii] = analysis[peak, '0-180'].uslope / d0
+            e23[ii] = analysis[peak, '90-270'].uslope / d0
 
             s = hooke(np.array([
                 [[e11[ii]], [e12[ii]], [e13[ii]]],
@@ -61,3 +62,19 @@ class MultiWaveLength:
         mi = self.depths - self.depths_min
         ma = self.depths_max - self.depths
         return mi, ma
+
+    @property
+    def stress_tensor_n(self):
+        return unumpy.nominal_values(self.stress_tensor)
+
+    @property
+    def stress_tensor_std(self):
+        return unumpy.std_devs(self.stress_tensor)
+
+    @property
+    def strain_tensor_n(self):
+        return unumpy.nominal_values(self.strain_tensor)
+
+    @property
+    def strain_tensor_std(self):
+        return unumpy.std_devs(self.strain_tensor)

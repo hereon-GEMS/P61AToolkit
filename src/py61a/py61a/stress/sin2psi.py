@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from uncertainties import ufloat
 
 from py61a.viewer_utils import valid_peaks, peak_id_str
 from scipy.optimize import curve_fit
@@ -24,24 +25,27 @@ class Sin2PsiObject:
 
         if slope is None and intercept is None:
             popt, pcov = curve_fit(f, self.x, self.y, p0=(0., 0.))
+            pcov = np.sqrt(np.diag(pcov))
             self.slope = popt[0]
             self.intercept = popt[1]
-            self.slope_std = np.nan
-            self.intercept_std = np.nan
+            self.slope_std = pcov[0]
+            self.intercept_std = pcov[1]
         elif slope is None and intercept is not None:
             f = partial(f, intr=intercept)
             popt, pcov = curve_fit(f, self.x, self.y, p0=(0.,))
+            pcov = np.sqrt(np.diag(pcov))
             self.slope = popt[0]
             self.intercept = intercept
-            self.slope_std = np.nan
+            self.slope_std = pcov[0]
             self.intercept_std = np.nan
         elif slope is not None and intercept is None:
             f = partial(f, slp=slope)
             popt, pcov = curve_fit(f, self.x, self.y, p0=(0.,))
+            pcov = np.sqrt(np.diag(pcov))
             self.slope = slope
             self.intercept = popt[0]
             self.slope_std = np.nan
-            self.intercept_std = np.nan
+            self.intercept_std = pcov[0]
         else:
             self.slope = np.nan
             self.intercept = np.nan
@@ -51,6 +55,14 @@ class Sin2PsiObject:
     @property
     def y_calc(self):
         return self.slope * self.x + self.intercept
+
+    @property
+    def uslope(self):
+        return ufloat(self.slope, self.slope_std)
+
+    @property
+    def uintercept(self):
+        return ufloat(self.intercept, self.intercept_std)
 
 
 class Sin2Psi:

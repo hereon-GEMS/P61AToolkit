@@ -129,6 +129,6 @@ class TestMultiWavelength(TestCase):
         analysis = Sin2Psi(dataset=peaks_dataset, phi_atol=1., psi_atol=.1, psi_max=np.max(psis))
         analysis = MultiWaveLength(analysis)
         for ii in range(analysis.stress_tensor.shape[2]):
-            diff = (analysis.stress_tensor[:, :, ii] - stress_tensor.reshape((3, 3))) / stress_tensor.reshape((3, 3))
+            diff = (analysis.stress_tensor_n[:, :, ii] - stress_tensor.reshape((3, 3))) / stress_tensor.reshape((3, 3))
             self.assertTrue(np.any(~np.isnan(diff)))
             self.assertTrue(np.all(np.isclose(diff[~np.isnan(diff)], 0.)))
