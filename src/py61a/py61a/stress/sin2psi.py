@@ -13,6 +13,9 @@ class Sin2PsiObject:
         self.y = ydata
         self.depth = depth
 
+        ids = np.isnan(self.x) | np.isnan(self.y) |np.isnan(self.depth)
+        self.x, self.y, self.depth = self.x[~ids], self.y[~ids], self.depth[~ids]
+
         if self.x.size == 0 or self.y.size == 0:
             self.slope = np.nan
             self.intercept = np.nan
