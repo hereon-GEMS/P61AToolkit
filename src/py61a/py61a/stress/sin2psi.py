@@ -64,6 +64,9 @@ class Sin2PsiObject:
     def uintercept(self):
         return ufloat(self.intercept, self.intercept_std)
 
+    def __repr__(self):
+        return '%f * x + %f' % (self.slope, self.intercept)
+
 
 class Sin2Psi:
     """
@@ -89,6 +92,15 @@ class Sin2Psi:
 
         self._prep_peak_data(dataset, psi_col_name)
 
+    def d_star(self, peak_str_id):
+        result = []
+        for projection in self.projections:
+            if '+' in projection:
+                result.append(self.data.loc[peak_str_id, projection].intercept)
+        result = np.array(result)
+        result = result[~np.isnan(result)]
+        return np.mean(result)
+
     @property
     def projections(self):
         return self.data.columns
@@ -101,16 +113,16 @@ class Sin2Psi:
         return self.data.loc[item]
 
     def _prep_peak_data(self, dataset, psi_col_name):
-        for peak_id in valid_peaks(dataset, valid_for=None):
+        for peak_id in valid_peaks(dataset):
             str_id = peak_id_str(dataset, peak_id)
 
             self.peak_md[str_id] = {
                 'h': dataset[peak_id]['h'].mean().astype(np.int),
                 'k': dataset[peak_id]['k'].mean().astype(np.int),
                 'l': dataset[peak_id]['l'].mean().astype(np.int),
-                's1': dataset[peak_id]['s1'].mean(),
-                'hs2': dataset[peak_id]['hs2'].mean(),
-                'd0': dataset[peak_id]['d0'].mean(),
+                # 's1': dataset[peak_id]['s1'].mean(),
+                # 'hs2': dataset[peak_id]['hs2'].mean(),
+                # 'd0': dataset[peak_id]['d0'].mean(),
             }
 
             peak_data = dataset[[('md', 'phi.group'), ('md', 'psi.group'), psi_col_name, (peak_id, 'd'),
@@ -145,7 +157,7 @@ class Sin2Psi:
     @staticmethod
     def phi_group(phis, atol=5.):
         result = np.zeros(phis.shape) + np.NAN
-        for phi in np.linspace(0, 360, 45):
+        for phi in np.arange(0, 360, 45):
             result[np.isclose(phis, phi, atol=atol)] = phi
         result = result.astype(np.int)
         return result

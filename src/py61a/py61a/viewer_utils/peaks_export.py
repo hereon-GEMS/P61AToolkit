@@ -42,12 +42,8 @@ def valid_peaks(data: pd.DataFrame, valid_for: Union[str, None] = 'sin2psi'):
     :return:
     """
     columns_sin2psi = (
-        '3gamma', 'h', 'k', 'l', 'phase',
-        'amplitude', 'amplitude_std',
+        'h', 'k', 'l', 'phase',
         'center', 'center_std',
-        'height', 'height_std',
-        'sigma', 'sigma_std',
-        'width', 'width_std'
     )
 
     columns_hkl = (
