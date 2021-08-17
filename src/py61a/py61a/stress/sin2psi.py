@@ -116,9 +116,8 @@ class Sin2Psi:
         return self.data.loc[item]
 
     def _prep_peak_data(self, dataset, psi_col_name):
-        for peak_id in valid_peaks(dataset):
+        for peak_id in valid_peaks(dataset, valid_for='sin2psi'):
             str_id = peak_id_str(dataset, peak_id)
-
             self.peak_md[str_id] = {
                 'h': dataset[peak_id]['h'].mean().astype(np.int),
                 'k': dataset[peak_id]['k'].mean().astype(np.int),

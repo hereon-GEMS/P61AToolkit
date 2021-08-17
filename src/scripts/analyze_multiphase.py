@@ -38,12 +38,13 @@ necessary_columns = (
 )
 
 if __name__ == '__main__':
-    tth = 15.  # degrees
-    a0 = 2.84034  # AA
+    tth = 10.  # degrees
+    a0 = 3.6  # AA
 
     # path to the peak data export(s) from the Viewer
     peaks_paths = [
-        r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\tut02_00001_true.csv'
+        # r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\tut02_00001_true.csv'
+        r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\Swerim\41\sin2psi_GD.csv'
         # r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\stress_1-4.csv'
     ]
 
@@ -166,11 +167,11 @@ if __name__ == '__main__':
         plotStresses(resDataMwl, True)
 
         # UP
-        # minDistPsiStar = 0.15
-        # minValPsiNormal = 0.08
-        # minValPsiShear = 0.8
-        # resDataUvp, resDataS33 = multiUniversalPlotAnalysis2(tmp, 45, minDistPsiStar,
-        #                                                      minValPsiNormal, minValPsiShear)
-        # plotUniversalPlot(resDataUvp, False)
-        # plotStrainFreeLatticeSpacing(resDataS33, False)
-        # plotStresses(resDataS33, False)
+        minDistPsiStar = 0.15
+        minValPsiNormal = 0.08
+        minValPsiShear = 0.8
+        resDataUvp, resDataS33 = multiUniversalPlotAnalysis2(tmp, 45, minDistPsiStar,
+                                                             minValPsiNormal, minValPsiShear)
+        plotUniversalPlot(resDataUvp, False)
+        plotStrainFreeLatticeSpacing(resDataS33, False)
+        plotStresses(resDataS33, False)

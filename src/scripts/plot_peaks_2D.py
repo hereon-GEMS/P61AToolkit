@@ -1,18 +1,18 @@
 from py61a.viewer_utils import read_peaks, valid_peaks, peak_id_str
 from matplotlib import pyplot as plt
-import numpy as np
 
 
 if __name__ == '__main__':
-    dd = read_peaks(r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aYscan_02000\Peaks_2ayscan.csv')
+    dd = read_peaks((r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aYscan_02000\Peaks_2ayscan.csv',
+                    r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aZscan_01999\Peaks_2aZscan.csv'))
+    # dd = read_peaks(r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\com4pBending_fullScan_01712.csv')
     x_mot = 'eu.chi'
-    y_mot = 'eu.y'
+    y_mot = 'eu.z'
 
     # custom selection rule
     # dd = dd[np.isclose(dd['md']['eu.phi'], 90., rtol=1e-2)]
 
     for peak_id in valid_peaks(dd, valid_for='phase'):
-
         plt.figure(peak_id_str(dd, peak_id))
 
         ax11 = plt.subplot(221, projection='3d')

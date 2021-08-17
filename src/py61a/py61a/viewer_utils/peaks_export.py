@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from typing import Union
 from functools import reduce
 import random
@@ -11,7 +12,7 @@ def read_peaks(f_names: Union[str, list, tuple] = ()) -> pd.DataFrame:
     :param f_names: file path(s): a string or a tuple / list of strings
     :return: data as a pandas DataFrame
     """
-    fake_prefixes = ('eh1', 'exp', 'xspress3')  # some motor names start with these + underscore, need
+    fake_prefixes = ('eh1', 'exp', 'xspress3')  # some motor names start with these + underscore
 
     def get_prefix(col_name: str) -> tuple:
         parts = col_name.split('_')
@@ -26,12 +27,86 @@ def read_peaks(f_names: Union[str, list, tuple] = ()) -> pd.DataFrame:
     if len(f_names) == 0:
         return pd.DataFrame()
 
-    data = reduce(lambda a, b: pd.concat((a, b), axis=0, ignore_index=True),
-                  (pd.read_csv(pp, index_col=0) for pp in f_names))
-    data.columns = pd.MultiIndex.from_tuples([get_prefix(col) for col in data.columns],
-                                             names=['prefix', 'parameter'])
+    data = []
+    for f_name in f_names:
+        data.append(pd.read_csv(f_name, index_col=0))
+        data[-1].columns = pd.MultiIndex.from_tuples([get_prefix(col) for col in data[-1].columns],
+                                                     names=['prefix', 'parameter'])
+    data = reduce(merge_peak_datasets, data)
 
+    for peak in valid_peaks(data, valid_for='phase'):
+        for k in ('h', 'k', 'l'):
+            data.loc[:, (peak, k)] = data[peak][k].mean(skipna=True)
+        phase = data[peak]['phase']
+        phase = phase[~phase.isna()]
+        data.loc[:, (peak, 'phase')] = phase.iloc[0]
     return data
+
+
+def merge_peak_datasets(d1, d2):
+    """
+    :param d1:
+    :param d2:
+    :return:
+    """
+    def hkl_match(d1_, col1_, d2_, col2_):
+        if ('h' not in d1_[col1_].columns) or \
+           ('k' not in d1_[col1_].columns) or \
+           ('l' not in d1_[col1_].columns) or \
+           ('h' not in d2_[col2_].columns) or \
+           ('k' not in d2_[col2_].columns) or \
+           ('l' not in d2_[col2_].columns):
+            return False
+        else:
+            return (d1_[col1_]['h'].mean().astype(np.int) == d2_[col2_]['h'].mean().astype(np.int)) and \
+                   (d1_[col1_]['k'].mean().astype(np.int) == d2_[col2_]['k'].mean().astype(np.int)) and \
+                   (d1_[col1_]['l'].mean().astype(np.int) == d2_[col2_]['l'].mean().astype(np.int))
+
+    def next_prefix(px_, pxs_):
+        i, idx = -1, 0
+        while i > -len(px_):
+            try:
+                idx = int(px_[i:])
+            except ValueError:
+                i += 1
+                break
+            i -= 1
+
+        while True:
+            idx += 1
+            if (px_[:i] + str(idx)) not in pxs_:
+                return px_[:i] + str(idx)
+
+    known_prefixes = set(d2.columns.get_level_values(0))
+    known_prefixes.update(set(d1.columns.get_level_values(0)))
+    known_prefixes.remove('md')
+    d2_lvl0_mapping = dict()
+
+    for col2 in set(d2.columns.get_level_values(0)):
+        if col2 == 'md':
+            continue
+
+        match = False
+
+        for col1 in set(d1.columns.get_level_values(0)):
+            if hkl_match(d1, col1, d2, col2):
+                match = True
+                break
+
+        if match:
+            d2_lvl0_mapping[col2] = col1
+        else:
+            if col2 in d1.columns.get_level_values(0):
+                d2_lvl0_mapping[col2] = next_prefix(col2, known_prefixes)
+                known_prefixes.add(d2_lvl0_mapping[col2])
+
+    d2_lvl0_mapping['md'] = 'md'
+    d2 = d2.rename(columns=d2_lvl0_mapping)
+    d1.sort_index(inplace=True, axis=1)
+    d2.sort_index(inplace=True, axis=1)
+    d2.index = d2.index + d1.shape[0]
+
+    return pd.concat((d1, d2), axis=0)
 
 
 def valid_peaks(data: pd.DataFrame, valid_for: Union[str, None] = 'sin2psi'):

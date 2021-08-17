@@ -10,9 +10,9 @@ from py61a.stress import Sin2Psi, MultiWaveLength, DeviatoricStresses
 
 
 if __name__ == '__main__':
-    element = 'Al'
-    dd = read_peaks(r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\TK_N1_01721.csv')
-    # dd = read_peaks(r'..\..\data\nxs\tut02_00001_true.csv')
+    element = 'Fe'
+    # dd = read_peaks(r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\Swerim\41\sin2psi_GD.csv')
+    dd = read_peaks(r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\com4pBending_fullScan_01712.csv')
     tth = dd[('md', 'd1.rx')].mean()
 
     # calculating information depth (tau) and d values
@@ -67,4 +67,17 @@ if __name__ == '__main__':
     plt.show()
 
     # deviatoric stress component analysis
-    analysis = DeviatoricStresses(analysis, dec=pd.read_csv(r'../../data/dec/bccFe.csv', index_col=None, comment='#'))
+    analysis = DeviatoricStresses(
+        analysis,
+        dec=pd.read_csv(r'../../../data/dec/bccFe.csv', index_col=None, comment='#')
+    )
+
+    plt.figure('Deviatoric stresses')
+    plt.errorbar(analysis.depths, analysis.s11m33_n, xerr=analysis.depth_xerr, yerr=analysis.s11m33_std,
+                 label=r'$\sigma_{11} - \sigma_{33}$')
+    plt.errorbar(analysis.depths, analysis.s22m33_n, xerr=analysis.depth_xerr, yerr=analysis.s22m33_std,
+                 label=r'$\sigma_{22} - \sigma_{33}$')
+    plt.xlabel('Information depth, [mcm]')
+    plt.ylabel('Stress [MPa]')
+    plt.legend()
+    plt.show()

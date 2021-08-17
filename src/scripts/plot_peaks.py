@@ -4,11 +4,14 @@ import numpy as np
 
 
 if __name__ == '__main__':
-    dd = read_peaks(r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\tut02_00001.csv')
+    # dd = read_peaks(r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\tut02_00001.csv')
+    dd = read_peaks((r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aYscan_02000\Peaks_2ayscan.csv',
+                    r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aZscan_01999\Peaks_2aZscan.csv'))
+    print(dd.shape)
     x_mot = 'eu.chi'
 
     # custom selection rule
-    dd = dd[np.isclose(dd['md']['eu.phi'], 90., rtol=1e-2)]
+    # dd = dd[np.isclose(dd['md']['eu.phi'], 90., rtol=1e-2)]
 
     if x_mot in dd['md'].columns:
         dd.sort_values(by=('md', x_mot), inplace=True)
