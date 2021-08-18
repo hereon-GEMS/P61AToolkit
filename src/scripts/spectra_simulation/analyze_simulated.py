@@ -1,19 +1,16 @@
 import pandas as pd
-import numpy as np
 from matplotlib import pyplot as plt
 from itertools import permutations
 from uncertainties import unumpy
-from py61a.viewer_utils import read_peaks, valid_peaks, peak_id_str
-from py61a.cryst_utils import tau, mu, bragg, lattice_planes
+from py61a.viewer_utils import read_peaks, valid_peaks
+from py61a.cryst_utils import tau, mu, bragg
 from py61a.stress import Sin2Psi, DeviatoricStresses
 
-from simulate_stresses import sigma_at_tau
+from simulate_stresses import sigma_at_tau, eta, tth
 
 
 if __name__ == '__main__':
-    tth = 15.
-    d0 = 2.84034
-    psi_max = 1.
+    psi_max = 45.
     abs_element = 'Fe'  # for absorption data
 
     # getting the dataset
@@ -23,21 +20,8 @@ if __name__ == '__main__':
     dec = pd.read_csv(dec_path, index_col=None, comment='#')
     dec['hkl'] = dec.apply(lambda row: '%d%d%d' % (row['h'], row['k'], row['l']), axis=1)
 
-    # calculating relaxed lattice
-    d0_planes = lattice_planes('im-3m', d0, d0, d0, 90., 90., 90., tth, all_hkl=True)
-
     # calculating tau (information depth), strain projection, and DECs (s1, hs2)
     for peak_id in valid_peaks(dd):
-        for d0_plane in d0_planes:
-            if ((d0_plane['h'] == dd[peak_id]['h'].mean().astype(int)) and
-                    (d0_plane['k'] == dd[peak_id]['k'].mean().astype(int)) and
-                    (d0_plane['l'] == dd[peak_id]['l'].mean().astype(int))):
-                d0_ = d0_plane['d']
-                break
-        else:
-            print(peak_id_str(dd, peak_id), 'Not found')
-            continue
-
         for x in permutations(dd[peak_id][['h', 'k', 'l']].mean().astype(int).tolist()):
             if '%d%d%d' % x in dec['hkl'].values:
                 dd.loc[:, (peak_id, 's1')] = dec[dec['hkl'] == '%d%d%d' % x].s1.mean()
@@ -45,14 +29,13 @@ if __name__ == '__main__':
                 break
 
         dd.loc[:, (peak_id, 'depth')] = tau(mu=mu(abs_element, dd[peak_id]['center']),
-                                            tth=tth, eta=90., psi=dd['md']['eu.chi'])
+                                            tth=tth, eta=eta, psi=dd['md']['eu.chi'])
         ens = unumpy.uarray(dd[peak_id]['center'].values, dd[peak_id]['center_std'].values)
         ds = bragg(en=ens, tth=tth)['d']
         dd.loc[:, (peak_id, 'd')] = unumpy.nominal_values(ds)
         dd.loc[:, (peak_id, 'd_std')] = unumpy.std_devs(ds)
 
-    # performing sin^2(psi) analysis
-    analysis = Sin2Psi(dataset=dd, phi_atol=.1, psi_atol=.01, psi_max=psi_max)
+    analysis = Sin2Psi(dataset=dd, phi_atol=.1, psi_atol=.001, psi_max=psi_max)
     for peak in analysis.peaks:
         plt.figure(peak)
         ax1 = plt.subplot(121)
@@ -81,7 +64,6 @@ if __name__ == '__main__':
         ax1.legend()
         ax2.legend()
         plt.tight_layout()
-    plt.show()
 
     analysis = DeviatoricStresses(analysis, dec=dec)
     stress_md = sigma_at_tau(analysis.depths)

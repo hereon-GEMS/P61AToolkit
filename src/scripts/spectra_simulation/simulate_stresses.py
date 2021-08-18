@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import h5py
+import shutil
 from matplotlib import pyplot as plt
 from xfab.tools import genhkl_all, genhkl_unique
 from xfab.structure import int_intensity, StructureFactor, build_atomlist
@@ -18,13 +19,14 @@ hist = ('histogram',)
 def sigma_at_tau(tau_):
     s11 = -50. / ((tau_ + 50) / 500)
     s11[tau_ < 10.] = -50. / ((10. + 50) / 500)
-    s22 = 20. / ((tau_ + 20) / 500)
+    s22 = 20. / ((0.5 * tau_ + 20) / 500)
     s22[tau_ < 10.] = 20. / ((10. + 20) / 500)
+    # s33 = 50. * np.random.rand(tau_.size).reshape(tau_.shape)
     s33 = np.zeros(tau_.shape)
 
-    s13 = 30. * np.ones(tau_.shape)
-    s12 = 130. * np.ones(tau_.shape)
-    s23 = 20. * np.ones(tau_.shape)
+    s13 = np.zeros(tau_.shape)
+    s12 = np.zeros(tau_.shape)
+    s23 = np.zeros(tau_.shape)
 
     return np.array([
         [s11, s12, s13],
@@ -33,11 +35,12 @@ def sigma_at_tau(tau_):
     ], dtype=np.double)
 
 
+eta = 90.
+tth = 15.
+
 if __name__ == '__main__':
     psis = np.linspace(0., 45., 100, dtype=np.double)
     phis = np.array([0., 90., 180., 270.], dtype=np.double)
-    eta = 90.
-    tth = 15.
 
     wd = r'Z:\p61\2021\commissioning\c20210624_000_P61ADetP\raw\DetShieldingExp\experiments'
     dd = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\tut02_00001'
@@ -120,6 +123,9 @@ if __name__ == '__main__':
           'pv%d_rwp2' % ii, 'pv%d_chi2' % ii,) for ii, phkl in enumerate(peak_hkls)),
         ('eu.chi', 'eu.phi', 'eu.bet', 'eu.alp', 'eu.x', 'eu.y', 'eu.z', 'xspress3_index', 'rwp2', 'chi2')
     ))
+
+    shutil.rmtree(dd)
+    os.mkdir(dd)
 
     taus = []
     for phi in phis:

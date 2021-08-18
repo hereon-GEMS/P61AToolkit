@@ -60,6 +60,10 @@ class Sin2PsiObject:
         return self.slope * self.x + self.intercept
 
     @property
+    def y_median(self):
+        return self.slope * 0.5 + self.intercept
+
+    @property
     def uslope(self):
         return ufloat(self.slope, self.slope_std)
 
