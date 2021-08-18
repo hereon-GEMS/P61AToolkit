@@ -34,17 +34,12 @@ if __name__ == '__main__':
     for peak in analysis.peaks:
         plt.figure(peak)
         ax1 = plt.subplot(121)
-        # ax12 = ax1.secondary_yaxis('right', functions=(
-        #     lambda x: (x - deepcopy(analysis.d_star(peak))) / deepcopy(analysis.d_star(peak)),
-        #     lambda x: x * (1. + deepcopy(analysis.d_star(peak)))
-        # ))
-        # ax12.set_ylabel(r'(d - d$^*$) / d$^*$')
+
+        ax12 = ax1.secondary_yaxis('right', functions=analysis.d_star_transform(peak))
+        ax12.set_ylabel(r'(d - d$^*$) / d$^*$')
         ax2 = plt.subplot(122)
-        # ax22 = ax2.secondary_yaxis('right', functions=(
-        #     lambda x: (x - analysis.d_star(peak).copy()) / analysis.d_star(peak).copy(),
-        #     lambda x: x * (1. + analysis.d_star(peak).copy())
-        # ))
-        # ax22.set_ylabel(r'(d - d$^*$) / d$^*$')
+        ax22 = ax2.secondary_yaxis('right', functions=analysis.d_star_transform(peak))
+        ax22.set_ylabel(r'(d - d$^*$) / d$^*$')
 
         for projection in analysis.projections:
             if '+' in projection:

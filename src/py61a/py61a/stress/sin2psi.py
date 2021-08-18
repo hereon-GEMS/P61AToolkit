@@ -182,3 +182,12 @@ class Sin2Psi:
 
         result = result.astype(np.int)
         return result
+
+    def d_star_transform(self, peak):
+        def forw(x):
+            return (x - self.d_star(peak)) / self.d_star(peak)
+
+        def back(x):
+            return x * (1. + self.d_star(peak))
+
+        return forw, back

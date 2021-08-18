@@ -6,7 +6,7 @@ if __name__ == '__main__':
     dd = read_peaks((r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aYscan_02000\Peaks_2ayscan.csv',
                     r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aZscan_01999\Peaks_2aZscan.csv'))
     # dd = read_peaks(r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\com4pBending_fullScan_01712.csv')
-    x_mot = 'eu.chi'
+    x_mot = 'eu.y'
     y_mot = 'eu.z'
 
     # custom selection rule

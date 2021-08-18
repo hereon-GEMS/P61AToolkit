@@ -42,7 +42,9 @@ if __name__ == '__main__':
     wd = r'Z:\p61\2021\commissioning\c20210624_000_P61ADetP\raw\DetShieldingExp\experiments'
     dd = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\tut02_00001'
     air_f_name = os.path.join(wd, 'Empty_withoutPbCollimator_32343.nxs')
-    dec_path = r'/dec/bccFe.csv'
+    dec_path = r'../../../data/dec/bccFe.csv'
+    cif_path = r'../../../data/cif/Fe.cif'
+    abs_element = 'Fe'
 
     # initialising metadata variables
     fio_header = {'eu.chi': 0.0, 'eu.phi': 0.0, 'eu.bet': 0, 'eu.alp': -0.5 * tth,
@@ -67,8 +69,7 @@ if __name__ == '__main__':
 
     # reading CIF file and preparing HKLs
     al = build_atomlist()
-    al.CIFread(r'Fe.cif')
-    abs_element = 'Fe'
+    al.CIFread(cif_path)
 
     hkls = genhkl_unique(al.atomlist.cell,
                       sgname=al.atomlist.sgname,

@@ -54,7 +54,7 @@ class DeviatoricStresses(StressBaseClass):
                 ]
             self.s11m33[ii] = (1. / tmp['hs2'].mean()) * sin2psi[peak, '0+180'].uslope / \
                               sin2psi[peak, '0+180'].uintercept
-            self.s11m33[ii] = (1. / tmp['hs2'].mean()) * sin2psi[peak, '90+270'].uslope / \
+            self.s22m33[ii] = (1. / tmp['hs2'].mean()) * sin2psi[peak, '90+270'].uslope / \
                               sin2psi[peak, '90+270'].uintercept
 
         ids = np.argsort(self.depths)
