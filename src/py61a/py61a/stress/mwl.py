@@ -6,7 +6,7 @@ from .hooke import hooke
 
 
 class MultiWaveLength:
-    def __init__(self, analysis: Sin2Psi, d0: pd.DataFrame):
+    def __init__(self, analysis: Sin2Psi, dec: pd.DataFrame, d0: pd.DataFrame):
         tau_mean, tau_min, tau_max = [], [], []
         for peak in analysis.peaks:
             depths = []
@@ -32,18 +32,21 @@ class MultiWaveLength:
         for ii, peak in enumerate(analysis.peaks):
             d0_ = None
             for _, row in d0.iterrows():
-                if row['h'] == analysis.peak_md['h'] and \
-                    row['k'] == analysis.peak_md['k'] and \
-                    row['l'] == analysis.peak_md['l']:
+                if row['h'] == analysis.peak_md[peak]['h'] and \
+                        row['k'] == analysis.peak_md[peak]['k'] and \
+                        row['l'] == analysis.peak_md[peak]['l']:
                     d0_ = ufloat(row['d0'], row['d0_std'])
                     break
-            if d0_ is None:
-                e11[ii] = ufloat(np.nan, np.nan)
-                e22[ii] = ufloat(np.nan, np.nan)
-                e33[ii] = ufloat(np.nan, np.nan)
-
-                e13[ii] = ufloat(np.nan, np.nan)
-                e23[ii] = ufloat(np.nan, np.nan)
+            s1, hs2 = None, None
+            for _, row in dec.iterrows():
+                if row['h'] == analysis.peak_md[peak]['h'] and \
+                        row['k'] == analysis.peak_md[peak]['k'] and \
+                        row['l'] == analysis.peak_md[peak]['l']:
+                    s1 = row['s1']
+                    hs2 = row['hs2']
+                    break
+            if (d0_ is None) or (s1 is None) or (hs2 is None):
+                continue
             else:
                 e11[ii] = (analysis[peak, '0+180'].uslope + analysis[peak, '0+180'].uintercept - d0_) / d0_
                 e22[ii] = (analysis[peak, '90+270'].uslope + analysis[peak, '90+270'].uintercept - d0_) / d0_
@@ -52,13 +55,13 @@ class MultiWaveLength:
                 e13[ii] = analysis[peak, '0-180'].uslope / d0_
                 e23[ii] = analysis[peak, '90-270'].uslope / d0_
 
-            s = hooke(np.array([
-                [[e11[ii]], [e12[ii]], [e13[ii]]],
-                [[e12[ii]], [e22[ii]], [e23[ii]]],
-                [[e13[ii]], [e23[ii]], [e33[ii]]]
-            ]), analysis.peak_md[peak]['s1'], analysis.peak_md[peak]['hs2'])
+                s = hooke(np.array([
+                    [[e11[ii]], [e12[ii]], [e13[ii]]],
+                    [[e12[ii]], [e22[ii]], [e23[ii]]],
+                    [[e13[ii]], [e23[ii]], [e33[ii]]]
+                ]), s1, hs2)
 
-            stress_tensor[:, :, ii] = s[:, :, 0]
+                stress_tensor[:, :, ii] = s[:, :, 0]
 
         ids = np.argsort(self.depths)
         self.depths, self.depths_min, self.depths_max = self.depths[ids], self.depths_min[ids], self.depths_max[ids]
