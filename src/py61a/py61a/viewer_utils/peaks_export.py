@@ -157,3 +157,59 @@ def peak_id_str(data: pd.DataFrame, peak_id: str) -> str:
                                 *tuple(data[peak_id][['h', 'k', 'l']].mean().astype(int).tolist()))
     except Exception:
         return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+
+
+def group_by_motors(data: pd.DataFrame, motors: Union[tuple, list]) -> pd.DataFrame:
+    """
+
+    :param data:
+    :param motors: list or tuple of dictionaries. Example:
+    [{'mot_name': 'eu.z', 'atol': None, 'rtol': 1e-1, 'values': None},
+    {'mot_name': 'eu.phi', 'atol': 5., 'rtol': None, 'values': (0, 90, 180, 270)}]
+    :return:
+    """
+    _possible_keys = ('mot_name', 'atol', 'rtol', 'values', 'min', 'max')
+
+    for mt in motors:
+        result = np.zeros(data.shape[0]) - 1
+
+        if 'atol' in mt.keys():
+            atol = mt['atol']
+        else:
+            atol = 1.e-8
+
+        if 'rtol' in mt.keys():
+            rtol = mt['rtol']
+        else:
+            rtol = 1.e-5
+
+        if 'min' in mt.keys():
+            min_val = mt['min']
+        else:
+            min_val = -np.inf
+
+        if 'max' in mt.keys():
+            max_val = mt['max']
+        else:
+            max_val = np.inf
+
+        if 'values' in mt.keys():
+            unique_values = np.array(mt['values'])
+        else:
+            ii, unique_values = 0, np.array(data[('md', mt['mot_name'])]).copy()
+
+            while ii < unique_values.size:
+                unique_values = unique_values[
+                    (~np.isclose(unique_values, unique_values[ii], atol=atol, rtol=rtol)) |
+                    (np.arange(0, unique_values.size) == ii)
+                    ]
+                ii += 1
+
+        unique_values = unique_values[(unique_values < max_val) & (unique_values > min_val)]
+        unique_values = np.sort(unique_values)
+        for ii, val in enumerate(unique_values):
+            result[np.isclose(val, data[('md', mt['mot_name'])].to_numpy(), atol=atol, rtol=rtol)] = ii
+
+        data[('groups', mt['mot_name'])] = result.astype(np.int)
+
+    return data

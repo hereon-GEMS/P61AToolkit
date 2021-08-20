@@ -36,10 +36,10 @@ def sigma_at_tau(tau_):
 
 
 eta = 90.
-tth = 15.
+tth = 8.
 
 if __name__ == '__main__':
-    psis = np.linspace(0., 45., 100, dtype=np.double)
+    psis = np.linspace(0., 45., 10, dtype=np.double)
     phis = np.array([0., 90., 180., 270.], dtype=np.double)
 
     wd = r'Z:\p61\2021\commissioning\c20210624_000_P61ADetP\raw\DetShieldingExp\experiments'
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     al = build_atomlist()
     al.CIFread(cif_path)
 
-    hkls = genhkl_unique(al.atomlist.cell,
+    hkls = genhkl_all(al.atomlist.cell,
                       sgname=al.atomlist.sgname,
                       sintlmax=np.sin(np.radians(tth / 2.)) / en_wl(en=200.)['wl'],
                       sintlmin=np.sin(np.radians(tth / 2.)) / en_wl(en=5.)['wl'],
@@ -150,13 +150,13 @@ if __name__ == '__main__':
                 d *= 1. + e_proj
                 pe = bragg(d=d, tth=tth)['en']
 
-                signal += p_voigt(kev, a=2e6 * pi, x0=pe, n=0.7, s=3e-1 / np.sqrt(2. * np.log(2.)), g=3e-1)
+                signal += p_voigt(kev, a=2e3 * pi * taus[-1], x0=pe, n=0.7, s=3e-1 / np.sqrt(2. * np.log(2.)), g=3e-1)
 
                 true_peaks.loc[idx, 'pv%d_h' % ii] = phkl[0]
                 true_peaks.loc[idx, 'pv%d_k' % ii] = phkl[1]
                 true_peaks.loc[idx, 'pv%d_l' % ii] = phkl[2]
 
-                true_peaks.loc[idx, 'pv%d_amplitude' % ii] = 2e6 * pi
+                true_peaks.loc[idx, 'pv%d_amplitude' % ii] = 2e4 * pi
                 true_peaks.loc[idx, 'pv%d_amplitude_std' % ii] = 0.
 
                 true_peaks.loc[idx, 'pv%d_center' % ii] = pe
@@ -195,8 +195,8 @@ if __name__ == '__main__':
 
             signal = signal.astype(np.int)
 
-            # bckg = np.diag(bckg_frames[np.random.randint(0, 4, bckg_frames.shape[1]), :])
-            bckg = np.zeros(shape=signal.shape)
+            bckg = np.diag(bckg_frames[np.random.randint(0, 4, bckg_frames.shape[1]), :])
+            # bckg = np.zeros(shape=signal.shape)
 
             with h5py.File(os.path.join(dd, 'tut02_%05d.nxs' % idx), 'w') as f:
                 f.create_dataset('entry/instrument/xspress3/channel01/histogram', data=(bckg + signal).reshape((1, -1)))

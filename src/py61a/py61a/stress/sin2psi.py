@@ -82,22 +82,14 @@ class Sin2Psi:
     """
 
     _projections = '0+180', '0-180', '90+270', '90-270', '45+225', '45-225', '135+315', '135-315'
+    phi_values = (0, 45, 90, 135, 180, 225, 270, 315)
 
-    def __init__(self, dataset, phi_atol=5., psi_atol=.1, psi_max=45.,
-                 phi_col_name=('md', 'eu.phi'), psi_col_name=('md', 'eu.chi')):
-
-        # grouping data by phi, psi
-        # phis within phi_atol degrees are grouped together
-        # psis within psi_atol degrees are grouped together
-        # psis larger than psi_max degrees are discarded
-        dataset[('md', 'phi.group')] = self.phi_group(dataset[phi_col_name], atol=phi_atol)
-        dataset[('md', 'psi.group')] = self.psi_group(dataset[psi_col_name], psi_max, atol=psi_atol)
-        dataset = dataset[dataset[('md', 'psi.group')] != -1]
+    def __init__(self, dataset):
 
         self.peak_md = dict()
         self.data = pd.DataFrame(columns=self._projections, index=pd.Index([], dtype=str))
 
-        self._prep_peak_data(dataset, psi_col_name)
+        self._prep_peak_data(dataset)
 
     def d_star(self, peak_str_id):
         result = []
@@ -119,73 +111,47 @@ class Sin2Psi:
     def __getitem__(self, item):
         return self.data.loc[item]
 
-    def _prep_peak_data(self, dataset, psi_col_name):
+    def _prep_peak_data(self, dataset):
         for peak_id in valid_peaks(dataset, valid_for='sin2psi'):
             str_id = peak_id_str(dataset, peak_id)
             self.peak_md[str_id] = {
                 'h': dataset[peak_id]['h'].mean().astype(np.int),
                 'k': dataset[peak_id]['k'].mean().astype(np.int),
                 'l': dataset[peak_id]['l'].mean().astype(np.int),
-                # 's1': dataset[peak_id]['s1'].mean(),
-                # 'hs2': dataset[peak_id]['hs2'].mean(),
-                # 'd0': dataset[peak_id]['d0'].mean(),
             }
 
-            peak_data = dataset[[('md', 'phi.group'), ('md', 'psi.group'), psi_col_name, (peak_id, 'd'),
+            peak_data = dataset[[('groups', 'eu.phi'), ('groups', 'eu.chi'), ('md', 'eu.chi'), (peak_id, 'd'),
                                  (peak_id, 'depth')]]
-            for phi in (0, 45, 90, 135):
+            for phi_g_idx in range(len(self.phi_values) // 2):
                 def invert_e(row):
-                    if row[('md', 'phi.group')] == phi + 180:
+                    if row[('groups', 'eu.phi')] == phi_g_idx + len(self.phi_values) // 2:
                         row[(peak_id, 'd')] = -row[(peak_id, 'd')]
                     return row
 
                 proj_data = pd.concat((
-                    peak_data[peak_data[('md', 'phi.group')] == phi],
-                    peak_data[peak_data[('md', 'phi.group')] == (phi + 180)]
+                    peak_data[peak_data[('groups', 'eu.phi')] == phi_g_idx],
+                    peak_data[peak_data[('groups', 'eu.phi')] == (phi_g_idx + len(self.phi_values) // 2)]
                 ))
 
-                d1 = proj_data.groupby(by=('md', 'psi.group')).mean()
-                self.data.loc[str_id, '%d+%d' % (phi, phi + 180)] = Sin2PsiObject(
-                    np.sin(np.radians(d1[psi_col_name].to_numpy(copy=True))) ** 2,
+                d1 = proj_data.groupby(by=('groups', 'eu.chi')).mean()
+                self.data.loc[
+                    str_id, '%d+%d' % (self.phi_values[phi_g_idx],
+                                       self.phi_values[phi_g_idx + len(self.phi_values) // 2])] = Sin2PsiObject(
+                    np.sin(np.radians(d1[('md', 'eu.chi')].to_numpy(copy=True))) ** 2,
                     d1[(peak_id, 'd')].to_numpy(copy=True),
                     d1[(peak_id, 'depth')].to_numpy(copy=True)
                 )
 
                 d2 = proj_data.apply(invert_e, axis=1)
-                d2 = d2.groupby(by=('md', 'psi.group')).mean()
-                self.data.loc[str_id, '%d-%d' % (phi, phi + 180)] = Sin2PsiObject(
-                    np.sin(2. * np.radians(d2[psi_col_name].to_numpy(copy=True))),
+                d2 = d2.groupby(by=('groups', 'eu.chi')).mean()
+                self.data.loc[
+                    str_id, '%d-%d' % (self.phi_values[phi_g_idx],
+                                       self.phi_values[phi_g_idx + len(self.phi_values) // 2])] = Sin2PsiObject(
+                    np.sin(2. * np.radians(d2[('md', 'eu.chi')].to_numpy(copy=True))),
                     d2[(peak_id, 'd')].to_numpy(copy=True),
                     d2[(peak_id, 'depth')].to_numpy(copy=True),
                     intercept=0.
                 )
-
-    @staticmethod
-    def phi_group(phis, atol=5.):
-        result = np.zeros(phis.shape) + np.NAN
-        for phi in np.arange(0, 360, 45):
-            result[np.isclose(phis, phi, atol=atol)] = phi
-        result = result.astype(np.int)
-        return result
-
-    @staticmethod
-    def psi_group(psis, cutoff, atol=0.1):
-        result = np.zeros(psis.shape) - 1
-
-        ii, unique_values = 0, np.array(psis).copy()
-        while ii < unique_values.size:
-            unique_values = unique_values[
-                (~np.isclose(unique_values, unique_values[ii], atol=atol)) |
-                (np.arange(0, unique_values.size) == ii)
-                ]
-            ii += 1
-
-        for ii, psi in enumerate(unique_values):
-            if psi < cutoff:
-                result[np.isclose(psi, psis, atol=atol)] = ii
-
-        result = result.astype(np.int)
-        return result
 
     def d_star_transform(self, peak):
         def forw(x):

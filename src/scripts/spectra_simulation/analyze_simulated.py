@@ -10,7 +10,7 @@ from simulate_stresses import sigma_at_tau, eta, tth
 
 
 if __name__ == '__main__':
-    psi_max = 45.
+    psi_max = 10.
     abs_element = 'Fe'  # for absorption data
 
     # getting the dataset

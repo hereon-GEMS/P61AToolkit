@@ -1,9 +1,9 @@
 ##########################
-Real space stress analysis
+Laplace space stress analysis
 ##########################
 
 ******
 Import
 ******
 
-You can find the dataset for this tutorial here.
+This tutorial starts with the project file that you can find here.

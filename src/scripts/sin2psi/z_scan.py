@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from uncertainties import unumpy
 from copy import deepcopy
 
-from py61a.viewer_utils import read_peaks, valid_peaks
+from py61a.viewer_utils import read_peaks, valid_peaks, group_by_motors
 from py61a.cryst_utils import tau, mu, bragg
 from py61a.stress import Sin2Psi, MultiWaveLength, DeviatoricStresses
 
@@ -25,7 +25,7 @@ def deviatoric_one_point(dataset):
         dataset.loc[:, (peak_id, 'd_std')] = unumpy.std_devs(bragg_data['d'])
 
     # sin2psi analysis
-    analysis = Sin2Psi(dataset, psi_max=90., phi_atol=10., psi_atol=.1)
+    analysis = Sin2Psi(dataset)
 
     # deviatoric stress component analysis
     analysis = DeviatoricStresses(
@@ -38,16 +38,26 @@ def deviatoric_one_point(dataset):
 
 if __name__ == '__main__':
     element = 'Fe'
-    dd = read_peaks((r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aYscan_02000\Peaks_2ayscan.csv',
-                     r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aZscan_01999\Peaks_2aZscan.csv'))
+    # dd = read_peaks((r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aYscan_02000\Peaks_2ayscan.csv',
+    #                  r'Z:\p61\2021\data\11010463\raw\2a\experiments\2aZscan_01999\Peaks_2aZscan.csv'))
+    dd = read_peaks(r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\com4pBending_fullScan_01712.csv')
+    # dd = read_peaks(r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\tut02_00001_true.csv')
     tth = dd[('md', 'd1.rx')].mean()
 
-    dd[('md', 'z.group')] = Sin2Psi.psi_group(dd[('md', 'eu.z')], cutoff=1e20, atol=1e-3)
+    dd = group_by_motors(
+        dd,
+        motors=[
+            {'mot_name': 'eu.z', 'atol': 1e-1},
+            {'mot_name': 'eu.phi', 'atol': 5., 'values': Sin2Psi.phi_values},
+            {'mot_name': 'eu.chi', 'atol': .1, 'max': 90.}
+        ])
+
+    dd = dd.drop(dd[dd[('groups', 'eu.chi')] < 0].index)
 
     zs, s11m33, s22m33 = [], [], []
     zs_mean, s11m33_mean, s22m33_mean = [], [], []
-    for zg in set(dd[('md', 'z.group')]):
-        tmp = dd.loc[dd[('md', 'z.group')] == zg].copy()
+    for zg in set(dd[('groups', 'eu.z')]):
+        tmp = dd.loc[dd[('groups', 'eu.z')] == zg].copy()
         s1, s2, ts = deviatoric_one_point(tmp)
         s11m33.extend(list(s1))
         s22m33.extend(list(s2))
