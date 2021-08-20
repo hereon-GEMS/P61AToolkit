@@ -1,11 +1,12 @@
 import numpy as np
+import pandas as pd
 from uncertainties import unumpy, ufloat
 from .sin2psi import Sin2Psi
 from .hooke import hooke
 
 
 class MultiWaveLength:
-    def __init__(self, analysis: Sin2Psi):
+    def __init__(self, analysis: Sin2Psi, d0: pd.DataFrame):
         tau_mean, tau_min, tau_max = [], [], []
         for peak in analysis.peaks:
             depths = []
@@ -29,13 +30,27 @@ class MultiWaveLength:
         stress_tensor = np.zeros((3, 3, self.depths.size)) + ufloat(np.nan, np.nan)
 
         for ii, peak in enumerate(analysis.peaks):
-            d0 = analysis.peak_md[peak]['d0']
-            e11[ii] = (analysis[peak, '0+180'].uslope + analysis[peak, '0+180'].uintercept - d0) / d0
-            e22[ii] = (analysis[peak, '90+270'].uslope + analysis[peak, '90+270'].uintercept - d0) / d0
-            e33[ii] = (0.5 * (analysis[peak, '0+180'].uintercept + analysis[peak, '90+270'].uintercept) - d0) / d0
+            d0_ = None
+            for _, row in d0.iterrows():
+                if row['h'] == analysis.peak_md['h'] and \
+                    row['k'] == analysis.peak_md['k'] and \
+                    row['l'] == analysis.peak_md['l']:
+                    d0_ = ufloat(row['d0'], row['d0_std'])
+                    break
+            if d0_ is None:
+                e11[ii] = ufloat(np.nan, np.nan)
+                e22[ii] = ufloat(np.nan, np.nan)
+                e33[ii] = ufloat(np.nan, np.nan)
 
-            e13[ii] = analysis[peak, '0-180'].uslope / d0
-            e23[ii] = analysis[peak, '90-270'].uslope / d0
+                e13[ii] = ufloat(np.nan, np.nan)
+                e23[ii] = ufloat(np.nan, np.nan)
+            else:
+                e11[ii] = (analysis[peak, '0+180'].uslope + analysis[peak, '0+180'].uintercept - d0_) / d0_
+                e22[ii] = (analysis[peak, '90+270'].uslope + analysis[peak, '90+270'].uintercept - d0_) / d0_
+                e33[ii] = (0.5 * (analysis[peak, '0+180'].uintercept + analysis[peak, '90+270'].uintercept) - d0_) / d0_
+
+                e13[ii] = analysis[peak, '0-180'].uslope / d0_
+                e23[ii] = analysis[peak, '90-270'].uslope / d0_
 
             s = hooke(np.array([
                 [[e11[ii]], [e12[ii]], [e13[ii]]],
