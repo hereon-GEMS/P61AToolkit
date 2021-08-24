@@ -347,6 +347,8 @@ class PhaseConstructor(QWidget):
         self.emax_edt.setValue(self.phases[self.ph_idx].emax)
         self.de_edt.setValue(self.phases[self.ph_idx].de)
 
+        self.enforce_cs(self.phases[self.ph_idx].sgname)
+
     def _upd_data(self):
         self.enforce_cs(self.phases[self.ph_idx].sgname)
 
