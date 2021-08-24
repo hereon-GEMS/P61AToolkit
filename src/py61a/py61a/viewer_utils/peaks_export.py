@@ -117,7 +117,7 @@ def valid_peaks(data: pd.DataFrame, valid_for: Union[str, None] = 'sin2psi'):
     :return:
     """
     columns_sin2psi = (
-        'h', 'k', 'l', 'phase',
+        'h', 'k', 'l',
         'center', 'center_std',
     )
 
@@ -129,6 +129,11 @@ def valid_peaks(data: pd.DataFrame, valid_for: Union[str, None] = 'sin2psi'):
 
     try:
         prefixes.remove('md')
+    except KeyError:
+        pass
+
+    try:
+        prefixes.remove('scanpts')
     except KeyError:
         pass
 
@@ -168,7 +173,7 @@ def group_by_motors(data: pd.DataFrame, motors: Union[tuple, list]) -> pd.DataFr
     {'mot_name': 'eu.phi', 'atol': 5., 'rtol': None, 'values': (0, 90, 180, 270)}]
     :return:
     """
-    _possible_keys = ('mot_name', 'atol', 'rtol', 'values', 'min', 'max')
+    _possible_keys = ('mot_name', 'atol', 'rtol', 'values', 'min', 'max', 'new_name')
 
     for mt in motors:
         result = np.zeros(data.shape[0]) - 1
@@ -210,6 +215,9 @@ def group_by_motors(data: pd.DataFrame, motors: Union[tuple, list]) -> pd.DataFr
         for ii, val in enumerate(unique_values):
             result[np.isclose(val, data[('md', mt['mot_name'])].to_numpy(), atol=atol, rtol=rtol)] = ii
 
-        data[('groups', mt['mot_name'])] = result.astype(np.int)
+        if 'new_name' not in mt:
+            data[('scanpts', mt['mot_name'])] = result.astype(np.int)
+        else:
+            data[('scanpts', mt['new_name'])] = result.astype(np.int)
 
     return data
