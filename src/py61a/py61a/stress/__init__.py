@@ -1,4 +1,4 @@
 from .hooke import hooke, inv_hooke, tensor_projection
-from .sin2psi import Sin2Psi
+from .sin2psi import sin2psi
 from .mwl import MultiWaveLength
-from .deviatoric import DeviatoricStresses
+from .deviatoric import deviatoric_stresses

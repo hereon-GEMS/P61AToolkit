@@ -1,78 +1,34 @@
-from .sin2psi import Sin2Psi
+import pandas as pd
 import numpy as np
-from uncertainties import unumpy, ufloat
+
+from py61a.viewer_utils import valid_peaks
 
 
-class StressBaseClass:
-    def __init__(self, sin2psi: Sin2Psi):
-        self.depths = None
-        self.depths_min = None
-        self.depths_max = None
-        self._get_depths(sin2psi)
+def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFrame):
+    result = pd.DataFrame(
+        np.nan,
+        index=s2p.index,
+        columns=pd.MultiIndex.from_product([set(s2p.columns.get_level_values(0)), ('s11-s33', 's22-s33')])
+    )
 
-    def _get_depths(self, sin2psi):
-        tau_mean, tau_min, tau_max = [], [], []
-        for peak in sin2psi.peaks:
-            depths = []
-            for projection in sin2psi.projections:
-                depths.append(sin2psi[peak, projection].depth)
-            depths = np.concatenate(depths)
-            if depths.size == 0:
-                tau_mean.append(np.nan)
-                tau_min.append(np.nan)
-                tau_max.append(np.nan)
-            else:
-                tau_mean.append(np.mean(depths))
-                tau_min.append(np.min(depths))
-                tau_max.append(np.max(depths))
+    for peak_id in valid_peaks(peaks, valid_for='sin2psi'): #set(s2p.columns.get_level_values(0)):
+        hkl = peaks[peak_id][['h', 'k', 'l']].mean().astype(np.int)
+        for ii, row in dec.iterrows():
+            if np.all(hkl == row[['h', 'k', 'l']].astype(np.int)):
+                s1, hs2 = row['s1'], row['hs2']
+                break
+        else:
+            print('WARNING: hkl %s not found in provided DEC dataset! consider adding it' % str(hkl.values))
+            continue
 
-        self.depths = np.array(tau_mean)
-        self.depths_min = np.array(tau_min)
-        self.depths_max = np.array(tau_max)
+        if '0+180' in s2p[peak_id].columns:
+            result.loc[:, (peak_id, 's11-s33')] = \
+                (1. / hs2) * s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uslope) / \
+                s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.intercept)
+        if '90+270' in s2p[peak_id].columns:
+            result.loc[:, (peak_id, 's22-s33')] = \
+                (1. / hs2) * s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uslope) / \
+                s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.intercept)
 
-    @property
-    def depth_xerr(self):
-        mi = self.depths - self.depths_min
-        ma = self.depths_max - self.depths
-        return mi, ma
-
-
-class DeviatoricStresses(StressBaseClass):
-    def __init__(self, sin2psi: Sin2Psi, dec):
-        StressBaseClass.__init__(self, sin2psi)
-
-        self.s11m33 = np.array([ufloat(np.nan, np.nan)] * self.depths.size)
-        self.s22m33 = np.array([ufloat(np.nan, np.nan)] * self.depths.size)
-
-        for ii, peak in enumerate(sin2psi.peaks):
-            tmp = dec[
-                dec['h'] == sin2psi.peak_md[peak]['h']
-                ][
-                dec['k'] == sin2psi.peak_md[peak]['k']
-                ][
-                dec['l'] == sin2psi.peak_md[peak]['l']
-                ]
-            self.s11m33[ii] = (1. / tmp['hs2'].mean()) * sin2psi[peak, '0+180'].uslope / \
-                              sin2psi[peak, '0+180'].uintercept
-            self.s22m33[ii] = (1. / tmp['hs2'].mean()) * sin2psi[peak, '90+270'].uslope / \
-                              sin2psi[peak, '90+270'].uintercept
-
-        ids = np.argsort(self.depths)
-        self.depths, self.depths_min, self.depths_max, self.s11m33, self.s22m33 = \
-            self.depths[ids], self.depths_min[ids], self.depths_max[ids], self.s11m33[ids], self.s22m33[ids]
-
-    @property
-    def s11m33_n(self):
-        return unumpy.nominal_values(self.s11m33)
-
-    @property
-    def s11m33_std(self):
-        return unumpy.std_devs(self.s11m33)
-
-    @property
-    def s22m33_n(self):
-        return unumpy.nominal_values(self.s22m33)
-
-    @property
-    def s22m33_std(self):
-        return unumpy.std_devs(self.s22m33)
+    result = result.dropna(axis=1, how='all')
+    return result

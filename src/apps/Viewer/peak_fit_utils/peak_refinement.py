@@ -111,7 +111,7 @@ class IntervalOptimizer:
         for ii in peak_ids:
             for k in self.peak_list[ii].md_p_refine.keys():
                 if self.peak_list[ii].md_p_refine[k]:
-                    self.peak_list[ii].md_params[k] = ufloat(opt_result.x[idx], cov[idx])
+                    self.peak_list[ii].md_params[k] = ufloat(opt_result.xdata[idx], cov[idx])
                     idx += 1
 
         return self.peak_list

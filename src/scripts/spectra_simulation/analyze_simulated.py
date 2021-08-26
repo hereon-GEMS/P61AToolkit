@@ -48,14 +48,14 @@ if __name__ == '__main__':
 
         for projection in analysis.projections:
             if '+' in projection:
-                ax1.plot(analysis[peak, projection].x, analysis[peak, projection].y, 'o',
+                ax1.plot(analysis[peak, projection].xdata, analysis[peak, projection].ydata, 'o',
                          label=projection)
-                ax1.plot(analysis[peak, projection].x, analysis[peak, projection].y_calc, '--',
+                ax1.plot(analysis[peak, projection].xdata, analysis[peak, projection].y_calc, '--',
                          label=None, color='black')
             elif '-' in projection:
-                ax2.plot(analysis[peak, projection].x, analysis[peak, projection].y, 'o',
+                ax2.plot(analysis[peak, projection].xdata, analysis[peak, projection].ydata, 'o',
                          label=projection)
-                ax2.plot(analysis[peak, projection].x, analysis[peak, projection].y_calc, '--',
+                ax2.plot(analysis[peak, projection].xdata, analysis[peak, projection].y_calc, '--',
                          label=None, color='black')
         ax1.set_xlabel(r'$\sin^2(\psi)$')
         ax2.set_xlabel(r'$\sin(2\psi)$')

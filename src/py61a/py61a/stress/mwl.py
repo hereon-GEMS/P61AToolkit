@@ -1,12 +1,12 @@
 import numpy as np
 import pandas as pd
 from uncertainties import unumpy, ufloat
-from .sin2psi import Sin2Psi
+# from .sin2psi import Sin2Psi
 from .hooke import hooke
 
 
 class MultiWaveLength:
-    def __init__(self, analysis: Sin2Psi, dec: pd.DataFrame, d0: pd.DataFrame):
+    def __init__(self, analysis, dec: pd.DataFrame, d0: pd.DataFrame):
         tau_mean, tau_min, tau_max = [], [], []
         for peak in analysis.peaks:
             depths = []

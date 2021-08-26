@@ -2,56 +2,38 @@ import pandas as pd
 import numpy as np
 from matplotlib import pyplot as plt
 from uncertainties import unumpy
-from copy import deepcopy
 
-from py61a.viewer_utils import read_peaks, valid_peaks
+from py61a.viewer_utils import read_peaks, valid_peaks, peak_id_str
 from py61a.cryst_utils import tau, mu, bragg
-from py61a.stress import Sin2Psi, MultiWaveLength, DeviatoricStresses
+from py61a.stress import sin2psi, MultiWaveLength
 
 
 if __name__ == '__main__':
     element = 'Fe'
-    # dd = read_peaks(r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\Swerim\41\sin2psi_GD.csv')
-    dd = read_peaks(r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\com4pBending_fullScan_01712.csv')
-    tth = dd[('md', 'd1.rx')].mean()
+    dd = read_peaks(r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\stress_1-4.csv')
+    tth = 15.
 
-    # calculating information depth (tau) and d values
+    # calculating d values
     for peak_id in valid_peaks(dd, valid_for='sin2psi'):
-        dd.loc[:, (peak_id, 'depth')] = tau(
-            mu=mu(element, dd[peak_id]['center']),
-            tth=tth,
-            eta=90.,
-            psi=dd['md']['eu.chi']
-        )
-        bragg_data = bragg(
-            en=unumpy.uarray(dd[peak_id]['center'].values, dd[peak_id]['center_std'].values),
-            tth=tth)
-        dd.loc[:, (peak_id, 'd')] = unumpy.nominal_values(bragg_data['d'])
-        dd.loc[:, (peak_id, 'd_std')] = unumpy.std_devs(bragg_data['d'])
+        d_val = bragg(en=unumpy.uarray(dd[(peak_id, 'center')], dd[(peak_id, 'center_std')]), tth=tth)['d']
+        dd[(peak_id, 'd')] = unumpy.nominal_values(d_val)
+        dd[(peak_id, 'd_std')] = unumpy.std_devs(d_val)
 
-    # sin2psi analysis
-    analysis = Sin2Psi(dd, psi_max=90., phi_atol=10., psi_atol=1.)
-    for peak in analysis.peaks:
-        plt.figure(peak)
-        ax1 = plt.subplot(121)
+    analysis = sin2psi(dataset=dd, phi_col='eu.phi', phi_atol=5.,
+                       psi_col='eu.chi', psi_atol=.1, psi_max=90.)
 
-        ax12 = ax1.secondary_yaxis('right', functions=analysis.d_star_transform(peak))
-        ax12.set_ylabel(r'(d - d$^*$) / d$^*$')
-        ax2 = plt.subplot(122)
-        ax22 = ax2.secondary_yaxis('right', functions=analysis.d_star_transform(peak))
-        ax22.set_ylabel(r'(d - d$^*$) / d$^*$')
+    for peak_id in valid_peaks(dd, valid_for='sin2psi'):
+        fig = plt.figure(peak_id)
+        fig.suptitle(peak_id_str(dd, peak_id))
+        ax1, ax2 = plt.subplot(121), plt.subplot(122)
 
-        for projection in analysis.projections:
-            if '+' in projection:
-                ax1.plot(analysis[peak, projection].x, analysis[peak, projection].y, 'o',
-                         label=projection)
-                ax1.plot(analysis[peak, projection].x, analysis[peak, projection].y_calc, '--',
-                         label=None, color='black')
-            elif '-' in projection:
-                ax2.plot(analysis[peak, projection].x, analysis[peak, projection].y, 'o',
-                         label=projection)
-                ax2.plot(analysis[peak, projection].x, analysis[peak, projection].y_calc, '--',
-                         label=None, color='black')
+        for proj in analysis[peak_id].index:
+            if '+' in proj:
+                ax1.plot(analysis[peak_id][proj].xdata, analysis[peak_id][proj].ydata, '+', label=proj)
+                ax1.plot(analysis[peak_id][proj].xdata, analysis[peak_id][proj].ycalc, '--', label=None, color='black')
+            elif '-' in proj:
+                ax2.plot(analysis[peak_id][proj].xdata, analysis[peak_id][proj].ydata, '+', label=proj)
+                ax2.plot(analysis[peak_id][proj].xdata, analysis[peak_id][proj].ycalc, '--', label=None, color='black')
         ax1.set_xlabel(r'$\sin^2(\psi)$')
         ax2.set_xlabel(r'$\sin(2\psi)$')
         ax1.set_ylabel(r'd [AA]')
@@ -59,20 +41,4 @@ if __name__ == '__main__':
         ax1.legend()
         ax2.legend()
         plt.tight_layout()
-    plt.show()
-
-    # deviatoric stress component analysis
-    analysis = DeviatoricStresses(
-        analysis,
-        dec=pd.read_csv(r'../../../data/dec/bccFe.csv', index_col=None, comment='#')
-    )
-
-    plt.figure('Deviatoric stresses')
-    plt.errorbar(analysis.depths, analysis.s11m33_n, xerr=analysis.depth_xerr, yerr=analysis.s11m33_std,
-                 label=r'$\sigma_{11} - \sigma_{33}$')
-    plt.errorbar(analysis.depths, analysis.s22m33_n, xerr=analysis.depth_xerr, yerr=analysis.s22m33_std,
-                 label=r'$\sigma_{22} - \sigma_{33}$')
-    plt.xlabel('Information depth, [mcm]')
-    plt.ylabel('Stress [MPa]')
-    plt.legend()
     plt.show()

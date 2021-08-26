@@ -2,21 +2,26 @@ import numpy as np
 import pandas as pd
 from uncertainties import ufloat
 
-from py61a.viewer_utils import valid_peaks, peak_id_str
+from py61a.viewer_utils import valid_peaks, group_by_motors
 from scipy.optimize import curve_fit
 from functools import partial
 
+pd.options.mode.chained_assignment = None
 
-class Sin2PsiObject:
+
+class Sin2PsiProjection:
     def __init__(self, xdata, ydata, depth, slope=None, intercept=None):
-        self.x = xdata
-        self.y = ydata
+        if not (xdata.shape == ydata.shape == depth.shape):
+            raise ValueError('Array shapes should match')
+
+        self.xdata = xdata
+        self.ydata = ydata
         self.depth = depth
 
-        ids = np.isnan(self.x) | np.isnan(self.y) | np.isnan(self.depth)
-        self.x, self.y, self.depth = self.x[~ids], self.y[~ids], self.depth[~ids]
+        ids = np.isnan(self.xdata) | np.isnan(self.ydata)
+        self.xdata, self.ydata, self.depth = self.xdata[~ids], self.ydata[~ids], self.depth[~ids]
 
-        if self.x.size == 0 or self.y.size == 0:
+        if self.xdata.size < 3 or self.ydata.size < 3:
             self.slope = np.nan
             self.intercept = np.nan
             self.slope_std = np.nan
@@ -27,7 +32,7 @@ class Sin2PsiObject:
             return x * slp + intr
 
         if slope is None and intercept is None:
-            popt, pcov = curve_fit(f, self.x, self.y, p0=(0., 0.))
+            popt, pcov = curve_fit(f, self.xdata, self.ydata, p0=(0., 0.))
             pcov = np.sqrt(np.diag(pcov))
             self.slope = popt[0]
             self.intercept = popt[1]
@@ -35,7 +40,7 @@ class Sin2PsiObject:
             self.intercept_std = pcov[1]
         elif slope is None and intercept is not None:
             f = partial(f, intr=intercept)
-            popt, pcov = curve_fit(f, self.x, self.y, p0=(0.,))
+            popt, pcov = curve_fit(f, self.xdata, self.ydata, p0=(0.,))
             pcov = np.sqrt(np.diag(pcov))
             self.slope = popt[0]
             self.intercept = intercept
@@ -43,7 +48,7 @@ class Sin2PsiObject:
             self.intercept_std = np.nan
         elif slope is not None and intercept is None:
             f = partial(f, slp=slope)
-            popt, pcov = curve_fit(f, self.x, self.y, p0=(0.,))
+            popt, pcov = curve_fit(f, self.xdata, self.ydata, p0=(0.,))
             pcov = np.sqrt(np.diag(pcov))
             self.slope = slope
             self.intercept = popt[0]
@@ -56,8 +61,8 @@ class Sin2PsiObject:
             self.intercept_std = np.nan
 
     @property
-    def y_calc(self):
-        return self.slope * self.x + self.intercept
+    def ycalc(self):
+        return self.slope * self.xdata + self.intercept
 
     @property
     def y_median(self):
@@ -74,90 +79,117 @@ class Sin2PsiObject:
     def __repr__(self):
         return '%f * x + %f' % (self.slope, self.intercept)
 
+    def isnan(self):
+        return np.isnan(self.slope) and np.isnan(self.intercept)
 
-class Sin2Psi:
+
+def sin2psi(dataset: pd.DataFrame, phi_col: str, phi_atol: float,
+            psi_col: str, psi_atol: float, psi_max: float):
     """
-    Performs sin^2(psi) analysis of the provided data.
 
+    :param dataset:
+    :param phi_col:
+    :param phi_atol:
+    :param psi_col:
+    :param psi_atol:
+    :param psi_max:
+    :return:
     """
 
-    _projections = '0+180', '0-180', '90+270', '90-270', '45+225', '45-225', '135+315', '135-315'
-    phi_values = (0, 45, 90, 135, 180, 225, 270, 315)
+    phi_values = 0, 45, 90, 135, 180, 225, 270, 315
+    phi_dict = {
+        k: (str(phi_values[k]), str(phi_values[k + len(phi_values) // 2])) for k in range(len(phi_values) // 2)
+    }
+    sin2psi_columns = sum([('+'.join(val), '-'.join(val)) for (key, val) in phi_dict.items()], ())
 
-    def __init__(self, dataset):
+    dataset = dataset.copy(deep=True)
 
-        self.peak_md = dict()
-        self.data = pd.DataFrame(columns=self._projections, index=pd.Index([], dtype=str))
+    if 'scanpts' in dataset.columns:
+        scan_motors = list(dataset['scanpts'].columns)
+    else:
+        scan_motors = ['__PT__']
+        dataset.loc[:, ('scanpts', '__PT__')] = 0
 
-        self._prep_peak_data(dataset)
+    dataset = group_by_motors(
+        dataset,
+        motors=[
+            {'mot_name': phi_col, 'atol': phi_atol, 'values': phi_values, 'new_name': '__PHI__'},
+            {'mot_name': psi_col, 'atol': psi_atol, 'max': psi_max, 'new_name': '__PSI__'}
+        ])
+    dataset.drop(dataset[dataset.loc[:, ('scanpts', '__PSI__')] == -1].index, inplace=True)
 
-    def d_star(self, peak_str_id):
-        result = []
-        for projection in self.projections:
-            if '+' in projection:
-                result.append(self.data.loc[peak_str_id, projection].intercept)
-        result = np.array(result)
-        result = result[~np.isnan(result)]
-        return np.mean(result)
+    result_index = pd.MultiIndex.from_frame(
+        dataset[[('scanpts', sm) for sm in scan_motors]].drop_duplicates(),
+        names=scan_motors
+    )
 
-    @property
-    def projections(self):
-        return self.data.columns
+    result_columns = dataset.columns.get_level_values(0).drop_duplicates()
+    result_columns = list(result_columns.drop(['md', 'scanpts']))
+    result_columns = pd.MultiIndex.from_product([result_columns, sin2psi_columns])
 
-    @property
-    def peaks(self):
-        return self.data.index
+    result = pd.DataFrame(np.nan, index=result_index, columns=result_columns, dtype=object)
 
-    def __getitem__(self, item):
-        return self.data.loc[item]
+    ds_groups = dataset.groupby([('scanpts', sm) for sm in scan_motors])
 
-    def _prep_peak_data(self, dataset):
-        for peak_id in valid_peaks(dataset, valid_for='sin2psi'):
-            str_id = peak_id_str(dataset, peak_id)
-            self.peak_md[str_id] = {
-                'h': dataset[peak_id]['h'].mean().astype(np.int),
-                'k': dataset[peak_id]['k'].mean().astype(np.int),
-                'l': dataset[peak_id]['l'].mean().astype(np.int),
-            }
+    for res_idx in result_index:
+        if len(res_idx) == 1:
+            res_idx = res_idx[0]
 
-            peak_data = dataset[[('groups', 'eu.phi'), ('groups', 'eu.chi'), ('md', 'eu.chi'), (peak_id, 'd'),
-                                 (peak_id, 'depth')]]
-            for phi_g_idx in range(len(self.phi_values) // 2):
-                def invert_e(row):
-                    if row[('groups', 'eu.phi')] == phi_g_idx + len(self.phi_values) // 2:
-                        row[(peak_id, 'd')] = -row[(peak_id, 'd')]
-                    return row
+        # this is one sin2psi scan
+        tmp = dataset.loc[ds_groups.groups[res_idx]]
+        for peak_id in valid_peaks(tmp):
+            if (peak_id, 'depth') in tmp.columns:
+                peak_data = tmp[[('scanpts', '__PHI__'), ('scanpts', '__PSI__'),
+                                 ('md', psi_col), ('md', phi_col), (peak_id, 'd'), (peak_id, 'depth')]]
+            else:
+                peak_data = tmp[[('scanpts', '__PHI__'), ('scanpts', '__PSI__'),
+                                 ('md', psi_col), ('md', phi_col), (peak_id, 'd')]]
+            peak_data = peak_data.groupby(by=[('scanpts', '__PHI__'), ('scanpts', '__PSI__')]).mean()
 
-                proj_data = pd.concat((
-                    peak_data[peak_data[('groups', 'eu.phi')] == phi_g_idx],
-                    peak_data[peak_data[('groups', 'eu.phi')] == (phi_g_idx + len(self.phi_values) // 2)]
-                ))
+            for ii in range(len(phi_values) // 2):
+                peak_data_proj = peak_data.loc[
+                    peak_data.index.get_level_values(('scanpts', '__PHI__')).map(
+                        lambda x: x in (ii, ii + len(phi_values) // 2)
+                    )
+                ].groupby(by=[('scanpts', '__PSI__')]).mean()
 
-                d1 = proj_data.groupby(by=('groups', 'eu.chi')).mean()
-                self.data.loc[
-                    str_id, '%d+%d' % (self.phi_values[phi_g_idx],
-                                       self.phi_values[phi_g_idx + len(self.phi_values) // 2])] = Sin2PsiObject(
-                    np.sin(np.radians(d1[('md', 'eu.chi')].to_numpy(copy=True))) ** 2,
-                    d1[(peak_id, 'd')].to_numpy(copy=True),
-                    d1[(peak_id, 'depth')].to_numpy(copy=True)
+                if (peak_id, 'depth') in peak_data_proj.columns:
+                    depth = peak_data_proj.loc[:, (peak_id, 'depth')].to_numpy()
+                else:
+                    depth = np.array([np.nan] * peak_data_proj.shape[0])
+
+                result.loc[res_idx, (peak_id, '+'.join(phi_dict[ii]))] = Sin2PsiProjection(
+                    xdata=(np.sin(np.radians(peak_data_proj.loc[:, ('md', psi_col)])) ** 2).to_numpy(),
+                    ydata=peak_data_proj.loc[:, (peak_id, 'd')].to_numpy(),
+                    depth=depth
                 )
 
-                d2 = proj_data.apply(invert_e, axis=1)
-                d2 = d2.groupby(by=('groups', 'eu.chi')).mean()
-                self.data.loc[
-                    str_id, '%d-%d' % (self.phi_values[phi_g_idx],
-                                       self.phi_values[phi_g_idx + len(self.phi_values) // 2])] = Sin2PsiObject(
-                    np.sin(2. * np.radians(d2[('md', 'eu.chi')].to_numpy(copy=True))),
-                    d2[(peak_id, 'd')].to_numpy(copy=True),
-                    d2[(peak_id, 'depth')].to_numpy(copy=True),
+                peak_data_proj = peak_data.loc[
+                    peak_data.index.get_level_values(('scanpts', '__PHI__')).map(
+                        lambda x: x in (ii, ii + len(phi_values) // 2)
+                    )
+                ]
+                ids = peak_data_proj.loc[
+                    peak_data_proj.index.get_level_values(('scanpts', '__PHI__')) == (ii + len(phi_values) // 2)
+                ].index
+                peak_data_proj.loc[ids, (peak_id, 'd')] = -1 * peak_data_proj.loc[ids, (peak_id, 'd')]
+                peak_data_proj = peak_data_proj.groupby(by=[('scanpts', '__PSI__')]).mean()
+
+                if (peak_id, 'depth') in peak_data_proj.columns:
+                    depth = peak_data_proj.loc[:, (peak_id, 'depth')].to_numpy()
+                else:
+                    depth = np.array([np.nan] * peak_data_proj.shape[0])
+
+                result.loc[res_idx, (peak_id, '-'.join(phi_dict[ii]))] = Sin2PsiProjection(
+                    xdata=(np.sin(np.radians(2. * peak_data_proj.loc[:, ('md', psi_col)]))).to_numpy(),
+                    ydata=peak_data_proj.loc[:, (peak_id, 'd')].to_numpy(),
+                    depth=depth,
                     intercept=0.
                 )
 
-    def d_star_transform(self, peak):
-        def forw(x):
-            return (x - self.d_star(peak)) / self.d_star(peak)
+    for peak_id in valid_peaks(dataset):
+        for col in sin2psi_columns:
+            if all(result.loc[:, (peak_id, col)].apply(lambda x: x.isnan())):
+                result.drop(columns=[(peak_id, col)], inplace=True)
 
-        def back(x):
-            return x * (1. + self.d_star(peak))
-
-        return forw, back
+    return result.squeeze(axis=0)
