@@ -63,5 +63,7 @@ if __name__ == '__main__':
         y=stresses[stresses.index.get_level_values(1) == 's22-s33'].apply(lambda x: x.n),
         yerr=stresses[stresses.index.get_level_values(1) == 's22-s33'].apply(lambda x: x.s),
         label=r'$\sigma_{22}-\sigma_{33}$', marker='x', linestyle='')
+    plt.xlabel('Information depth [μm]')
+    plt.ylabel('Stress [MPa]')
     plt.legend()
     plt.show()
