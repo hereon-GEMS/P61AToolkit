@@ -192,4 +192,4 @@ def sin2psi(dataset: pd.DataFrame, phi_col: str, phi_atol: float,
             if all(result.loc[:, (peak_id, col)].apply(lambda x: x.isnan())):
                 result.drop(columns=[(peak_id, col)], inplace=True)
 
-    return result.squeeze(axis=0)
+    return result

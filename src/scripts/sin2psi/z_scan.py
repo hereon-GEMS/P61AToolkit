@@ -34,7 +34,6 @@ if __name__ == '__main__':
     plt.figure()
     for peak_id in set(stress.columns.get_level_values(0)):
         ax1, ax2 = plt.subplot(121), plt.subplot(122)
-        print(unumpy.std_devs(stress.loc[:, (peak_id, 's22-s33')]))
 
         if 's11-s33' in stress[peak_id].columns:
             ax1.errorbar(

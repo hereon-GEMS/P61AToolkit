@@ -8,7 +8,9 @@ def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFram
     result = pd.DataFrame(
         np.nan,
         index=s2p.index,
-        columns=pd.MultiIndex.from_product([set(s2p.columns.get_level_values(0)), ('s11-s33', 's22-s33')])
+        columns=pd.MultiIndex.from_product([
+            set(s2p.columns.get_level_values(0)),
+            ('s11-s33', 's22-s33', 'depth_min', 'depth_max', 'depth')])
     )
 
     for peak_id in valid_peaks(peaks, valid_for='sin2psi'): #set(s2p.columns.get_level_values(0)):
@@ -25,10 +27,16 @@ def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFram
             result.loc[:, (peak_id, 's11-s33')] = \
                 (1. / hs2) * s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uslope) / \
                 s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.intercept)
+            result.loc[:, (peak_id, 'depth')] = s2p.loc[:, (peak_id, '0+180')].apply(lambda x: np.mean(x.depth))
+            result.loc[:, (peak_id, 'depth_min')] = s2p.loc[:, (peak_id, '0+180')].apply(lambda x: np.min(x.depth))
+            result.loc[:, (peak_id, 'depth_max')] = s2p.loc[:, (peak_id, '0+180')].apply(lambda x: np.max(x.depth))
         if '90+270' in s2p[peak_id].columns:
             result.loc[:, (peak_id, 's22-s33')] = \
                 (1. / hs2) * s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uslope) / \
                 s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.intercept)
+            result.loc[:, (peak_id, 'depth')] = s2p.loc[:, (peak_id, '90+270')].apply(lambda x: np.mean(x.depth))
+            result.loc[:, (peak_id, 'depth_min')] = s2p.loc[:, (peak_id, '90+270')].apply(lambda x: np.min(x.depth))
+            result.loc[:, (peak_id, 'depth_max')] = s2p.loc[:, (peak_id, '90+270')].apply(lambda x: np.max(x.depth))
 
     result = result.dropna(axis=1, how='all')
     return result
