@@ -56,9 +56,9 @@ class PhaseConstructor(QWidget):
         self.emax_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.de_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-        self.a_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=10., singleStep=0.1, decimals=3, suffix=' Å')
-        self.b_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=10., singleStep=0.1, decimals=3, suffix=' Å')
-        self.c_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=10., singleStep=0.1, decimals=3, suffix=' Å')
+        self.a_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=20., singleStep=0.1, decimals=3, suffix=' Å')
+        self.b_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=20., singleStep=0.1, decimals=3, suffix=' Å')
+        self.c_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=20., singleStep=0.1, decimals=3, suffix=' Å')
         self.alp_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=180., decimals=3, suffix='°')
         self.bet_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=180., decimals=3, suffix='°')
         self.gam_edt = QDoubleSpinBox(parent=self, minimum=0., maximum=180., decimals=3, suffix='°')
