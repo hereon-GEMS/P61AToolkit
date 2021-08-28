@@ -129,7 +129,6 @@ def fit_peaks(peak_list, bckg_list, xx, yy):
             try:
                 peak_list = iopt(interval)
             except Exception as e:
-                print(type(e), e)
                 logger.error('fit_peaks: error %s' % str(e))
     else:
         with Pool(cpu_count()) as p:
