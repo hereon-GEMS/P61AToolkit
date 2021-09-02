@@ -8,14 +8,12 @@ from py61a.stress import sin2psi, deviatoric_stresses
 
 
 if __name__ == '__main__':
-    # read the data
-    dd = read_peaks(r'Z:\p61\2021\commissioning\c20210813_000_gaf_2s21\processed\com4pBending_fullScan_01712.csv')
-    dec = pd.read_csv(r'../../../data/dec/bccFe.csv', index_col=None, comment='#')
+    dd = read_peaks((r'../../../data/peaks/TiLSP/phi0Trans_3.csv', r'../../../data/peaks/TiLSP/phi90Trans_4.csv'))
+    tth_ch1 = 5.274
+    dec = pd.read_csv(r'../../../data/dec/alphaTi.csv', index_col=None, comment='#')
 
-    # calculate the d values from peak positions
-    tth = dd[('md', 'd1.rx')].mean()
     for peak_id in valid_peaks(dd, valid_for='sin2psi'):
-        d_val = bragg(en=unumpy.uarray(dd[(peak_id, 'center')], dd[(peak_id, 'center_std')]), tth=tth)['d']
+        d_val = bragg(en=unumpy.uarray(dd[(peak_id, 'center')], dd[(peak_id, 'center_std')]), tth=tth_ch1)['d']
         dd[(peak_id, 'd')] = unumpy.nominal_values(d_val)
         dd[(peak_id, 'd_std')] = unumpy.std_devs(d_val)
 
@@ -24,16 +22,21 @@ if __name__ == '__main__':
 
     analysis = sin2psi(dataset=dd, phi_col='eu.phi', phi_atol=5.,
                        psi_col='eu.chi', psi_atol=.1, psi_max=90.)
-    print(analysis)
 
     stress = deviatoric_stresses(dd, analysis, dec)
     stress = stress.reset_index()
     stress.set_index('eu.z', inplace=True)
     z_pos = dd[[('scanpts', 'eu.z'), ('md', 'eu.z')]].groupby(by=('scanpts', 'eu.z')).mean()
 
-    plt.figure()
+    plt.figure(figsize=(16, 4))
     for peak_id in set(stress.columns.get_level_values(0)):
         ax1, ax2 = plt.subplot(121), plt.subplot(122)
+        ax1.set_title(r'$\sigma_{11}-\sigma_{33}$')
+        ax2.set_title(r'$\sigma_{22}-\sigma_{33}$')
+        ax1.set_xlabel('eu.z [mm]')
+        ax2.set_xlabel('eu.z [mm]')
+        ax1.set_ylabel('$\sigma_{11}-\sigma_{33}$ [MPa]')
+        ax2.set_ylabel('$\sigma_{22}-\sigma_{33}$ [MPa]')
 
         if 's11-s33' in stress[peak_id].columns:
             ax1.errorbar(
@@ -42,6 +45,7 @@ if __name__ == '__main__':
                 yerr=unumpy.std_devs(stress.loc[:, (peak_id, 's11-s33')]),
                 marker='x', linestyle='', label=peak_id_str(dd, peak_id)
             )
+
         if 's22-s33' in stress[peak_id].columns:
             ax2.errorbar(
                 x=z_pos.loc[stress.index].values.flatten(),
@@ -53,4 +57,3 @@ if __name__ == '__main__':
     ax1.legend()
     ax2.legend()
     plt.show()
-

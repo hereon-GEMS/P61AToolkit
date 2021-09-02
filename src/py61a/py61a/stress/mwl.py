@@ -3,6 +3,7 @@ import numpy as np
 from uncertainties import ufloat
 
 from py61a.viewer_utils import valid_peaks
+from py61a.stress import hooke
 
 
 def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFrame):
@@ -25,31 +26,19 @@ def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFram
             print('WARNING: hkl %s not found in provided DEC dataset! consider adding it' % str(hkl.values))
             continue
 
-        tmp = []
         if '0+180' in s2p[peak_id].columns:
             result.loc[:, (peak_id, 's11-s33')] = \
                 (1. / hs2) * s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uslope) / \
-                s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.intercept)
-            tmp.append(s2p.loc[:, (peak_id, '0+180')].to_numpy().reshape((-1, 1)))
+                s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uintercept)
+
         if '90+270' in s2p[peak_id].columns:
             result.loc[:, (peak_id, 's22-s33')] = \
                 (1. / hs2) * s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uslope) / \
-                s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.intercept)
-            tmp.append(s2p.loc[:, (peak_id, '90+270')].to_numpy().reshape((-1, 1)))
+                s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uintercept)
 
-        tmp = np.concatenate(tmp, axis=1)
-
-        def func(x):
-            res = []
-            for el in x:
-                res.append(el.depth)
-            return np.concatenate(res)
-
-        tmp = np.apply_along_axis(func, 1, tmp)
-
-        result.loc[:, (peak_id, 'depth')] = np.mean(tmp, axis=1)
-        result.loc[:, (peak_id, 'depth_min')] = np.min(tmp, axis=1)
-        result.loc[:, (peak_id, 'depth_max')] = np.max(tmp, axis=1)
+        result.loc[:, (peak_id, 'depth')] = np.nanmean(s2p[peak_id].applymap(lambda cell: np.nanmean(cell.depth)))
+        result.loc[:, (peak_id, 'depth_min')] = np.nanmin(s2p[peak_id].applymap(lambda cell: np.nanmin(cell.depth)))
+        result.loc[:, (peak_id, 'depth_max')] = np.nanmax(s2p[peak_id].applymap(lambda cell: np.nanmax(cell.depth)))
 
     result = result.dropna(axis=1, how='all')
     return result
@@ -82,7 +71,54 @@ def all_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFrame, d0: 
             print('WARNING: d0 %s not found in provided dataset! consider adding it' % str(hkl.values))
             continue
 
-        print(s1, hs2, d0_)
+        e11, e22, e33, e12, e13, e23 = np.array([np.nan] * result.shape[0]), np.array([np.nan] * result.shape[0]), \
+                                       np.array([np.nan] * result.shape[0]), np.array([np.nan] * result.shape[0]), \
+                                       np.array([np.nan] * result.shape[0]), np.array([np.nan] * result.shape[0])
+        data_found = False
+        if '0+180' in s2p[peak_id].columns:
+            e11 = (s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uslope) +
+                   s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uintercept) - d0_) / d0_
+            e33 = (s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uintercept) - d0_) / d0_
+            data_found = True
 
+        if '90+270' in s2p[peak_id].columns:
+            e22 = (s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uslope) +
+                   s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uintercept) - d0_) / d0_
+            e33 = (s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uintercept) - d0_) / d0_
+            data_found = True
 
+        if ('0+180' in s2p[peak_id].columns) and ('90+270' in s2p[peak_id].columns):
+            e33 = (0.5 * s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uintercept) +
+                   0.5 * s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uintercept) - d0_) / d0_
+            data_found = True
+
+        if '0-180' in s2p[peak_id].columns:
+            e13 = s2p.loc[:, (peak_id, '0-180')].apply(lambda x: x.uslope) / d0_
+            data_found = True
+
+        if '90-270' in s2p[peak_id].columns:
+            e23 = s2p.loc[:, (peak_id, '90-270')].apply(lambda x: x.uslope) / d0_
+            data_found = True
+
+        # TODO: e12 calculation
+
+        if data_found:
+            result.loc[:, (peak_id, 'depth')] = np.nanmean(s2p[peak_id].applymap(lambda cell: np.nanmean(cell.depth)))
+            result.loc[:, (peak_id, 'depth_min')] = np.nanmin(s2p[peak_id].applymap(lambda cell: np.nanmin(cell.depth)))
+            result.loc[:, (peak_id, 'depth_max')] = np.nanmax(s2p[peak_id].applymap(lambda cell: np.nanmax(cell.depth)))
+
+            s = hooke(np.array([
+                [e11, e12, e13],
+                [e12, e22, e23],
+                [e13, e23, e33]
+            ]), s1, hs2)
+
+            result.loc[:, (peak_id, 's11')] = s[0, 0]
+            result.loc[:, (peak_id, 's22')] = s[1, 1]
+            result.loc[:, (peak_id, 's33')] = s[2, 2]
+            result.loc[:, (peak_id, 's12')] = s[0, 1]
+            result.loc[:, (peak_id, 's13')] = s[0, 2]
+            result.loc[:, (peak_id, 's23')] = s[1, 2]
+
+    result = result.dropna(axis=1, how='all')
     return result
