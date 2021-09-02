@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from uncertainties import ufloat
+from uncertainties import ufloat, unumpy
 
 from py61a.viewer_utils import valid_peaks
 from py61a.stress import hooke
@@ -113,12 +113,9 @@ def all_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFrame, d0: 
                 [e13, e23, e33]
             ]), s1, hs2)
 
-            result.loc[:, (peak_id, 's11')] = s[0, 0]
-            result.loc[:, (peak_id, 's22')] = s[1, 1]
-            result.loc[:, (peak_id, 's33')] = s[2, 2]
-            result.loc[:, (peak_id, 's12')] = s[0, 1]
-            result.loc[:, (peak_id, 's13')] = s[0, 2]
-            result.loc[:, (peak_id, 's23')] = s[1, 2]
+            for i, j in ((0, 0), (1, 1), (2, 2), (0, 1), (0, 2), (1, 2)):
+                if not all(np.isnan(unumpy.nominal_values(s[i, j]))):
+                    result.loc[:, (peak_id, 's%d%d' % (i + 1, j + 1))] = s[i, j]
 
     result = result.dropna(axis=1, how='all')
     return result
