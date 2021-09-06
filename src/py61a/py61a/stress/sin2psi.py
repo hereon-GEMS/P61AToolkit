@@ -26,6 +26,9 @@ class Sin2PsiProjection:
             self.intercept = np.nan
             self.slope_std = np.nan
             self.intercept_std = np.nan
+            self.xdata = np.array([np.nan])
+            self.ydata = np.array([np.nan])
+            self.depth = np.array([np.nan])
             return
 
         def f(x, slp, intr):
