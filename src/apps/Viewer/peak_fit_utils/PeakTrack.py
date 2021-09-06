@@ -48,7 +48,7 @@ class PeakData:
 
             self.md_params['fraction'] = ufloat(0., np.NAN)
 
-            self.md_params['base'] = ufloat(3., np.NAN)
+            self.md_params['base'] = ufloat(5., np.NAN)
             self.md_params['overlap_base'] = ufloat(1e-2, np.NAN)
             self.md_params['rwp2'] = ufloat(np.NAN, np.NAN)
             self.md_params['chi2'] = ufloat(np.NAN, np.NAN)

@@ -4,7 +4,7 @@ from scipy.stats import linregress
 
 import numpy as np
 import pandas as pd
-from py61a.stress import hooke, inv_hooke, Sin2Psi, MultiWaveLength, tensor_projection
+from py61a.stress import hooke, inv_hooke, sin2psi, deviatoric_stresses, all_stresses, tensor_projection
 from py61a.cryst_utils import bragg, tau, mu, lattice_planes
 from itertools import permutations
 
