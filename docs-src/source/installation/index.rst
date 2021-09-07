@@ -7,7 +7,7 @@ Installation
 Download binaries
 *****************
 
-A pre-compiled version of the Viewer that requires no installation can be found `here <https://github.com/P61A-software/P61AToolkit/releases/tag/Viewer>`_.
+A pre-compiled version of the Viewer that requires no installation can be found `here <https://github.com/P61A-software/P61AToolkit/releases>`_.
 
 .. _install-from-source:
 
