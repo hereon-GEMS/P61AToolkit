@@ -23,6 +23,7 @@ Tutorials
    :maxdepth: 1
 
    tut1.rst
+   tut_tth_cal.rst
    tut2.rst
 
 ***************

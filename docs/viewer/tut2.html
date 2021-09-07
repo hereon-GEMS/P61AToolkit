@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Real space stress analysis &mdash; P61A Toolkit  documentation</title>
+  <title>Laplace space stress analysis &mdash; P61A Toolkit  documentation</title>
   
 
   
@@ -41,7 +41,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Simple sequential refinement" href="tut1.html" /> 
+    <link rel="prev" title="Calibrating 2Θ using a reference sample" href="tut_tth_cal.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,8 +94,10 @@
 <li class="toctree-l2"><a class="reference internal" href="index.html#workflow">Workflow</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#tutorials">Tutorials</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="tut1.html">Simple sequential refinement</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Real space stress analysis</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="tut_tth_cal.html">Calibrating 2Θ using a reference sample</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Laplace space stress analysis</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#import">Import</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#identifying-peaks">Identifying peaks</a></li>
 </ul>
 </li>
 </ul>
@@ -153,7 +155,7 @@
         
           <li><a href="index.html">P61A::Viewer</a> &raquo;</li>
         
-      <li>Real space stress analysis</li>
+      <li>Laplace space stress analysis</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -172,11 +174,26 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="real-space-stress-analysis">
-<h1>Real space stress analysis<a class="headerlink" href="#real-space-stress-analysis" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="laplace-space-stress-analysis">
+<h1>Laplace space stress analysis<a class="headerlink" href="#laplace-space-stress-analysis" title="Permalink to this headline">¶</a></h1>
+<p>The purpose of this tutorial is to introduce you to the way peak identification and fitting can be done on experimental
+data using P61A::Viewer.</p>
 <div class="section" id="import">
 <h2>Import<a class="headerlink" href="#import" title="Permalink to this headline">¶</a></h2>
-<p>You can find the dataset for this tutorial here.</p>
+<p>This tutorial starts with the project file that you can find
+<a class="reference external" href="https://github.com/P61A-software/P61AToolkit/blob/master/data/tutorials/laplace_space_stress.pickle">here</a>.
+This is a simulated BCC Fe diffraction pattern from a measurement in reflection.
+Download the file and open it in Viewer using <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">-&gt;</span> <span class="pre">Open</span></code> menu.</p>
+</div>
+<div class="section" id="identifying-peaks">
+<h2>Identifying peaks<a class="headerlink" href="#identifying-peaks" title="Permalink to this headline">¶</a></h2>
+<p>First step of the analysis is understanding what you are looking at. In this dataset we expect to see diffraction from
+one phase, and in any dataset coming from P61A we expect to see background that includes a few fluorescence peaks.
+Here is what the background looks like without the sample in the beam:</p>
+<a class="reference internal image-reference" href="../_images/background.png"><img alt="../_images/background.png" src="../_images/background.png" style="width: 600px;" /></a>
+<p>Most prominent fluorescence peaks are (in keV): <code class="docutils literal notranslate"><span class="pre">24.2</span></code>, <code class="docutils literal notranslate"><span class="pre">27.3</span></code>, <code class="docutils literal notranslate"><span class="pre">58.0</span></code>, <code class="docutils literal notranslate"><span class="pre">59.3</span></code>, <code class="docutils literal notranslate"><span class="pre">67.2</span></code>, <code class="docutils literal notranslate"><span class="pre">69.1</span></code>, <code class="docutils literal notranslate"><span class="pre">72.8</span></code>,
+<code class="docutils literal notranslate"><span class="pre">75.0</span></code>, <code class="docutils literal notranslate"><span class="pre">84.9</span></code>, <code class="docutils literal notranslate"><span class="pre">87.3</span></code>
+at 8 degrees</p>
 </div>
 </div>
 
@@ -186,7 +203,7 @@
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="tut1.html" class="btn btn-neutral float-left" title="Simple sequential refinement" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tut_tth_cal.html" class="btn btn-neutral float-left" title="Calibrating 2Θ using a reference sample" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>

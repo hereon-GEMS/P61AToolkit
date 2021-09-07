@@ -2,6 +2,8 @@
 Simple sequential refinement
 ############################
 
+The purpose of this tutorial is to familiarize you with the basic functions of the Viewer.
+
 ******
 Import
 ******
