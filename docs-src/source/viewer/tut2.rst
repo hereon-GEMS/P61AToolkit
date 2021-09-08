@@ -72,24 +72,3 @@ Once you have pressed ``Make Tracks``, created tracks should appear on the list 
 The idea behind the tracks is that each track follows the evolution of a peak over the collected spectra.
 
 
-****************
-Expanding tracks
-****************
-
-Next step is to make sure that all of the tracks cover all of the datasets.
-For this particular dataset this is not a concern, but sometimes the intensity variance is
-
-******************
-Adding more tracks
-******************
-
-We have already added most of the peaks we want, there is just a few left.
-But before we start adding more tracks, let us look at the ones we have.
-The idea behind the tracks is that
-
-A closer look on the ``Peak Fit`` tab shows what we are missing:
-
-.. image:: tut-02-img4.png
-   :width: 600
-
-We want to fit the peaks at ``62.6``, ``76.6``, and ``88.5`` as precisely as possible.
