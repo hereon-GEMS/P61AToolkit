@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Laplace space stress analysis &mdash; P61A Toolkit  documentation</title>
+  <title>Realistic diffraction data analysis &mdash; P61A Toolkit  documentation</title>
   
 
   
@@ -41,7 +41,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Calibrating 2Θ using a reference sample" href="tut_tth_cal.html" /> 
+    <link rel="next" title="Calibrating 2Θ using a reference sample" href="tut_tth_cal.html" />
+    <link rel="prev" title="Simple sequential refinement" href="tut1.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -91,18 +92,20 @@
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">P61A::Viewer</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="index.html#workflow">Workflow</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#tutorials">Tutorials</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="tut1.html">Simple sequential refinement</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tut_tth_cal.html">Calibrating 2Θ using a reference sample</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Laplace space stress analysis</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Realistic diffraction data analysis</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#import">Import</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#identifying-peaks">Identifying peaks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#finding-peaks">Finding peaks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#tracks">Tracks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#expanding-tracks">Expanding tracks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#adding-more-tracks">Adding more tracks</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="tut_tth_cal.html">Calibrating 2Θ using a reference sample</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="index.html#module-overview">Module overview</a></li>
 </ul>
 </li>
 </ul>
@@ -155,7 +158,7 @@
         
           <li><a href="index.html">P61A::Viewer</a> &raquo;</li>
         
-      <li>Laplace space stress analysis</li>
+      <li>Realistic diffraction data analysis</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -174,8 +177,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="laplace-space-stress-analysis">
-<h1>Laplace space stress analysis<a class="headerlink" href="#laplace-space-stress-analysis" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="realistic-diffraction-data-analysis">
+<h1>Realistic diffraction data analysis<a class="headerlink" href="#realistic-diffraction-data-analysis" title="Permalink to this headline">¶</a></h1>
 <p>The purpose of this tutorial is to introduce you to the way peak identification and fitting can be done on experimental
 data using P61A::Viewer.</p>
 <div class="section" id="import">
@@ -190,10 +193,49 @@ Download the file and open it in Viewer using <code class="docutils literal notr
 <p>First step of the analysis is understanding what you are looking at. In this dataset we expect to see diffraction from
 one phase, and in any dataset coming from P61A we expect to see background that includes a few fluorescence peaks.
 Here is what the background looks like without the sample in the beam:</p>
-<a class="reference internal image-reference" href="../_images/background.png"><img alt="../_images/background.png" src="../_images/background.png" style="width: 600px;" /></a>
-<p>Most prominent fluorescence peaks are (in keV): <code class="docutils literal notranslate"><span class="pre">24.2</span></code>, <code class="docutils literal notranslate"><span class="pre">27.3</span></code>, <code class="docutils literal notranslate"><span class="pre">58.0</span></code>, <code class="docutils literal notranslate"><span class="pre">59.3</span></code>, <code class="docutils literal notranslate"><span class="pre">67.2</span></code>, <code class="docutils literal notranslate"><span class="pre">69.1</span></code>, <code class="docutils literal notranslate"><span class="pre">72.8</span></code>,
-<code class="docutils literal notranslate"><span class="pre">75.0</span></code>, <code class="docutils literal notranslate"><span class="pre">84.9</span></code>, <code class="docutils literal notranslate"><span class="pre">87.3</span></code>
-at 8 degrees</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img0.png"><img alt="../_images/tut-02-img0.png" src="../_images/tut-02-img0.png" style="width: 600px;" /></a>
+<p>The plot is in log scale for more clarity.
+Most prominent fluorescence peaks are (in keV): <code class="docutils literal notranslate"><span class="pre">24.2</span></code>, <code class="docutils literal notranslate"><span class="pre">27.3</span></code>, <code class="docutils literal notranslate"><span class="pre">58.0</span></code>, <code class="docutils literal notranslate"><span class="pre">59.3</span></code>, <code class="docutils literal notranslate"><span class="pre">67.2</span></code>, <code class="docutils literal notranslate"><span class="pre">69.1</span></code>, <code class="docutils literal notranslate"><span class="pre">72.8</span></code>,
+<code class="docutils literal notranslate"><span class="pre">75.0</span></code>, <code class="docutils literal notranslate"><span class="pre">84.9</span></code>, <code class="docutils literal notranslate"><span class="pre">87.3</span></code>. They correspond with emission spectra of <code class="docutils literal notranslate"><span class="pre">W</span></code> and <code class="docutils literal notranslate"><span class="pre">Pb</span></code>.</p>
+<p>Compare this to the spectra with diffraction data.</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img1.png"><img alt="../_images/tut-02-img1.png" src="../_images/tut-02-img1.png" style="width: 600px;" /></a>
+<p>Let us identify which peaks belong to Fe. We know that the measurements were performed at 2Θ = 8°,
+and generally the cell parameter of BCC Fe is around 2.85 Å.
+So we can set the parameters in the phase constructor in the bottom left as:
+<code class="docutils literal notranslate"><span class="pre">Space</span> <span class="pre">group:</span> <span class="pre">im-3m</span></code>, <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">=</span> <span class="pre">2.85</span> <span class="pre">Å</span></code>, <code class="docutils literal notranslate"><span class="pre">2Θ</span> <span class="pre">=</span> <span class="pre">8°</span></code>, and check the <code class="docutils literal notranslate"><span class="pre">Show</span> <span class="pre">hkl</span></code> checkbox above the plot.
+Stripes should appear indicating the modelled peak positions.</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img2.png"><img alt="../_images/tut-02-img2.png" src="../_images/tut-02-img2.png" style="width: 600px;" /></a>
+</div>
+<div class="section" id="finding-peaks">
+<h2>Finding peaks<a class="headerlink" href="#finding-peaks" title="Permalink to this headline">¶</a></h2>
+<p>Now that we know which peaks we want to fit, we can start setting up the refinement model.
+Our goal here is to identify all the peaks that we have to fit to get good fit quality on the peaks that we want.</p>
+<p>As a first attempt to do the peak search we can always launch it with default parameters.
+So if you just press <code class="docutils literal notranslate"><span class="pre">Find</span></code> button in the top left corner you will get this</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img3.png"><img alt="../_images/tut-02-img3.png" src="../_images/tut-02-img3.png" style="width: 600px;" /></a>
+<p>This is a pretty good starting point.
+Multiple diffraction peaks are identified plus a few of their neighbours that we need to pay attention to.
+That means you can press the <code class="docutils literal notranslate"><span class="pre">Make</span> <span class="pre">Tracks</span></code> button and proceed to the next step.</p>
+</div>
+<div class="section" id="tracks">
+<h2>Tracks<a class="headerlink" href="#tracks" title="Permalink to this headline">¶</a></h2>
+<p>Once you have pressed <code class="docutils literal notranslate"><span class="pre">Make</span> <span class="pre">Tracks</span></code>, created tracks should appear on the list on the left</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img5.png"><img alt="../_images/tut-02-img5.png" src="../_images/tut-02-img5.png" style="width: 600px;" /></a>
+<p>The idea behind the tracks is that each track follows the evolution of a peak over the collected spectra.</p>
+</div>
+<div class="section" id="expanding-tracks">
+<h2>Expanding tracks<a class="headerlink" href="#expanding-tracks" title="Permalink to this headline">¶</a></h2>
+<p>Next step is to make sure that all of the tracks cover all of the datasets.
+For this particular dataset this is not a concern, but sometimes the intensity variance is</p>
+</div>
+<div class="section" id="adding-more-tracks">
+<h2>Adding more tracks<a class="headerlink" href="#adding-more-tracks" title="Permalink to this headline">¶</a></h2>
+<p>We have already added most of the peaks we want, there is just a few left.
+But before we start adding more tracks, let us look at the ones we have.
+The idea behind the tracks is that</p>
+<p>A closer look on the <code class="docutils literal notranslate"><span class="pre">Peak</span> <span class="pre">Fit</span></code> tab shows what we are missing:</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img4.png"><img alt="../_images/tut-02-img4.png" src="../_images/tut-02-img4.png" style="width: 600px;" /></a>
+<p>We want to fit the peaks at <code class="docutils literal notranslate"><span class="pre">62.6</span></code>, <code class="docutils literal notranslate"><span class="pre">76.6</span></code>, and <code class="docutils literal notranslate"><span class="pre">88.5</span></code> as precisely as possible.</p>
 </div>
 </div>
 
@@ -203,7 +245,8 @@ at 8 degrees</p>
           </div>
           <footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-        <a href="tut_tth_cal.html" class="btn btn-neutral float-left" title="Calibrating 2Θ using a reference sample" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tut_tth_cal.html" class="btn btn-neutral float-right" title="Calibrating 2Θ using a reference sample" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tut1.html" class="btn btn-neutral float-left" title="Simple sequential refinement" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
