@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from typing import Union
+from typing import Union, Iterable
 from functools import reduce
 import random
 import string
@@ -34,7 +34,7 @@ def read_peaks(f_names: Union[str, list, tuple] = ()) -> pd.DataFrame:
                                                      names=['prefix', 'parameter'])
     data = reduce(merge_peak_datasets, data)
 
-    for peak in valid_peaks(data, valid_for='phase'):
+    for peak in get_peak_ids(data, columns=('h', 'k', 'l', 'phase')):
         for k in ('h', 'k', 'l'):
             data.loc[:, (peak, k)] = data[peak][k].mean(skipna=True)
         phase = data[peak]['phase']
@@ -109,59 +109,40 @@ def merge_peak_datasets(d1, d2):
     return pd.concat((d1, d2), axis=0)
 
 
-def valid_peaks(data: pd.DataFrame, valid_for: Union[str, None] = 'sin2psi'):
-    """
-
-    :param data:
-    :param valid_for: sin2psi,
-    :return:
-    """
-    columns_sin2psi = (
-        'h', 'k', 'l',
-        'center', 'center_std',
-    )
-
-    columns_hkl = (
-        'h', 'k', 'l', 'phase',
-    )
-
+def get_peak_ids(data: pd.DataFrame, columns: Iterable[str]):
     prefixes = set(data.columns.get_level_values(0))
 
-    try:
-        prefixes.remove('md')
-    except KeyError:
-        pass
+    for special_key in ('md', 'scanpts'):
+        if special_key in prefixes:
+            prefixes.remove(special_key)
 
-    try:
-        prefixes.remove('scanpts')
-    except KeyError:
-        pass
+    invalid = set()
+    for col in columns:
+        for px in prefixes:
+            if col not in data[px].columns:
+                invalid.update({px})
 
-    if valid_for in ('sin2psi', 'phase'):
-        if valid_for == 'sin2psi':
-            nc = columns_sin2psi
-        elif valid_for == 'phase':
-            nc = columns_hkl
-
-        invalid = set()
-
-        for prefix in prefixes:
-            if not all(x in data[prefix].columns for x in nc):
-                invalid.update({prefix})
-
-        for prefix in invalid:
-            prefixes.remove(prefix)
-    else:
-        pass
-    return list(prefixes)
+    return list(prefixes - invalid)
 
 
 def peak_id_str(data: pd.DataFrame, peak_id: str) -> str:
-    try:
-        return '%s [%d%d%d]' % (data[peak_id]['phase'].iloc[0],
-                                *tuple(data[peak_id][['h', 'k', 'l']].mean().astype(int).tolist()))
-    except Exception:
+    if ('h' in data[peak_id].columns) and ('k' in data[peak_id].columns) and ('l' in data[peak_id].columns):
+        hh, kk, ll = data[peak_id][['h', 'k', 'l']].mean().astype(int)
+    else:
+        hh, kk, ll = None, None, None
+
+    if 'phase' in data[peak_id].columns:
+        phase = data[peak_id]['phase'].iloc[0]
+    else:
+        phase = None
+
+    if phase is None and hh is None and kk is None and ll is None:
         return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    elif phase is None and hh is not None and kk is not None and ll is not None:
+        return ''.join(random.choices(string.ascii_uppercase + string.digits, k=4)) + \
+               ' [%d%d%d]' % (hh, kk, ll)
+    else:
+        return '%s [%d%d%d]' % (phase, hh, kk, ll)
 
 
 def group_by_motors(data: pd.DataFrame, motors: Union[tuple, list]) -> pd.DataFrame:

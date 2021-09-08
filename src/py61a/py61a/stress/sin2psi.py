@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from uncertainties import ufloat
 
-from py61a.viewer_utils import valid_peaks, group_by_motors
+from py61a.viewer_utils import get_peak_ids, group_by_motors
 from scipy.optimize import curve_fit
 from functools import partial
 
@@ -140,7 +140,7 @@ def sin2psi(dataset: pd.DataFrame, phi_col: str, phi_atol: float,
 
         # this is one sin2psi scan
         tmp = dataset.loc[ds_groups.groups[res_idx]]
-        for peak_id in valid_peaks(tmp):
+        for peak_id in get_peak_ids(tmp, columns=('d', 'd_std')):
             if (peak_id, 'depth') in tmp.columns:
                 peak_data = tmp[[('scanpts', '__PHI__'), ('scanpts', '__PSI__'),
                                  ('md', psi_col), ('md', phi_col), (peak_id, 'd'), (peak_id, 'depth')]]
@@ -190,7 +190,7 @@ def sin2psi(dataset: pd.DataFrame, phi_col: str, phi_atol: float,
                     intercept=0.
                 )
 
-    for peak_id in valid_peaks(dataset):
+    for peak_id in get_peak_ids(dataset, columns=('d', 'd_std')):
         for col in sin2psi_columns:
             if all(result.loc[:, (peak_id, col)].apply(lambda x: x.isnan())):
                 result.drop(columns=[(peak_id, col)], inplace=True)

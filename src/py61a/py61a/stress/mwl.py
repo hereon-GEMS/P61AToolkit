@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from uncertainties import ufloat, unumpy
 
-from py61a.viewer_utils import valid_peaks
+from py61a.viewer_utils import get_peak_ids
 from py61a.stress import hooke
 
 
@@ -14,8 +14,8 @@ def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFram
             set(s2p.columns.get_level_values(0)),
             ('s11-s33', 's22-s33', 'depth_min', 'depth_max', 'depth')])
     )
-
-    for peak_id in valid_peaks(peaks, valid_for='sin2psi'):
+     # TODO: fix logic in column iteration. which columns are we looking up in which dataset?
+    for peak_id in get_peak_ids(peaks, columns=('h', 'k', 'l', 'd', 'd_std')):
         hkl = peaks[peak_id][['h', 'k', 'l']].mean().astype(np.int)
 
         for ii, row in dec.iterrows():
@@ -52,7 +52,7 @@ def all_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFrame, d0: 
             set(s2p.columns.get_level_values(0)),
             ('s11', 's22', 's33', 's13', 's23', 's12', 'depth_min', 'depth_max', 'depth')])
     )
-    for peak_id in valid_peaks(peaks, valid_for='sin2psi'):
+    for peak_id in get_peak_ids(peaks, columns=('h', 'k', 'l', 'center', 'center_std')):
         hkl = peaks[peak_id][['h', 'k', 'l']].mean().astype(np.int)
 
         for ii, row in dec.iterrows():

@@ -2,7 +2,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from uncertainties import unumpy
 
-from py61a.viewer_utils import read_peaks, valid_peaks, group_by_motors, peak_id_str
+from py61a.viewer_utils import read_peaks, get_peak_ids, group_by_motors, peak_id_str
 from py61a.cryst_utils import bragg
 from py61a.stress import sin2psi, deviatoric_stresses
 
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     tth_ch1 = 5.274
     dec = pd.read_csv(r'../../../data/dec/alphaTi.csv', index_col=None, comment='#')
 
-    for peak_id in valid_peaks(dd, valid_for='sin2psi'):
+    for peak_id in get_peak_ids(dd, columns=('h', 'k', 'l', 'center', 'center_std')):
         d_val = bragg(en=unumpy.uarray(dd[(peak_id, 'center')], dd[(peak_id, 'center_std')]), tth=tth_ch1)['d']
         dd[(peak_id, 'd')] = unumpy.nominal_values(d_val)
         dd[(peak_id, 'd_std')] = unumpy.std_devs(d_val)

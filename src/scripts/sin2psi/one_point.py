@@ -2,7 +2,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 from uncertainties import unumpy
 
-from py61a.viewer_utils import read_peaks, valid_peaks, peak_id_str
+from py61a.viewer_utils import read_peaks, get_peak_ids, peak_id_str
 from py61a.cryst_utils import tau, mu, bragg
 from py61a.stress import sin2psi, deviatoric_stresses
 
@@ -10,12 +10,13 @@ from py61a.stress import sin2psi, deviatoric_stresses
 if __name__ == '__main__':
     element = 'Fe'
     # dd = read_peaks(r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\stress_1-4.csv')
-    dd = read_peaks(r'Z:\p61\2021\data\11012376\processed\4pBending.csv')
+    dd = read_peaks(r'Z:\p61\2021\data\11012376\processed\4pBend.csv')
     dec = pd.read_csv(r'../../../data/dec/bccFe.csv', index_col=None, comment='#')
     tth = dd[('md', 'd1.rx')].mean()
+    # dd[('md', 'eu.phi')] = (dd[('md', 'eu.phi')] - 45) % 360
 
     # calculating d values and depth
-    for peak_id in valid_peaks(dd, valid_for='sin2psi'):
+    for peak_id in get_peak_ids(dd, columns=('h', 'k', 'l', 'center', 'center_std')):
         d_val = bragg(en=unumpy.uarray(dd[(peak_id, 'center')], dd[(peak_id, 'center_std')]), tth=tth)['d']
         dd[(peak_id, 'd')] = unumpy.nominal_values(d_val)
         dd[(peak_id, 'd_std')] = unumpy.std_devs(d_val)
@@ -25,7 +26,7 @@ if __name__ == '__main__':
         )
 
     analysis = sin2psi(dataset=dd, phi_col='eu.phi', phi_atol=5.,
-                       psi_col='eu.chi', psi_atol=.1, psi_max=45.)
+                       psi_col='eu.chi', psi_atol=.1, psi_max=90.)
     stresses = deviatoric_stresses(dd, analysis, dec)
     analysis = analysis.squeeze(axis=0)
     stresses = stresses.squeeze(axis=0)
@@ -33,7 +34,7 @@ if __name__ == '__main__':
     print(analysis)
     print(stresses)
 
-    for peak_id in valid_peaks(dd, valid_for='sin2psi'):
+    for peak_id in get_peak_ids(dd, columns=('h', 'k', 'l', 'center', 'center_std')):
         fig = plt.figure(peak_id)
         fig.suptitle(peak_id_str(dd, peak_id))
         ax1, ax2 = plt.subplot(121), plt.subplot(122)

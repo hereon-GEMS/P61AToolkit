@@ -1,4 +1,4 @@
-from py61a.viewer_utils import read_peaks, valid_peaks, peak_id_str
+from py61a.viewer_utils import read_peaks, get_peak_ids, peak_id_str
 from matplotlib import pyplot as plt
 import numpy as np
 
@@ -18,7 +18,7 @@ if __name__ == '__main__':
     else:
         raise KeyError('Motor %s is not present in the dataset' % x_mot)
 
-    for peak_id in valid_peaks(dd, valid_for='phase'):
+    for peak_id in get_peak_ids(dd, columns=('h', 'k', 'l', 'phase')):
 
         plt.figure(peak_id_str(dd, peak_id))
 
