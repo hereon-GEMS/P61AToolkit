@@ -4,7 +4,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import h5py
 
-from utils import write_fio
+from py61a.beamline_utils import write_fio
 
 
 dd = r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\nxs\stress_00004'

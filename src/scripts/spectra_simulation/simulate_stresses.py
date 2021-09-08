@@ -7,7 +7,7 @@ from xfab.tools import genhkl_all, genhkl_unique
 from xfab.structure import int_intensity, StructureFactor, build_atomlist
 from py61a.cryst_utils import en_wl, tau, mu, p_voigt, bragg
 from py61a.stress import tensor_projection, inv_hooke
-from utils import read_fio, write_fio
+from py61a.beamline_utils import read_fio, write_fio
 from itertools import permutations
 import os
 

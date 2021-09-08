@@ -8,7 +8,7 @@ import os
 import shutil
 import pandas as pd
 import re
-from utils import read_fio, write_fio
+from py61a.beamline_utils import read_fio
 
 
 if __name__ == '__main__':
