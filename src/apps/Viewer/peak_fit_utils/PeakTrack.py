@@ -17,6 +17,16 @@ class PeakData:
     def __init__(self, idx, cx, cy, l_ip, r_ip, l_b, r_b, l_bh, r_bh, model='PseudoVoigt'):
         """
 
+        :param idx: index of the spectrum the peak belongs to
+        :param cx: x coordinate of peak center
+        :param cy: y coordinate of the peak center
+        :param l_ip:
+        :param r_ip:
+        :param l_b:
+        :param r_b:
+        :param l_bh:
+        :param r_bh:
+        :param model:
         """
         self._l_bh = l_bh
         self._r_bh = r_bh
@@ -33,6 +43,15 @@ class PeakData:
         self.make_md_params(cx, cy, l_ip, r_ip)
 
     def make_md_params(self, _cx, _cy, _l_ip, _r_ip):
+        """
+        Initiates the model parameters and bounds from the peak search results
+
+        :param _cx:
+        :param _cy:
+        :param _l_ip:
+        :param _r_ip:
+        :return:
+        """
         self.md_params, self.md_p_bounds = dict(), dict()
 
         if self.md_name == 'PseudoVoigt':
@@ -464,6 +483,10 @@ class PeakDataTrack:
     def overlap_bases(self):
         return [peak.overlap_base for peak in self._peaks]
 
+    @property
+    def md_names(self):
+        return [peak.md_name for peak in self._peaks]
+
     @overlap_bases.setter
     def overlap_bases(self, val):
         for peak in self._peaks:
@@ -480,6 +503,7 @@ class PeakDataTrack:
         return np.mean(self.cxs).__lt__(np.mean(other.cxs))
 
     def predict_by_average(self, idx, data_x, data_y):
+        # calculating param values
         weights = np.sqrt(self.cys)
         mcx = np.average(self.cxs, weights=weights)
         mlb = np.average(self.l_bs, weights=weights)
@@ -490,26 +514,26 @@ class PeakDataTrack:
         data_y = data_y[(data_x <= mrb) & (data_x >= mlb)]
         cy = float(np.max(data_y) - np.min(data_y) + 1)
 
-        return PeakData(idx, mcx, cy, mlip, mrip, mlb, mrb, float(np.min(data_y)), float(np.min(data_y)))
+        result = PeakData(idx, mcx, cy, mlip, mrip, mlb, mrb, float(np.min(data_y)), float(np.min(data_y)))
+
+        # calculating param bounds
+        if all(map(lambda x: x == 'PseudoVoigt', self.md_names)):
+            widths = np.array([peak.md_p_bounds['width'] for peak in self._peaks])
+            sigmas = np.array([peak.md_p_bounds['sigma'] for peak in self._peaks])
+            centers = np.array([peak.md_p_bounds['center'] for peak in self._peaks])
+            amplitudes = np.array([peak.md_p_bounds['amplitude'] for peak in self._peaks])
+            heights = np.array([peak.md_p_bounds['height'] for peak in self._peaks])
+            fractions = np.array([peak.md_p_bounds['fraction'] for peak in self._peaks])
+
+            result.md_p_bounds['width'] = (np.mean(widths[:, 0]), np.mean(widths[:, 1]))
+            result.md_p_bounds['sigma'] = (np.mean(sigmas[:, 0]), np.mean(sigmas[:, 1]))
+            result.md_p_bounds['center'] = (np.mean(centers[:, 0]), np.mean(centers[:, 1]))
+            result.md_p_bounds['amplitude'] = (np.mean(amplitudes[:, 0]), np.mean(amplitudes[:, 1]))
+            result.md_p_bounds['height'] = (np.mean(heights[:, 0]), np.mean(heights[:, 1]))
+            result.md_p_bounds['fraction'] = (np.mean(fractions[:, 0]), np.mean(fractions[:, 1]))
+
+        return result
 
     def shift_xs(self, by=0.):
         for peak in self._peaks:
             peak.cx += by
-
-    def compress_energies(self, new_range):
-        avg_e = np.mean(self.cxs)
-        min_e = np.min(self.cxs)
-        max_e = np.max(self.cxs)
-
-        new_min = (avg_e * (max_e - min_e) - new_range * (avg_e - min_e)) / (max_e - min_e)
-        new_max = new_range + new_min
-
-        for peak in self._peaks:
-            if peak.cx > new_max:
-                shift = new_max - peak.cx
-            elif peak.cx < new_min:
-                shift = new_min - peak.cx
-            else:
-                shift = 0.
-
-            peak.cx += shift
