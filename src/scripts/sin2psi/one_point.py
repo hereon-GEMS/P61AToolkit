@@ -9,8 +9,7 @@ from py61a.stress import sin2psi, deviatoric_stresses
 
 if __name__ == '__main__':
     element = 'Fe'
-    # dd = read_peaks(r'C:\Users\dovzheng\PycharmProjects\P61AToolkit\data\peaks\stress_1-4.csv')
-    dd = read_peaks(r'Z:\p61\2021\data\11012376\processed\4pBend.csv')
+    dd = read_peaks(r'Z:\p61\2021\data\11011682\processed\Duplex_1-4362_FW_80bar\Peaks.csv')
     dec = pd.read_csv(r'../../../data/dec/bccFe.csv', index_col=None, comment='#')
     tth = dd[('md', 'd1.rx')].mean()
     # dd[('md', 'eu.phi')] = (dd[('md', 'eu.phi')] - 45) % 360
@@ -33,8 +32,10 @@ if __name__ == '__main__':
 
     print(analysis)
     print(stresses)
-
     for peak_id in get_peak_ids(dd, columns=('h', 'k', 'l', 'center', 'center_std')):
+        if peak_id not in set(analysis.index.get_level_values(0)):
+            continue
+
         fig = plt.figure(peak_id)
         fig.suptitle(peak_id_str(dd, peak_id))
         ax1, ax2 = plt.subplot(121), plt.subplot(122)
@@ -59,12 +60,14 @@ if __name__ == '__main__':
         x=stresses[stresses.index.get_level_values(1) == 'depth'],
         y=stresses[stresses.index.get_level_values(1) == 's11-s33'].apply(lambda x: x.n),
         yerr=stresses[stresses.index.get_level_values(1) == 's11-s33'].apply(lambda x: x.s),
-        label=r'$\sigma_{11}-\sigma_{33}$', marker='x', linestyle='')
+        label=r'$\sigma_{11}-\sigma_{33}$', marker='x', linestyle=''
+    )
     plt.errorbar(
         x=stresses[stresses.index.get_level_values(1) == 'depth'],
         y=stresses[stresses.index.get_level_values(1) == 's22-s33'].apply(lambda x: x.n),
         yerr=stresses[stresses.index.get_level_values(1) == 's22-s33'].apply(lambda x: x.s),
-        label=r'$\sigma_{22}-\sigma_{33}$', marker='x', linestyle='')
+        label=r'$\sigma_{22}-\sigma_{33}$', marker='x', linestyle=''
+    )
     plt.xlabel('Information depth [μm]')
     plt.ylabel('Stress [MPa]')
     plt.legend()

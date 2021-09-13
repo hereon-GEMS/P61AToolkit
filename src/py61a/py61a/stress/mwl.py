@@ -14,9 +14,13 @@ def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFram
             set(s2p.columns.get_level_values(0)),
             ('s11-s33', 's22-s33', 'depth_min', 'depth_max', 'depth')])
     )
-     # TODO: fix logic in column iteration. which columns are we looking up in which dataset?
+
+    # TODO: fix logic in column iteration. which columns are we looking up in which dataset?
     for peak_id in get_peak_ids(peaks, columns=('h', 'k', 'l', 'd', 'd_std')):
         hkl = peaks[peak_id][['h', 'k', 'l']].mean().astype(np.int)
+
+        if peak_id not in s2p.columns.get_level_values(0):
+            continue
 
         for ii, row in dec.iterrows():
             if np.all(hkl == row[['h', 'k', 'l']].astype(np.int)):
@@ -30,11 +34,15 @@ def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFram
             result.loc[:, (peak_id, 's11-s33')] = \
                 (1. / hs2) * s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uslope) / \
                 s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uintercept)
+        else:
+            result.loc[:, (peak_id, 's11-s33')] = ufloat(np.nan, np.nan)
 
         if '90+270' in s2p[peak_id].columns:
             result.loc[:, (peak_id, 's22-s33')] = \
                 (1. / hs2) * s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uslope) / \
                 s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uintercept)
+        else:
+            result.loc[:, (peak_id, 's22-s33')] = ufloat(np.nan, np.nan)
 
         result.loc[:, (peak_id, 'depth')] = np.nanmean(s2p[peak_id].applymap(lambda cell: np.nanmean(cell.depth)))
         result.loc[:, (peak_id, 'depth_min')] = np.nanmin(s2p[peak_id].applymap(lambda cell: np.nanmin(cell.depth)))
