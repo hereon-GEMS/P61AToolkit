@@ -77,7 +77,7 @@ class P61App(QApplication):
 
     """
     name = 'P61A::Viewer'
-    version = '1.0.1' + ' build 2021-09-10'
+    version = '1.0.2' + ' build 2021-09-15'
 
     dataRowsInserted = pyqtSignal(int, int)
     dataRowsRemoved = pyqtSignal(list)
