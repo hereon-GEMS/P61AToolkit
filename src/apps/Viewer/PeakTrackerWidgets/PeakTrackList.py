@@ -4,6 +4,7 @@ import copy
 import logging
 
 from PeakTrackerWidgets.TrackEditPopUp import TrackEditPopUp
+from PeakTrackerWidgets.TrackCopyPopUp import TrackCopyPopUp
 
 from P61App import P61App
 
@@ -72,23 +73,31 @@ class PeakTrackList(QWidget):
     def on_btn_cp(self):
         ids = self.lst.selectedIndexes()
         rows = sorted(map(lambda x: x.row(), ids), reverse=True)
-        tracks = self.q_app.get_pd_tracks()
 
-        all_spectra_ids = []
-        for row in sorted(rows, reverse=True):
-            new_track = copy.copy(tracks[row])
-            tracks = tracks[:row] + [new_track] + tracks[row:]
+        if len(rows) > 1:
+            return
 
-            for spectra_idx in new_track.ids:
-                peak_list = self.q_app.get_peak_data_list(spectra_idx)
-                peak_list.append(new_track[spectra_idx])
-                peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
-                self.q_app.set_peak_data_list(spectra_idx, peak_list, emit=False)
-
-            all_spectra_ids.extend(new_track.ids)
-
-        self.q_app.peakListChanged.emit(list(set(all_spectra_ids)))
-        self.q_app.set_pd_tracks(tracks)
+        popup = TrackCopyPopUp(parent=self, track_ids=rows)
+        popup.exec_()
+        # ids = self.lst.selectedIndexes()
+        # rows = sorted(map(lambda x: x.row(), ids), reverse=True)
+        # tracks = self.q_app.get_pd_tracks()
+        #
+        # all_spectra_ids = []
+        # for row in sorted(rows, reverse=True):
+        #     new_track = copy.copy(tracks[row])
+        #     tracks = tracks[:row] + [new_track] + tracks[row:]
+        #
+        #     for spectra_idx in new_track.ids:
+        #         peak_list = self.q_app.get_peak_data_list(spectra_idx)
+        #         peak_list.append(new_track[spectra_idx])
+        #         peak_list = list(sorted(peak_list, key=lambda item: item.md_params['center']))
+        #         self.q_app.set_peak_data_list(spectra_idx, peak_list, emit=False)
+        #
+        #     all_spectra_ids.extend(new_track.ids)
+        #
+        # self.q_app.peakListChanged.emit(list(set(all_spectra_ids)))
+        # self.q_app.set_pd_tracks(tracks)
 
     def on_btn_edt(self):
         ids = self.lst.selectedIndexes()
