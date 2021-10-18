@@ -43,6 +43,27 @@ def read_peaks(f_names: Union[str, list, tuple] = ()) -> pd.DataFrame:
     return data
 
 
+def read_peaks2(f_names: Union[str, list, tuple] = ()) -> pd.DataFrame:
+    result = read_peaks(f_names)
+    print([col for col in result.columns])
+
+    # md
+    lvl0 = [col[1] if (col[0] == 'md') else np.nan for col in result.columns]
+    # fit
+    lvl1 = [col[1] if (col[0] != 'md') else np.nan for col in result.columns]
+    # phase
+    lvl2 = [col[0] if (col[0] != 'md') else np.nan for col in result.columns]
+    # h
+    lvl3 = [col[0] if (col[0] != 'md') else np.nan for col in result.columns]
+    # k
+    lvl4 = [col[0] if (col[0] != 'md') else np.nan for col in result.columns]
+    # l
+    lvl5 = [col[0] if (col[0] != 'md') else np.nan for col in result.columns]
+    print(lvl0)
+    print(lvl1)
+    return result
+
+
 def merge_peak_datasets(d1, d2):
     """
     :param d1:

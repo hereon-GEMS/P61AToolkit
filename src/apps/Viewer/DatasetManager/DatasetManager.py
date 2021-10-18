@@ -161,7 +161,7 @@ class DatasetManager(QWidget):
                 self,
                 'Add spectra',
                 self.q_app.data_dir,
-                'FIO Files (*.fio);;NEXUS files (*.nxs);;All files (*)',
+                'All files (*);;FIO Files (*.fio);;NEXUS files (*.nxs);;CSV files (*.csv)',
                 options=QFileDialog.Options()
             )
 
