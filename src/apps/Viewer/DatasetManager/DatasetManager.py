@@ -232,6 +232,7 @@ class DatasetManager(QWidget):
                     self.q_app.motors_all.update(row['Motors'].keys())
             self._hold_md = {row['FNames']: row['Motors'] for _, row in opened.iterrows()}
             self.logger.info('Metadata extracted successfully, proceeding to open NeXuS files')
+            self.q_app.motorListUpdated.emit()
         else:
             self._hold_md = None
 

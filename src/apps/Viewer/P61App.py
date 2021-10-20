@@ -91,6 +91,7 @@ class P61App(QApplication):
     peakTracksChanged = pyqtSignal()
     hklPhasesChanged = pyqtSignal()
     hklPeaksChanged = pyqtSignal()
+    motorListUpdated = pyqtSignal()
 
     foWorkerException = pyqtSignal(object)
     foWorkerResult = pyqtSignal(object)
@@ -258,6 +259,14 @@ class P61App(QApplication):
         if emit:
             self.logger.debug('set_bckg_data_list: Emitting bckgListChanged([%d])' % (idx, ))
             self.bckgListChanged.emit([idx])
+
+    def get_pd_track(self, idx):
+        if self.peak_tracks is None:
+            return None
+        for track in self.peak_tracks:
+            if track.get_track_idx() == idx:
+                return track
+        return None
 
     def get_pd_tracks(self):
         if self.peak_tracks is None:
@@ -432,6 +441,7 @@ class P61App(QApplication):
         self.peakTracksChanged.emit()
         self.hklPhasesChanged.emit()
         self.hklPeaksChanged.emit()
+        self.motorListUpdated.emit()
 
     def export_spectra_csv(self, ids):
         fd = QFileDialog()

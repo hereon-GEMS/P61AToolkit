@@ -28,6 +28,7 @@ from FitWidgets import GeneralFitWidget
 from PeakTrackerWidgets import AutoFindWidget
 from PeakTrackerWidgets import PeakTrackList
 from PhaseAssignmentWidgets import PhaseConstructor
+from MDWidgets import MetaDataWidget
 
 from P61App import P61App
 
@@ -81,6 +82,9 @@ class P61Viewer(QMainWindow):
         self.peak_tl = PeakTrackList(parent=self.tab1)
         self.phase_ed = PhaseConstructor(parent=self.tab1)
 
+        # 3rd tab
+        self.md_viewer = MetaDataWidget(parent=self.tab1)
+
         # menu
         mb = self.menuBar()
         fileMenu = QMenu("&File", self)
@@ -122,6 +126,9 @@ class P61Viewer(QMainWindow):
         # 2nd tab
         self.fit_w = GeneralFitWidget(parent=self)
         self.cw.addTab(self.fit_w, 'Peak fit')
+
+        # 3rd tab
+        self.cw.addTab(self.md_viewer, 'Metadata')
 
         self.logger.debug('Initialization complete')
 

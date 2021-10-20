@@ -9,9 +9,10 @@ from py61a.stress import sin2psi, deviatoric_stresses
 
 if __name__ == '__main__':
     element = 'Fe'
-    dd = read_peaks(r'Z:\p61\2021\data\11011682\processed\Duplex_1-4362_FW_80bar\Peaks.csv')
+    dd = read_peaks(r'Z:\p61\2021\data\11012378\processed\SMSS_oven_test_after.csv')
     dec = pd.read_csv(r'../../../data/dec/bccFe.csv', index_col=None, comment='#')
-    tth = dd[('md', 'd1.rx')].mean()
+    tth = dd[('md', 'd0.rz')].mean()
+    dd[('md', 'eu.chi')] = 90. - dd[('md', 'eu.chi')]
     # dd[('md', 'eu.phi')] = (dd[('md', 'eu.phi')] - 45) % 360
 
     # calculating d values and depth

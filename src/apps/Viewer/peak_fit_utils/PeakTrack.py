@@ -443,8 +443,28 @@ class PeakDataTrack:
         return [peak.cx for peak in self._peaks]
 
     @property
+    def cx_bounds(self):
+        return [peak.cx_bounds for peak in self._peaks]
+
+    @property
     def cys(self):
         return [peak.cy for peak in self._peaks]
+
+    @property
+    def amplitudes(self):
+        return [peak.amplitude for peak in self._peaks]
+
+    @property
+    def amplitude_bounds(self):
+        return [peak.amplitude_bounds for peak in self._peaks]
+
+    @property
+    def sigmas(self):
+        return [peak.sigma for peak in self._peaks]
+
+    @property
+    def sigma_bounds(self):
+        return [peak.sigma_bounds for peak in self._peaks]
 
     @property
     def l_bs(self):
