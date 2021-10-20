@@ -36,6 +36,7 @@ class MetaDataWidget2D(QWidget):
         self.upd_cbs()
 
         self.q_app.motorListUpdated.connect(self.on_mt_list_updated)
+        self.q_app.peakTracksChanged.connect(self.on_mt_list_updated)
         self.cb_x.currentIndexChanged.connect(self.on_btn_plot)
         self.cb_y.currentIndexChanged.connect(self.on_btn_plot)
 
@@ -50,9 +51,9 @@ class MetaDataWidget2D(QWidget):
             for mt in sorted(self.q_app.motors_all):
                 self.cb_y.addItem(mt)
 
-            for track in self.q_app.get_pd_tracks():
+            for ii, track in enumerate(self.q_app.get_pd_tracks()):
                 for param in ('center', 'amplitude', 'sigma'):
-                    self.cb_y.addItem('Track ' + str(track.get_track_idx()) + ': ' + param)
+                    self.cb_y.addItem('Track ' + str(ii) + ': ' + param)
 
     def on_mt_list_updated(self, *args, **kwargs):
         self.logger.debug('on_mt_list_updated: Handling motorListUpdated(%s, %s)' % (str(args), str(kwargs)))
