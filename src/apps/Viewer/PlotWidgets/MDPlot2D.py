@@ -41,6 +41,7 @@ class MetaDataPlot2D(pg.GraphicsLayoutWidget):
         if y_var in self.q_app.motors_all:
             yy = [md[y_var] if md is not None else None for md in mds]
             yy = np.array([np.nan if y is None else y for y in yy])
+            yy_ids = self.q_app.get_active_ids()
         elif y_var[:5] == 'Track':
             track_idx = int(y_var.split(':')[0].replace('Track ', ''))
             param = y_var.split(': ')[1]
