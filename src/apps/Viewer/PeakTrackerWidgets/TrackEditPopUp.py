@@ -28,6 +28,17 @@ class TrackEditPopUp(QDialog):
         else:
             self._track_ids = track_ids
 
+        self.gb_refinement = QGroupBox(parent=self)
+        self.gb_refinement.setCheckable(True)
+        self.gb_refinement.setChecked(False)
+        self.gb_refinement.setTitle('Refinement')
+
+        self.cb_refine = QCheckBox('Refine', parent=self)
+
+        gb_refinement_l = QHBoxLayout()
+        self.gb_refinement.setLayout(gb_refinement_l)
+        gb_refinement_l.addWidget(self.cb_refine)
+
         self.gb_center = QGroupBox(parent=self)
         self.gb_center.setCheckable(True)
         self.gb_center.setChecked(False)
@@ -131,14 +142,15 @@ class TrackEditPopUp(QDialog):
         layout = QGridLayout()
         self.setLayout(layout)
 
-        layout.addWidget(self.gb_center, 1, 1, 1, 1)
-        layout.addWidget(self.gb_sigma, 2, 1, 1, 1)
-        layout.addWidget(self.gb_amplitude, 3, 1, 1, 1)
-        layout.addWidget(self.gb_base, 4, 1, 1, 1)
-        layout.addWidget(self.gb_o_base, 5, 1, 1, 1)
-        layout.addWidget(self.list_span, 1, 2, 5, 2)
-        layout.addWidget(self.button_ok, 6, 2, 1, 1)
-        layout.addWidget(self.button_cancel, 6, 3, 1, 1)
+        layout.addWidget(self.gb_refinement, 1, 1, 1, 1)
+        layout.addWidget(self.gb_center, 2, 1, 1, 1)
+        layout.addWidget(self.gb_sigma, 3, 1, 1, 1)
+        layout.addWidget(self.gb_amplitude, 4, 1, 1, 1)
+        layout.addWidget(self.gb_base, 5, 1, 1, 1)
+        layout.addWidget(self.gb_o_base, 6, 1, 1, 1)
+        layout.addWidget(self.list_span, 1, 2, 6, 2)
+        layout.addWidget(self.button_ok, 7, 2, 1, 1)
+        layout.addWidget(self.button_cancel, 7, 3, 1, 1)
 
         self.button_ok.clicked.connect(self.on_btn_ok)
         self.button_cancel.clicked.connect(self.on_btn_cancel)
@@ -188,6 +200,15 @@ class TrackEditPopUp(QDialog):
         if not self.gb_o_base.isChecked():
             self.ed_o_base_v.set_value(ps['overlap_base'])
 
+        if not self.gb_refinement.isChecked():
+            self.cb_refine.setChecked(
+                all(sum(
+                    (list(tr.values()) for tr in sum(
+                        [self._tracks[idx].md_p_refine for idx in self._track_ids],
+                        [])),
+                    []))
+            )
+
     def on_btn_ok(self):
         spectra_ids = self.list_span.get_selected()
 
@@ -195,14 +216,26 @@ class TrackEditPopUp(QDialog):
             peak_list = self.q_app.get_peak_data_list(spectra_idx)
             if peak_list is None:
                 peak_list = []
+
             for track_idx in self._track_ids:
                 if spectra_idx not in self._tracks[track_idx].ids:
-                    new_peak = self._tracks[track_idx].predict_by_average(spectra_idx,
-                                                                          self.q_app.data.loc[spectra_idx, 'DataX'],
-                                                                          self.q_app.data.loc[spectra_idx, 'DataY'])
+                    new_peak = self._tracks[track_idx].predict_by_average(
+                        spectra_idx,
+                        self.q_app.data.loc[spectra_idx, 'DataX'],
+                        self.q_app.data.loc[spectra_idx, 'DataY']
+                    )
                     self._tracks[track_idx].append(new_peak)
                     peak_list.append(new_peak)
+
             self.q_app.set_peak_data_list(spectra_idx, peak_list, emit=False)
+
+        for track_idx in self._track_ids:
+            for spectra_idx in self._tracks[track_idx].ids:
+                if spectra_idx not in spectra_ids:
+                    self._tracks[track_idx].pop(spectra_idx)
+                    peak_list = self.q_app.get_peak_data_list(spectra_idx)
+                    peak_list = [peak for peak in peak_list if peak.idx != spectra_idx]
+                    self.q_app.set_peak_data_list(spectra_idx, peak_list, emit=False)
 
         if self.gb_center.isChecked():
             # if we're editing multiple tracks (hence c_val will be None), we don't touch track's mean value,
@@ -265,6 +298,10 @@ class TrackEditPopUp(QDialog):
             o_b_val = self.ed_o_base_v.get_value()
             for track_idx in self._track_ids:
                 self._tracks[track_idx].overlap_bases = o_b_val
+
+        if self.gb_refinement.isChecked():
+            for track_idx in self._track_ids:
+                self._tracks[track_idx].md_p_refine = self.cb_refine.isChecked()
 
         for spectra_idx in spectra_ids:
             peak_list = self.q_app.get_peak_data_list(spectra_idx)

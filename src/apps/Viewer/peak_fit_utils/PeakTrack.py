@@ -442,6 +442,16 @@ class PeakDataTrack:
         }, index=ids)
 
     @property
+    def md_p_refine(self):
+        return [peak.md_p_refine for peak in self._peaks]
+
+    @md_p_refine.setter
+    def md_p_refine(self, val):
+        for peak in self._peaks:
+            for k in peak.md_p_refine.keys():
+                peak.md_p_refine[k] = val
+
+    @property
     def ids(self):
         return [peak.idx for peak in self._peaks]
 
