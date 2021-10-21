@@ -391,6 +391,13 @@ class PeakDataTrack:
             self._peaks[0].track = None
             del self._peaks[0]
 
+    def pop(self, spectra_idx):
+        for ii in range(len(self._peaks)):
+            if self._peaks[ii].idx == spectra_idx:
+                self._peaks[ii].track = None
+                del self._peaks[ii]
+                return
+
     def dist(self, pd: PeakData):
         return np.abs(self._peaks[-1].cx - pd.cx)
 
