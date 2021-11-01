@@ -528,3 +528,38 @@ class P61App(QApplication):
         result = result[['ScreenName'] + columns]
 
         result.to_csv(f_name)
+
+    def get_data_by_name(self, var):
+        if var in self.motors_all:
+            mds = self.data.loc[self.data['Active'], 'Motors'].to_list()
+            xx = [md[var] if md is not None else None for md in mds]
+            xx = np.array([np.nan if x is None else x for x in xx])
+            return xx, np.array([np.nan] * xx.size), np.array([np.nan] * xx.size)
+
+        elif var[:5] == 'Track':
+            param = var.split(': ')[1]
+            track = self.get_pd_tracks()[int(var.split(':')[0].replace('Track ', ''))]
+            active_ids = self.get_active_ids()
+            xx_ids = np.array(track.ids)
+
+            if param == 'center':
+                xx = np.array(track.cxs)
+                xx_min, xx_max = np.array(track.cx_bounds).T
+            elif param == 'amplitude':
+                xx = np.array(track.amplitudes)
+                xx_min, xx_max = np.array(track.amplitude_bounds).T
+            elif param == 'sigma':
+                xx = np.array(track.sigmas)
+                xx_min, xx_max = np.array(track.sigma_bounds).T
+            else:
+                return np.array([]), np.array([]), np.array([])
+
+            xx = pd.DataFrame({'xx': xx, 'xx_min': xx_min, 'xx_max': xx_max}, index=xx_ids)
+
+            xx_min = np.array([xx.loc[idx, 'xx_min'] if idx in xx_ids else np.nan for idx in active_ids])
+            xx_max = np.array([xx.loc[idx, 'xx_max'] if idx in xx_ids else np.nan for idx in active_ids])
+            xx = np.array([xx.loc[idx, 'xx'] if idx in xx_ids else np.nan for idx in active_ids])
+
+            return xx, xx_min, xx_max
+        else:
+            return np.array([]), np.array([]), np.array([])
