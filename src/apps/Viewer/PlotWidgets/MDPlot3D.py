@@ -30,6 +30,9 @@ class MetaDataPlot3D(gl.GLViewWidget):
         self.grid_xz = None
         self.text_objs = []
 
+        self._scatter = False
+        self.logz = False
+
         self._init_axes()
 
     def _init_axes(self):
@@ -97,7 +100,22 @@ class MetaDataPlot3D(gl.GLViewWidget):
             zz = np.array([0.5] * zz.size)
 
         pos = np.vstack([xx, yy, zz]).transpose()
-        self.addItem(gl.GLScatterPlotItem(pos=pos, color=(1, 1, 1, 1), size=3))
+        if self._scatter:
+            self.addItem(gl.GLScatterPlotItem(pos=pos, color=(1, 1, 1, 1), size=3))
+        else:
+            grid_xx = np.linspace(0, 1, 1000)
+            grid_yy = np.linspace(0, 1, 1000)
+            grid_xy = (
+                np.array([grid_xx] * grid_yy.shape[0]), np.array([grid_yy] * grid_xx.shape[0]).T
+            )
+            grid_zz = griddata(pos[:, :2], pos[:, 2], grid_xy, method='nearest')
+            grid_zz = grid_zz.reshape(grid_yy.shape[0], grid_xx.shape[0]).T
+
+            self.addItem(
+                gl.GLSurfacePlotItem(x=grid_xx, y=grid_yy, z=grid_zz,
+                                     colors=self.q_app.apply_cmap(grid_zz, 'turbo', not self.logz),
+                                     shader=None, computeNormals=False)
+            )
         self.update()
 
     def paintGL(self, *args, **kwds):
