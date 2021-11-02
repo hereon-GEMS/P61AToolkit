@@ -528,6 +528,7 @@ class P61App(QApplication):
         result = result[['ScreenName'] + columns]
 
         result.to_csv(f_name)
+        self.logger.debug('export_fit: Peak data saved as %s' % f_name)
 
     def get_data_by_name(self, var):
         if var in self.motors_all:

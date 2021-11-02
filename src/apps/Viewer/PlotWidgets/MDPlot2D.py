@@ -16,16 +16,12 @@ class MetaDataPlot2D(pg.GraphicsLayoutWidget):
         self.q_app = P61App.instance()
         self.logger = logging.getLogger(str(self.__class__))
 
-        self.x_var = None
-        self.y_var = None
-
         self._line_ax = self.addPlot(title="Metadata")
         self._line_ax.setLabel('bottom', "???")
         self._line_ax.setLabel('left', "???")
         self._line_ax.showGrid(x=True, y=True)
 
     def set_variables(self, x_var, y_var):
-        self.x_var, self.y_var = x_var, y_var
         self._line_ax.clear()
 
         xx, _, _ = self.q_app.get_data_by_name(x_var)

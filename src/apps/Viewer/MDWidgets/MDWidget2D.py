@@ -49,7 +49,7 @@ class MetaDataWidget2D(QWidget):
         if item_x < self.cb_x.count():
             self.cb_x.setCurrentIndex(item_x)
 
-        item_y = self.cb_x.currentIndex()
+        item_y = self.cb_y.currentIndex()
         self.cb_y.clear()
         for mt in sorted(self.q_app.motors_all):
             self.cb_y.addItem(mt)

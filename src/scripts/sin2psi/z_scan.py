@@ -8,8 +8,8 @@ from py61a.stress import sin2psi, deviatoric_stresses
 
 
 if __name__ == '__main__':
-    dd = read_peaks((r'../../../data/peaks/TiLSP/phi0Trans_3.csv', r'../../../data/peaks/TiLSP/phi90Trans_4.csv'))
-    tth_ch1 = 5.274
+    dd = read_peaks((r'Z:\p61\2021\data\11012378\processed\DariaS4_zscan2.csv'))
+    tth_ch1 = 5.011
     dec = pd.read_csv(r'../../../data/dec/alphaTi.csv', index_col=None, comment='#')
 
     for peak_id in get_peak_ids(dd, columns=('h', 'k', 'l', 'center', 'center_std')):

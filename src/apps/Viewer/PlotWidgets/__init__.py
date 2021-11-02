@@ -20,3 +20,4 @@ from .MainPlotAvg import MainPlotAvg
 from .FitPlot import FitPlot
 from .MainPlotTest import MainPlot2DTestWidget, MainPlot3DTestWidget, MainPlotAvgTestWidget
 from .MDPlot2D import MetaDataPlot2D
+from .MDPlot3D import MetaDataPlot3D
