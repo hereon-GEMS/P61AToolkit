@@ -77,10 +77,10 @@ class GlPlot3DWidget(QWidget):
     def on_toggle_log(self):
         if self.toggle_log.text() == 'Log Z':
             self.toggle_log.setText('Lin Z')
-            self.plot.logz = True
+            self.plot._logz = True
         elif self.toggle_log.text() == 'Lin Z':
             self.toggle_log.setText('Log Z')
-            self.plot.logz = False
+            self.plot._logz = False
         self.plot.upd_and_redraw()
 
     def set_view_to_default(self):

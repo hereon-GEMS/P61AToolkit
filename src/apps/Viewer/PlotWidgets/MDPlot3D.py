@@ -31,7 +31,7 @@ class MetaDataPlot3D(gl.GLViewWidget):
         self.text_objs = []
 
         self._scatter = False
-        self.logz = False
+        self._logz = False
 
         self._init_axes()
 
@@ -113,7 +113,7 @@ class MetaDataPlot3D(gl.GLViewWidget):
 
             self.addItem(
                 gl.GLSurfacePlotItem(x=grid_xx, y=grid_yy, z=grid_zz,
-                                     colors=self.q_app.apply_cmap(grid_zz, 'turbo', not self.logz),
+                                     colors=self.q_app.apply_cmap(grid_zz, 'turbo', not self._logz),
                                      shader=None, computeNormals=False)
             )
         self.update()

@@ -39,6 +39,8 @@ class PeakTrackList(QWidget):
         self.btn_edt.clicked.connect(self.on_btn_edt)
         self.lst.itemDoubleClicked.connect(self.on_btn_edt)
         self.q_app.peakTracksChanged.connect(self.upd_list)
+        self.q_app.hklPhasesChanged.connect(self.upd_list)
+        self.q_app.hklPeaksChanged.connect(self.upd_list)
 
     def on_btn_hkl(self):
         peaks_hkl = self.q_app.get_hkl_peaks()
@@ -122,5 +124,16 @@ class PeakTrackList(QWidget):
     def upd_list(self):
         self.lst.clear()
         tracks = self.q_app.get_pd_tracks()
-        tracks_items = ['%d: <E> = %.01f' % (ii, np.mean(track.cxs)) for ii, track in enumerate(tracks)]
+
+        tracks_items = []
+        for ii, track in enumerate(tracks):
+            track_center = np.mean(track.cxs)
+            tracks_items.append('%d :: %.01f keV' % (ii, track_center))
+
+            for phase in self.q_app.get_hkl_peaks():
+                peaks = self.q_app.hkl_peaks[phase]
+                for peak in peaks:
+                    if peak['e'] - peak['de'] < track_center < peak['e'] + peak['de']:
+                        tracks_items[-1] += ' :: ' + phase + ' [%d%d%d]' % (peak['h'], peak['k'], peak['l'])
+
         self.lst.addItems(tracks_items)
