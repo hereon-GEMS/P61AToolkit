@@ -35,14 +35,14 @@ def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFram
                 (1. / hs2) * s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uslope) / \
                 s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uintercept)
         else:
-            result.loc[:, (peak_id, 's11-s33')] = ufloat(np.nan, np.nan)
+            result.loc[:, (peak_id, 's11-s33')] = np.array([ufloat(np.nan, np.nan)] * result.shape[0])
 
         if '90+270' in s2p[peak_id].columns:
             result.loc[:, (peak_id, 's22-s33')] = \
                 (1. / hs2) * s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uslope) / \
                 s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uintercept)
         else:
-            result.loc[:, (peak_id, 's22-s33')] = ufloat(np.nan, np.nan)
+            result.loc[:, (peak_id, 's22-s33')] = np.array([ufloat(np.nan, np.nan)] * result.shape[0])
 
         result.loc[:, (peak_id, 'depth')] = np.nanmean(s2p[peak_id].applymap(lambda cell: np.nanmean(cell.depth)))
         result.loc[:, (peak_id, 'depth_min')] = np.nanmin(s2p[peak_id].applymap(lambda cell: np.nanmin(cell.depth)))
