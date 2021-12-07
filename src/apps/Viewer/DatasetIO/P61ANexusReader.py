@@ -49,7 +49,7 @@ class P61ANexusReader:
                 else:
                     frames = f['/'.join(channel + self.hist)]
 
-                for frame in frames:
+                for fr_num, frame in enumerate(frames):
                     frame[:20] = 0.0
                     frame[-1] = 0.0
 
@@ -85,7 +85,7 @@ class P61ANexusReader:
                         'DataY': frame,
                         'DataID': f_name + ':' + '/'.join(channel),
                         'Channel': ii,
-                        'ScreenName': os.path.basename(f_name) + ':' + '%02d' % ii,
+                        'ScreenName': os.path.basename(f_name) + ':' + '%02d' % ii + ('' if sum_frames else ':%03d' % fr_num),
                         'Active': True,
                     })
 
