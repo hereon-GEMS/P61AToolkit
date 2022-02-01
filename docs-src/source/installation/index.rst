@@ -27,8 +27,11 @@ However, if you do, here is our recommended technological stack:
 Setting up a PyCharm project.
 =============================
 If you have never used `PyCharm <https://www.jetbrains.com/pycharm/>`_ and `git <https://git-scm.com/>`_ before, you will have to set it up first.
-JetBrains provide a tutorial for setting it up and checking out a project from the remote host `here <https://www.jetbrains.com/help/pycharm/set-up-a-git-repository.html>`_.
+JetBrains provide a tutorial for setting it up and cloning a project from the remote host `here <https://www.jetbrains.com/help/pycharm/set-up-a-git-repository.html>`_.
 The URL for the repository you want to clone is: ``https://github.com/hereon-GEMS/P61AToolkit.git``.
+
+If you do not wish to use git and keep the project up to date, you can download the source code `here <https://github.com/hereon-GEMS/P61AToolkit/archive/refs/heads/master.zip>`_.
+After extracting the ``.zip`` archive, create a PyCharm project as described `here <https://www.jetbrains.com/help/pycharm/importing-project-from-existing-source-code.html>`_.
 
 After you have created a project, we recommend that you set up a virtual environment for it using the file  ``requirements/env_conda_win.yml`` as explained `here <https://www.jetbrains.com/help/pycharm/conda-support-creating-conda-virtual-environment.html#conda-requirements>`_.
 
