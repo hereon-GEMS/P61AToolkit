@@ -33,7 +33,10 @@ The URL for the repository you want to clone is: ``https://github.com/hereon-GEM
 If you do not wish to use git and keep the project up to date, you can download the source code `here <https://github.com/hereon-GEMS/P61AToolkit/archive/refs/heads/master.zip>`_.
 After extracting the ``.zip`` archive, create a PyCharm project as described `here <https://www.jetbrains.com/help/pycharm/importing-project-from-existing-source-code.html>`_.
 
-After you have created a project, we recommend that you set up a virtual environment for it using the file  ``requirements/env_conda_win.yml`` as explained `here <https://www.jetbrains.com/help/pycharm/conda-support-creating-conda-virtual-environment.html#conda-requirements>`_.
+After you have created a project, we recommend that you set up a virtual environment for it using the file  ``requirements/env_conda_win.yml``.
+If you are unfamiliar with the process, the easiest way to do that is to use Anaconda-Navigator that came with your Python installation, proceed to Environments tab, click Import -> Local Drive, and select the ``requirements/env_conda_win.yml`` file.
+You can change the name of the environment if you want. After it is created, follow `these instructions <https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html>`_ (do not create a new environment in PyCharm, add an Existing environment and put in the address of the one you just made).
+After this step PyCharm usually hangs for a few minutes while it is indexing all packages from the selected environment.
 
 The last thing to do is to mark directories ``src`` and ``src/Viewer`` as Sources Root (in PyCharm: right-click -> Mark Directory as -> Sources Root) and you are ready.
 
