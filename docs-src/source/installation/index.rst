@@ -7,7 +7,7 @@ Installation
 Download binaries
 *****************
 
-A pre-compiled version of the Viewer that requires no installation can be found `here <https://github.com/P61A-software/P61AToolkit/releases>`_.
+A pre-compiled version of the Viewer that requires no installation can be found `here <https://github.com/hereon-GEMS/P61AToolkit/releases>`_.
 
 .. _install-from-source:
 
@@ -28,7 +28,7 @@ Setting up a PyCharm project.
 =============================
 If you have never used `PyCharm <https://www.jetbrains.com/pycharm/>`_ and `git <https://git-scm.com/>`_ before, you will have to set it up first.
 JetBrains provide a tutorial for setting it up and checking out a project from the remote host `here <https://www.jetbrains.com/help/pycharm/set-up-a-git-repository.html>`_.
-The URL for the repository you want to clone is: ``https://github.com/P61A-software/P61AToolkit.git``.
+The URL for the repository you want to clone is: ``https://github.com/hereon-GEMS/P61AToolkit.git``.
 
 After you have created a project, we recommend that you set up a virtual environment for it using the file  ``requirements/env_conda_win.yml`` as explained `here <https://www.jetbrains.com/help/pycharm/conda-support-creating-conda-virtual-environment.html#conda-requirements>`_.
 

@@ -5,7 +5,7 @@ Calibrating 2Θ using a reference sample
 To know the precise 2Θ value that was used during the experiment a calibration measurement is performed,
 usually with `NIST 640f Si powder <https://www-s.nist.gov/srmors/certificates/640f.pdf>`_.
 An example of such measurement can be found
-`here <https://github.com/P61A-software/P61AToolkit/blob/master/data/tutorials/Si640f.nxs>`_.
+`here <https://github.com/hereon-GEMS/P61AToolkit/blob/master/data/tutorials/Si640f.nxs>`_.
 
 ******
 Import
