@@ -32,7 +32,7 @@ class P61ANexusReader:
 
         return hists
 
-    def read(self, f_name, sum_frames=True):
+    def read(self, f_name, sum_frames=False):
         kev_per_bin = 5E-2
         if self.q_app is not None:
             result = pd.DataFrame(columns=self.q_app.data.columns)

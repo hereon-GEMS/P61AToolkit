@@ -139,7 +139,7 @@ class P61Viewer(QMainWindow):
         self._act_export_s.triggered.connect(self.on_act_export_s)
         self._act_export_p.triggered.connect(self.on_act_export_p)
         self._act_calib_tth.triggered.connect(self.on_act_calib_tth)
-        self._act_tutorial.triggered.connect(lambda: webbrowser.open('https://p61a-software.github.io/P61AToolkit/'))
+        self._act_tutorial.triggered.connect(lambda: webbrowser.open('https://hereon-gems.github.io/P61AToolkit/'))
 
     def on_act_calib_tth(self):
         self.phase_ed.refine_tth()

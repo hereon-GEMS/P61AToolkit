@@ -6,6 +6,6 @@ operated by
 and University of Kassel ([Institute of Materials Engineering - Metallic Materials](https://www.uni-kassel.de/maschinenbau/en/institute/institute-of-materials-engineering/departments/metallic-materials)).
 The contact person for the project is [Gleb Dovzhenko](https://hereon.de/institutes/materials_physics/x_ray_diffraction_synchrotron_radiation/team/099147/index.php.de).
 
-For documentation, tutorials, etc. please refer to the [project website](https://p61a-software.github.io/P61AToolkit/).
+For documentation, tutorials, etc. please refer to the [project website](https://hereon-gems.github.io/P61AToolkit/).
 
-Our list of contributors can be found [here](https://github.com/P61A-software/P61AToolkit/blob/master/CONTRIBUTORS.md).
+Our list of contributors can be found [here](https://github.com/hereon-GEMS/P61AToolkit/blob/master/CONTRIBUTORS.md).

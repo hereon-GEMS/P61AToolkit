@@ -5,7 +5,7 @@ setup(name='py61a',
       description='Python utilities for data analysis from P61A beamline',
       author='Gleb Dovzhenko',
       author_email='gleb.dovzhenko@hereon.de',
-      url='https://p61a-software.github.io/P61AToolkit/',
+      url='https://hereon-gems.github.io/P61AToolkit/',
       license='GNU GPL v.3',
       packages=[
           'py61a',

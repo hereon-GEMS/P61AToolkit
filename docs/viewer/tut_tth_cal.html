@@ -1,72 +1,33 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" />
-  
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>Calibrating 2Θ using a reference sample &mdash; P61A Toolkit  documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
-
-  
-  
-
-  
-  
-
-  
-
-  
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
     <script src="../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../_static/js/theme.js"></script>
-
-    
+    <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="Realistic diffraction data analysis" href="tut2.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../index.html" class="icon icon-home"> P61A Toolkit
-          
-
-          
           </a>
-
-          
-            
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -74,18 +35,7 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Overview</a></li>
@@ -107,87 +57,45 @@
 </li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../index.html">P61A Toolkit</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="index.html">P61A::Viewer</a> &raquo;</li>
-        
       <li>Calibrating 2Θ using a reference sample</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
-          
             <a href="../_sources/viewer/tut_tth_cal.rst.txt" rel="nofollow"> View page source</a>
-          
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
-  <div class="section" id="calibrating-2-using-a-reference-sample">
-<h1>Calibrating 2Θ using a reference sample<a class="headerlink" href="#calibrating-2-using-a-reference-sample" title="Permalink to this headline">¶</a></h1>
+             
+  <section id="calibrating-2-using-a-reference-sample">
+<h1>Calibrating 2Θ using a reference sample<a class="headerlink" href="#calibrating-2-using-a-reference-sample" title="Permalink to this headline"></a></h1>
 <p>To know the precise 2Θ value that was used during the experiment a calibration measurement is performed,
 usually with <a class="reference external" href="https://www-s.nist.gov/srmors/certificates/640f.pdf">NIST 640f Si powder</a>.
 An example of such measurement can be found
-<a class="reference external" href="https://github.com/P61A-software/P61AToolkit/blob/master/data/tutorials/Si640f.nxs">here</a>.</p>
-<div class="section" id="import">
-<h2>Import<a class="headerlink" href="#import" title="Permalink to this headline">¶</a></h2>
+<a class="reference external" href="https://github.com/hereon-GEMS/P61AToolkit/blob/master/data/tutorials/Si640f.nxs">here</a>.</p>
+<section id="import">
+<h2>Import<a class="headerlink" href="#import" title="Permalink to this headline"></a></h2>
 <p>After you have downloaded the file, open it in the Viewer with the <code class="docutils literal notranslate"><span class="pre">+</span></code> button.
 We are going to be working with Channel 1, so you can uncheck or remove Channel 0 data.</p>
 <a class="reference internal image-reference" href="../_images/tut-tth-01.png"><img alt="../_images/tut-tth-01.png" src="../_images/tut-tth-01.png" style="width: 600px;" /></a>
-</div>
-<div class="section" id="modelling-peak-positions">
-<h2>Modelling peak positions<a class="headerlink" href="#modelling-peak-positions" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="modelling-peak-positions">
+<h2>Modelling peak positions<a class="headerlink" href="#modelling-peak-positions" title="Permalink to this headline"></a></h2>
 <p>Prior to the analysis we knew which powder we had measured (NIST 640f in this case) and the approximate 2Θ angle of
 Detector/Channel 1 (about 6°).
 Using this knowledge we can set the parameters in the phase constructor in the bottom left corner:
@@ -199,9 +107,9 @@ powder on the internet, and then just try to guess the 2Θ by putting in differe
 there are peaks where the model predicts them to be.</p>
 <p>Please note that these peak positions are calculated using just the geometrical information about the phase.
 In some identified areas there may be no measured peaks due, for example, to the reflection being weak.</p>
-</div>
-<div class="section" id="identifying-measured-peak-positions">
-<h2>Identifying measured peak positions<a class="headerlink" href="#identifying-measured-peak-positions" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="identifying-measured-peak-positions">
+<h2>Identifying measured peak positions<a class="headerlink" href="#identifying-measured-peak-positions" title="Permalink to this headline"></a></h2>
 <p>Now we can go through the peak search and refinement procedure.
 It is described in detail in other tutorials, so the description here will be brief.</p>
 <p>First, find the peaks. Adjust the search parameters until a few of the most prominent diffraction peaks are identified.</p>
@@ -213,63 +121,46 @@ peak positions by pressing <code class="docutils literal notranslate"><span clas
 <a class="reference internal image-reference" href="../_images/tut-tth-05.png"><img alt="../_images/tut-tth-05.png" src="../_images/tut-tth-05.png" style="width: 600px;" /></a>
 <p>Now you have the precise measured peak positions. The more the better, although technically just one reflection is
 enough.</p>
-</div>
-<div class="section" id="calibrating-2">
-<h2>Calibrating 2Θ<a class="headerlink" href="#calibrating-2" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="calibrating-2">
+<h2>Calibrating 2Θ<a class="headerlink" href="#calibrating-2" title="Permalink to this headline"></a></h2>
 <p>If you go back to the <code class="docutils literal notranslate"><span class="pre">Import</span> <span class="pre">and</span> <span class="pre">view</span></code> tab, you will see the refined peak positions and the areas identifying where
 the peaks are expected to be. If at least some of the measured peak positions fall within the correct areas,
 you can try the <code class="docutils literal notranslate"><span class="pre">Calibrate</span> <span class="pre">-&gt;</span> <span class="pre">Calibrate</span> <span class="pre">2Θ</span></code> menu.</p>
 <a class="reference internal image-reference" href="../_images/tut-tth-06.png"><img alt="../_images/tut-tth-06.png" src="../_images/tut-tth-06.png" style="width: 600px;" /></a>
 <p>It will run a quick optimization of the 2Θ parameter in the phase constructor, until the measured peak positions are
 best fitted. For this dataset the value should be around <code class="docutils literal notranslate"><span class="pre">2Θ</span> <span class="pre">=</span> <span class="pre">5.982°</span></code>.</p>
-</div>
-</div>
+</section>
+</section>
 
 
            </div>
-           
           </div>
-          <footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tut2.html" class="btn btn-neutral float-left" title="Realistic diffraction data analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, Helmholtz-Zentrum Hereon.
-
-    </p>
+    <p>&#169; Copyright 2021, Helmholtz-Zentrum Hereon.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

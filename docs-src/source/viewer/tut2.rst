@@ -10,7 +10,7 @@ Import
 ******
 
 This tutorial starts with the project file that you can find
-`here <https://github.com/P61A-software/P61AToolkit/blob/master/data/tutorials/laplace_space_stress.pickle>`_.
+`here <https://github.com/hereon-GEMS/P61AToolkit/blob/master/data/tutorials/laplace_space_stress.pickle>`_.
 This is a simulated BCC Fe diffraction pattern from a measurement in reflection.
 Download the file and open it in Viewer using ``File -> Open`` menu.
 
