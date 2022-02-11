@@ -38,7 +38,7 @@ If you are unfamiliar with the process, the easiest way to do that is to use Ana
 You can change the name of the environment if you want. After it is created, follow `these instructions <https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html>`_ (do not create a new environment in PyCharm, add an Existing environment and put in the address of the one you just made).
 After this step PyCharm usually hangs for a few minutes while it is indexing all packages from the selected environment.
 
-The last thing to do is to mark directories ``src`` and ``src/Viewer`` as Sources Root (in PyCharm: right-click -> Mark Directory as -> Sources Root) and you are ready.
+The last thing to do is to mark directories ``src`` and ``src/py61a`` as Sources Root (in PyCharm: right-click the directory in Project view -> Mark Directory as -> Sources Root) and you are ready.
 
 To run P61A::Viewer, right-click ``src/apps/Viewer/P61AViewerMain.py`` in the Project window and choose Run.
 
