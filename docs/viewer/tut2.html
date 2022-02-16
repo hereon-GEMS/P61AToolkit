@@ -49,6 +49,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#identifying-peaks">Identifying peaks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#finding-peaks">Finding peaks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#tracks">Tracks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#editing-tracks">Editing Tracks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#expanding-tracks">Expanding tracks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#adding-more-tracks">Adding more tracks</a></li>
 </ul>
@@ -116,8 +117,15 @@ Stripes should appear indicating the modelled peak positions.</p>
 </section>
 <section id="finding-peaks">
 <h2>Finding peaks<a class="headerlink" href="#finding-peaks" title="Permalink to this headline"></a></h2>
-<p>Now that we know which peaks we want to fit, we can start setting up the refinement model.
-Our goal here is to identify all the peaks that we have to fit to get good fit quality on the peaks that we want.</p>
+<p>Now that we know which peaks we want to fit, we can start setting up the refinement model.</p>
+<p>On one hand, you may want to fit as many peaks as you can identify on the image.
+You have already collected the data, no reason to waste it.
+On the other hand, the more peaks you have in the refinement model, the longer it takes to fit them.
+Additionally, small peaks with high variance in position, amplitude, and especially width, take longer to refine and are prone to errors.
+Minimizing algorithm tends to lose its way and often requires tedious adjustments when signal to noise ratio is low.</p>
+<p>Unfortunately, all data is different, so there is very little general advice on how many peaks is the right amount for analysis.
+The idea is that you choose as many prominent peaks as the Viewer can handle in reasonable time, while also adding all the small neighbouring peaks that can affect the fit quality.
+This will become more clear in further sections.</p>
 <p>As a first attempt to do the peak search we can always launch it with default parameters.
 So if you just press <code class="docutils literal notranslate"><span class="pre">Find</span></code> button in the top left corner you will get this</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img3.png"><img alt="../_images/tut-02-img3.png" src="../_images/tut-02-img3.png" style="width: 600px;" /></a>
@@ -129,7 +137,16 @@ That means you can press the <code class="docutils literal notranslate"><span cl
 <h2>Tracks<a class="headerlink" href="#tracks" title="Permalink to this headline"></a></h2>
 <p>Once you have pressed <code class="docutils literal notranslate"><span class="pre">Make</span> <span class="pre">Tracks</span></code>, created tracks should appear on the list on the left</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img5.png"><img alt="../_images/tut-02-img5.png" src="../_images/tut-02-img5.png" style="width: 600px;" /></a>
-<p>The idea behind the tracks is that each track follows the evolution of a peak over the collected spectra.</p>
+<p>The idea behind the tracks is that each track follows the evolution of a peak over the collected spectra.
+The list gives you the peak positions and which hkl and phase they are identified as.</p>
+</section>
+<section id="editing-tracks">
+<h2>Editing Tracks<a class="headerlink" href="#editing-tracks" title="Permalink to this headline"></a></h2>
+<p>The track creation / editing workflow should go as follows:</p>
+<ol class="arabic simple">
+<li><p>Search for peaks.</p></li>
+<li><p>If too many / not enough peaks were found, adjust peak search parameters (see <a class="reference internal" href="tut1.html#simple-seq-ref"><span class="std std-ref">Peak search</span></a> )</p></li>
+</ol>
 </section>
 <section id="expanding-tracks">
 <h2>Expanding tracks<a class="headerlink" href="#expanding-tracks" title="Permalink to this headline"></a></h2>

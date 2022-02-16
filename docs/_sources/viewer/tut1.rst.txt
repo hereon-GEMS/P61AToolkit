@@ -52,6 +52,8 @@ popup menu.
 In this dataset values for ``eu.x``, ``eu.y`` and ``eu.z`` are random. You can sort the data by them to see how it
 looks, but to continue we need to have data sorted by Name or ``xspress3_index``.
 
+.. _simple-seq-ref:
+
 ***********
 Peak search
 ***********

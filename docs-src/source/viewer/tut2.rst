@@ -48,7 +48,16 @@ Finding peaks
 *************
 
 Now that we know which peaks we want to fit, we can start setting up the refinement model.
-Our goal here is to identify all the peaks that we have to fit to get good fit quality on the peaks that we want.
+
+On one hand, you may want to fit as many peaks as you can identify on the image.
+You have already collected the data, no reason to waste it.
+On the other hand, the more peaks you have in the refinement model, the longer it takes to fit them.
+Additionally, small peaks with high variance in position, amplitude, and especially width, take longer to refine and are prone to errors.
+Minimizing algorithm tends to lose its way and often requires tedious adjustments when signal to noise ratio is low.
+
+Unfortunately, all data is different, so there is very little general advice on how many peaks is the right amount for analysis.
+The idea is that you choose as many prominent peaks as the Viewer can handle in reasonable time, while also adding all the small neighbouring peaks that can affect the fit quality.
+This will become more clear in further sections.
 
 As a first attempt to do the peak search we can always launch it with default parameters.
 So if you just press ``Find`` button in the top left corner you will get this
@@ -60,9 +69,9 @@ This is a pretty good starting point.
 Multiple diffraction peaks are identified plus a few of their neighbours that we need to pay attention to.
 That means you can press the ``Make Tracks`` button and proceed to the next step.
 
-************
+*************
 Tracks
-************
+*************
 
 Once you have pressed ``Make Tracks``, created tracks should appear on the list on the left
 
@@ -70,7 +79,19 @@ Once you have pressed ``Make Tracks``, created tracks should appear on the list 
    :width: 600
 
 The idea behind the tracks is that each track follows the evolution of a peak over the collected spectra.
+The list gives you the peak positions and which hkl and phase they are identified as.
 
+**************
+Editing Tracks
+**************
+
+The track creation / editing workflow should go as follows:
+
+#. Search for peaks.
+#. If too many / not enough peaks were found, adjust peak search parameters (see :ref:`simple-seq-ref`) and search again.
+#. Make tracks.
+#. If the tracks do not follow the observed diffraction peaks, adjust ``Track Window`` parameter and then search and make tracks again.
+#. Once most / some of the peaks are tracked correctly, you can edit (move)
 
 ****************
 Expanding tracks
