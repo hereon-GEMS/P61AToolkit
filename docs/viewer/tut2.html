@@ -145,7 +145,21 @@ The list gives you the peak positions and which hkl and phase they are identifie
 <p>The track creation / editing workflow should go as follows:</p>
 <ol class="arabic simple">
 <li><p>Search for peaks.</p></li>
-<li><p>If too many / not enough peaks were found, adjust peak search parameters (see <a class="reference internal" href="tut1.html#simple-seq-ref"><span class="std std-ref">Peak search</span></a> )</p></li>
+<li><p>If too many / not enough peaks were found, adjust peak search parameters (see <a class="reference internal" href="tut1.html#peak-search"><span class="std std-ref">Peak search</span></a>) and search again.</p></li>
+<li><p>Make tracks.</p></li>
+<li><p>If the tracks do not follow the observed diffraction peaks, adjust <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> parameter and then search and make tracks again.</p></li>
+</ol>
+<p>Please pay attention, that the <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> parameter is not too wide or too narrow (see see <a class="reference internal" href="tut1.html#peak-tracking"><span class="std std-ref">Peak tracking</span></a>)!
+<code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> should be larger than the variance in peak position between the spectra and smaller than the distance between the two neighbouring peaks.
+Here are two examples of wrong <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> values.</p>
+<p>Too large (clearly different observed peaks are selected as one):</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img6.png"><img alt="../_images/tut-02-img6.png" src="../_images/tut-02-img6.png" style="width: 600px;" /></a>
+<p>Too small (multiple tracks created for one peak):</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img7.png"><img alt="../_images/tut-02-img7.png" src="../_images/tut-02-img7.png" style="width: 600px;" /></a>
+<p>Correct:</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img8.png"><img alt="../_images/tut-02-img8.png" src="../_images/tut-02-img8.png" style="width: 600px;" /></a>
+<ol class="arabic simple">
+<li><p>Once most / some of the peaks are tracked correctly, you can edit (move)</p></li>
 </ol>
 </section>
 <section id="expanding-tracks">

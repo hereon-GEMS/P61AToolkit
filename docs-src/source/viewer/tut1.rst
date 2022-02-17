@@ -52,7 +52,7 @@ popup menu.
 In this dataset values for ``eu.x``, ``eu.y`` and ``eu.z`` are random. You can sort the data by them to see how it
 looks, but to continue we need to have data sorted by Name or ``xspress3_index``.
 
-.. _simple-seq-ref:
+.. _peak-search:
 
 ***********
 Peak search
@@ -70,13 +70,15 @@ following criteria:
 4. **Prominence:** Minimal distance between the peak and the surrounding baseline.
 
 If you want to learn more about the algorithm, you can find its description
-`here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html>`_.
+`here <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.find_peaks.html>`__.
 
 For the tutorial dataset the appropriate parameters are: ``Height 1000.``, ``Distance 2.``, ``Width 0.3``,
 ``Prominence 800.``. After you have set the values, press ``Find`` button and perform the search over all spectra.
 
 To get a sense of what these parameters mean, we recommend you play around with the values: change them one by one,
 repeat the search, and see at what value of each parameter peaks start disappearing.
+
+.. _peak-tracking:
 
 *************
 Peak tracking
