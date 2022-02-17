@@ -69,21 +69,16 @@ This is a pretty good starting point.
 Multiple diffraction peaks are identified plus a few of their neighbours that we need to pay attention to.
 That means you can press the ``Make Tracks`` button and proceed to the next step.
 
-*************
-Tracks
-*************
+***********************
+Making tracks
+***********************
 
 Once you have pressed ``Make Tracks``, created tracks should appear on the list on the left
 
 .. image:: tut-02-img5.png
    :width: 600
 
-The idea behind the tracks is that each track follows the evolution of a peak over the collected spectra.
-The list gives you the peak positions and which hkl and phase they are identified as.
-
-**************
-Editing Tracks
-**************
+The list gives you the track positions and which hkl and phase they are identified as.
 
 The track creation / editing workflow should go as follows:
 
@@ -95,14 +90,13 @@ The track creation / editing workflow should go as follows:
 Please pay attention, that the ``Track Window`` parameter is not too wide or too narrow (see :ref:`peak-tracking`)!
 
 ``Track Window`` should be larger than the variance in peak position between the spectra and smaller than the distance between the two neighbouring peaks.
-Here are two examples of wrong ``Track Window`` values.
 
-Too large (clearly different observed peaks are selected as one):
+Here the ``Track Window`` is too large and different observed peaks are put into one track:
 
 .. image:: tut-02-img6.png
    :width: 600
 
-Too small (multiple tracks created for one peak):
+Here it is too small with multiple tracks created for one peak due to peak center variance:
 
 .. image:: tut-02-img7.png
    :width: 600
@@ -112,26 +106,8 @@ Correct:
 .. image:: tut-02-img8.png
    :width: 600
 
-#. Once most / some of the peaks are tracked correctly, you can edit (move)
+5. Once most / some of the peaks are tracked correctly, you can expand, move or create more tracks.
 
-****************
-Expanding tracks
-****************
-
-Next step is to make sure that all of the tracks cover all of the datasets.
-For this particular dataset this is not a concern, but sometimes the intensity variance is
-
-******************
-Adding more tracks
-******************
-
-We have already added most of the peaks we want, there is just a few left.
-But before we start adding more tracks, let us look at the ones we have.
-The idea behind the tracks is that
-
-A closer look on the ``Peak Fit`` tab shows what we are missing:
-
-.. image:: tut-02-img4.png
-   :width: 600
-
-We want to fit the peaks at ``62.6``, ``76.6``, and ``88.5`` as precisely as possible.
+**************
+Editing tracks
+**************

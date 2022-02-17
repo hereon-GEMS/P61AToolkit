@@ -48,10 +48,8 @@
 <li class="toctree-l4"><a class="reference internal" href="#import">Import</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#identifying-peaks">Identifying peaks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#finding-peaks">Finding peaks</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#tracks">Tracks</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#editing-tracks">Editing Tracks</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#expanding-tracks">Expanding tracks</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#adding-more-tracks">Adding more tracks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#making-tracks">Making tracks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#editing-tracks">Editing tracks</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tut_tth_cal.html">Calibrating 2Θ using a reference sample</a></li>
@@ -133,15 +131,11 @@ So if you just press <code class="docutils literal notranslate"><span class="pre
 Multiple diffraction peaks are identified plus a few of their neighbours that we need to pay attention to.
 That means you can press the <code class="docutils literal notranslate"><span class="pre">Make</span> <span class="pre">Tracks</span></code> button and proceed to the next step.</p>
 </section>
-<section id="tracks">
-<h2>Tracks<a class="headerlink" href="#tracks" title="Permalink to this headline"></a></h2>
+<section id="making-tracks">
+<h2>Making tracks<a class="headerlink" href="#making-tracks" title="Permalink to this headline"></a></h2>
 <p>Once you have pressed <code class="docutils literal notranslate"><span class="pre">Make</span> <span class="pre">Tracks</span></code>, created tracks should appear on the list on the left</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img5.png"><img alt="../_images/tut-02-img5.png" src="../_images/tut-02-img5.png" style="width: 600px;" /></a>
-<p>The idea behind the tracks is that each track follows the evolution of a peak over the collected spectra.
-The list gives you the peak positions and which hkl and phase they are identified as.</p>
-</section>
-<section id="editing-tracks">
-<h2>Editing Tracks<a class="headerlink" href="#editing-tracks" title="Permalink to this headline"></a></h2>
+<p>The list gives you the track positions and which hkl and phase they are identified as.</p>
 <p>The track creation / editing workflow should go as follows:</p>
 <ol class="arabic simple">
 <li><p>Search for peaks.</p></li>
@@ -150,31 +144,19 @@ The list gives you the peak positions and which hkl and phase they are identifie
 <li><p>If the tracks do not follow the observed diffraction peaks, adjust <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> parameter and then search and make tracks again.</p></li>
 </ol>
 <p>Please pay attention, that the <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> parameter is not too wide or too narrow (see <a class="reference internal" href="tut1.html#peak-tracking"><span class="std std-ref">Peak tracking</span></a>)!</p>
-<p><code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> should be larger than the variance in peak position between the spectra and smaller than the distance between the two neighbouring peaks.
-Here are two examples of wrong <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> values.</p>
-<p>Too large (clearly different observed peaks are selected as one):</p>
+<p><code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> should be larger than the variance in peak position between the spectra and smaller than the distance between the two neighbouring peaks.</p>
+<p>Here the <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> is too large and different observed peaks are put into one track:</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img6.png"><img alt="../_images/tut-02-img6.png" src="../_images/tut-02-img6.png" style="width: 600px;" /></a>
-<p>Too small (multiple tracks created for one peak):</p>
+<p>Here it is too small with multiple tracks created for one peak due to peak center variance:</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img7.png"><img alt="../_images/tut-02-img7.png" src="../_images/tut-02-img7.png" style="width: 600px;" /></a>
 <p>Correct:</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img8.png"><img alt="../_images/tut-02-img8.png" src="../_images/tut-02-img8.png" style="width: 600px;" /></a>
-<ol class="arabic simple">
-<li><p>Once most / some of the peaks are tracked correctly, you can edit (move)</p></li>
+<ol class="arabic simple" start="5">
+<li><p>Once most / some of the peaks are tracked correctly, you can expand, move or create more tracks.</p></li>
 </ol>
 </section>
-<section id="expanding-tracks">
-<h2>Expanding tracks<a class="headerlink" href="#expanding-tracks" title="Permalink to this headline"></a></h2>
-<p>Next step is to make sure that all of the tracks cover all of the datasets.
-For this particular dataset this is not a concern, but sometimes the intensity variance is</p>
-</section>
-<section id="adding-more-tracks">
-<h2>Adding more tracks<a class="headerlink" href="#adding-more-tracks" title="Permalink to this headline"></a></h2>
-<p>We have already added most of the peaks we want, there is just a few left.
-But before we start adding more tracks, let us look at the ones we have.
-The idea behind the tracks is that</p>
-<p>A closer look on the <code class="docutils literal notranslate"><span class="pre">Peak</span> <span class="pre">Fit</span></code> tab shows what we are missing:</p>
-<a class="reference internal image-reference" href="../_images/tut-02-img4.png"><img alt="../_images/tut-02-img4.png" src="../_images/tut-02-img4.png" style="width: 600px;" /></a>
-<p>We want to fit the peaks at <code class="docutils literal notranslate"><span class="pre">62.6</span></code>, <code class="docutils literal notranslate"><span class="pre">76.6</span></code>, and <code class="docutils literal notranslate"><span class="pre">88.5</span></code> as precisely as possible.</p>
+<section id="editing-tracks">
+<h2>Editing tracks<a class="headerlink" href="#editing-tracks" title="Permalink to this headline"></a></h2>
 </section>
 </section>
 
