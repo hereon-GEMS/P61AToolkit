@@ -50,6 +50,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#finding-peaks">Finding peaks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#making-tracks">Making tracks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#editing-tracks">Editing tracks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#refinement">Refinement</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tut_tth_cal.html">Calibrating 2Θ using a reference sample</a></li>
@@ -163,7 +164,7 @@ Checking if the track assignment was done correctly or not is convenient through
 <p>The list of spectra on the right shows the spectra over which the track spans.
 You can either remove the data by unchecking the spectra, or increase the span by checking more spectra.</p>
 <p>Let us try an example. If you open the <code class="docutils literal notranslate"><span class="pre">3D</span></code> view, you will see that the tracks made with default parameters do not span over all spectra.
-Now double-click track 0 (should be at <code class="docutils literal notranslate"><span class="pre">44.3</span> <span class="pre">keV</span></code>), in the spectra list of the pop-up window select all spectra (by pressing <code class="docutils literal notranslate"><span class="pre">CTRL</span> <span class="pre">+</span> <span class="pre">a</span></code>, or with a mouse), and click the check box above the list so that all spectra are checked and press <code class="docutils literal notranslate"><span class="pre">Ok</span></code>.
+Now double-click track 0 (should be at <code class="docutils literal notranslate"><span class="pre">44.3</span> <span class="pre">keV</span></code>), in the spectra list of the pop-up window select all spectra (by pressing <code class="docutils literal notranslate"><span class="pre">CTRL</span> <span class="pre">+</span> <span class="pre">a</span></code>, or with the mouse), and click the check box above the list so that all spectra are checked and press <code class="docutils literal notranslate"><span class="pre">Ok</span></code>.
 You will see that now track 0 spans over all spectra.</p>
 <p>For the purposes of this tutorial, do the same thing to all tracks by selecting all of them at once and repeating the operation, but in principle this is not necessary.
 If at a certain point some tracks just disappear into background, tracking or not tracking them over all spectra is up to you.</p>
@@ -173,7 +174,13 @@ What you can do instead, is choose a track that is similar to the one you want t
 If you did the peak search with default parameters, only <code class="docutils literal notranslate"><span class="pre">59.4</span> <span class="pre">keV</span></code> will have a track assigned to it.
 To create a track at <code class="docutils literal notranslate"><span class="pre">58</span> <span class="pre">keV</span></code>, select the existing one on the list (<code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">59.4</span> <span class="pre">keV</span></code>), press <code class="docutils literal notranslate"><span class="pre">Duplicate</span></code>, and in the popup set the center value to <code class="docutils literal notranslate"><span class="pre">58</span></code> and press <code class="docutils literal notranslate"><span class="pre">Ok</span></code>.
 You will see that another track has appeared.</p>
-<p>You can also delete tracks by selecting them on the list and pressing <code class="docutils literal notranslate"><span class="pre">Delete</span></code>.</p>
+<p>You can delete tracks by selecting them on the list and pressing <code class="docutils literal notranslate"><span class="pre">Delete</span></code>.</p>
+<p>You can also edit the refinement parameters for the whole track using the same menu.
+If you double-click a track, you can set the center and its refinement limits.
+Note that if you set tight refinement limits for any parameter (center, sigma, etc.), its values will be “compressed” to always stay within the limits.</p>
+</section>
+<section id="refinement">
+<h2>Refinement<a class="headerlink" href="#refinement" title="Permalink to this headline"></a></h2>
 </section>
 </section>
 

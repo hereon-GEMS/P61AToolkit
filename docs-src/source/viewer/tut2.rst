@@ -122,7 +122,7 @@ The list of spectra on the right shows the spectra over which the track spans.
 You can either remove the data by unchecking the spectra, or increase the span by checking more spectra.
 
 Let us try an example. If you open the ``3D`` view, you will see that the tracks made with default parameters do not span over all spectra.
-Now double-click track 0 (should be at ``44.3 keV``), in the spectra list of the pop-up window select all spectra (by pressing ``CTRL + a``, or with a mouse), and click the check box above the list so that all spectra are checked and press ``Ok``.
+Now double-click track 0 (should be at ``44.3 keV``), in the spectra list of the pop-up window select all spectra (by pressing ``CTRL + a``, or with the mouse), and click the check box above the list so that all spectra are checked and press ``Ok``.
 You will see that now track 0 spans over all spectra.
 
 For the purposes of this tutorial, do the same thing to all tracks by selecting all of them at once and repeating the operation, but in principle this is not necessary.
@@ -136,4 +136,13 @@ If you did the peak search with default parameters, only ``59.4 keV`` will have 
 To create a track at ``58 keV``, select the existing one on the list (``Track 1``, ``59.4 keV``), press ``Duplicate``, and in the popup set the center value to ``58`` and press ``Ok``.
 You will see that another track has appeared.
 
-You can also delete tracks by selecting them on the list and pressing ``Delete``.
+You can delete tracks by selecting them on the list and pressing ``Delete``.
+
+You can also edit the refinement parameters for the whole track using the same menu.
+If you double-click a track, you can set the center and its refinement limits.
+Note that if you set tight refinement limits for any parameter (center, sigma, etc.), its values will be "compressed" to always stay within the limits.
+
+****************
+Refinement
+****************
+
