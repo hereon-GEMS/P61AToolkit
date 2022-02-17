@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Realistic diffraction data analysis &mdash; P61A Toolkit  documentation</title>
+  <title>Realistic data refinement &mdash; P61A Toolkit  documentation</title>
       <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
       <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <!--[if lt IE 9]>
@@ -44,7 +44,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">P61A::Viewer</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="index.html#tutorials">Tutorials</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="tut1.html">Simple sequential refinement</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Realistic diffraction data analysis</a><ul>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Realistic data refinement</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#import">Import</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#identifying-peaks">Identifying peaks</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#finding-peaks">Finding peaks</a></li>
@@ -74,7 +74,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
           <li><a href="index.html">P61A::Viewer</a> &raquo;</li>
-      <li>Realistic diffraction data analysis</li>
+      <li>Realistic data refinement</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/viewer/tut2.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -84,8 +84,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="realistic-diffraction-data-analysis">
-<h1>Realistic diffraction data analysis<a class="headerlink" href="#realistic-diffraction-data-analysis" title="Permalink to this headline"></a></h1>
+  <section id="realistic-data-refinement">
+<h1>Realistic data refinement<a class="headerlink" href="#realistic-data-refinement" title="Permalink to this headline"></a></h1>
 <p>The purpose of this tutorial is to introduce you to the way peak identification and fitting can be done on experimental
 data using P61A::Viewer.</p>
 <section id="import">
@@ -141,15 +141,15 @@ That means you can press the <code class="docutils literal notranslate"><span cl
 <li><p>Search for peaks.</p></li>
 <li><p>If too many / not enough peaks were found, adjust peak search parameters (see <a class="reference internal" href="tut1.html#peak-search"><span class="std std-ref">Peak search</span></a>) and search again.</p></li>
 <li><p>Make tracks.</p></li>
-<li><p>If the tracks do not follow the observed diffraction peaks, adjust <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> parameter and then search and make tracks again.</p></li>
+<li><p>If the tracks do not follow the observed diffraction peaks, adjust <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> parameter and then search and make tracks again (see <a class="reference internal" href="tut1.html#peak-tracking"><span class="std std-ref">Peak tracking</span></a>).</p></li>
 </ol>
-<p>Please pay attention, that the <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> parameter is not too wide or too narrow (see <a class="reference internal" href="tut1.html#peak-tracking"><span class="std std-ref">Peak tracking</span></a>)!</p>
-<p><code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> should be larger than the variance in peak position between the spectra and smaller than the distance between the two neighbouring peaks.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> should be larger than the variance in peak position between the spectra and smaller than the distance between the two neighbouring peaks.
+Checking if the track assignment was done correctly or not is convenient through the <code class="docutils literal notranslate"><span class="pre">3D</span></code> plot tab on <code class="docutils literal notranslate"><span class="pre">Import</span> <span class="pre">and</span> <span class="pre">View</span></code>.</p>
 <p>Here the <code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">Window</span></code> is too large and different observed peaks are put into one track:</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img6.png"><img alt="../_images/tut-02-img6.png" src="../_images/tut-02-img6.png" style="width: 600px;" /></a>
 <p>Here it is too small with multiple tracks created for one peak due to peak center variance:</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img7.png"><img alt="../_images/tut-02-img7.png" src="../_images/tut-02-img7.png" style="width: 600px;" /></a>
-<p>Correct:</p>
+<p>Here it is chosen appropriately:</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img8.png"><img alt="../_images/tut-02-img8.png" src="../_images/tut-02-img8.png" style="width: 600px;" /></a>
 <ol class="arabic simple" start="5">
 <li><p>Once most / some of the peaks are tracked correctly, you can expand, move or create more tracks.</p></li>

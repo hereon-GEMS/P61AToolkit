@@ -1,5 +1,5 @@
 ###################################
-Realistic diffraction data analysis
+Realistic data refinement
 ###################################
 
 The purpose of this tutorial is to introduce you to the way peak identification and fitting can be done on experimental
@@ -85,11 +85,10 @@ The track creation / editing workflow should go as follows:
 #. Search for peaks.
 #. If too many / not enough peaks were found, adjust peak search parameters (see :ref:`peak-search`) and search again.
 #. Make tracks.
-#. If the tracks do not follow the observed diffraction peaks, adjust ``Track Window`` parameter and then search and make tracks again.
-
-Please pay attention, that the ``Track Window`` parameter is not too wide or too narrow (see :ref:`peak-tracking`)!
+#. If the tracks do not follow the observed diffraction peaks, adjust ``Track Window`` parameter and then search and make tracks again (see :ref:`peak-tracking`).
 
 ``Track Window`` should be larger than the variance in peak position between the spectra and smaller than the distance between the two neighbouring peaks.
+Checking if the track assignment was done correctly or not is convenient through the ``3D`` plot tab on ``Import and View``.
 
 Here the ``Track Window`` is too large and different observed peaks are put into one track:
 
@@ -101,7 +100,7 @@ Here it is too small with multiple tracks created for one peak due to peak cente
 .. image:: tut-02-img7.png
    :width: 600
 
-Correct:
+Here it is chosen appropriately:
 
 .. image:: tut-02-img8.png
    :width: 600
@@ -111,3 +110,4 @@ Correct:
 **************
 Editing tracks
 **************
+
