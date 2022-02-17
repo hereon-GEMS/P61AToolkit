@@ -157,6 +157,23 @@ Checking if the track assignment was done correctly or not is convenient through
 </section>
 <section id="editing-tracks">
 <h2>Editing tracks<a class="headerlink" href="#editing-tracks" title="Permalink to this headline"></a></h2>
+<p>If you double-click a track on the list or select multiple tracks and press <code class="docutils literal notranslate"><span class="pre">Edit</span></code>, and editing menu will appear:</p>
+<a class="reference internal image-reference" href="../_images/tut-02-img9.png"><img alt="../_images/tut-02-img9.png" src="../_images/tut-02-img9.png" style="width: 600px;" /></a>
+<p>It shows and allows you to change data on the whole track at once.</p>
+<p>The list of spectra on the right shows the spectra over which the track spans.
+You can either remove the data by unchecking the spectra, or increase the span by checking more spectra.</p>
+<p>Let us try an example. If you open the <code class="docutils literal notranslate"><span class="pre">3D</span></code> view, you will see that the tracks made with default parameters do not span over all spectra.
+Now double-click track 0 (should be at <code class="docutils literal notranslate"><span class="pre">44.3</span> <span class="pre">keV</span></code>), in the spectra list of the pop-up window select all spectra (by pressing <code class="docutils literal notranslate"><span class="pre">CTRL</span> <span class="pre">+</span> <span class="pre">a</span></code>, or with a mouse), and click the check box above the list so that all spectra are checked and press <code class="docutils literal notranslate"><span class="pre">Ok</span></code>.
+You will see that now track 0 spans over all spectra.</p>
+<p>For the purposes of this tutorial, do the same thing to all tracks by selecting all of them at once and repeating the operation, but in principle this is not necessary.
+If at a certain point some tracks just disappear into background, tracking or not tracking them over all spectra is up to you.</p>
+<p>Now let us proceed with adding more tracks. Since tracks have a lot of information inside, is is unfeasible to create them from scratch.
+What you can do instead, is choose a track that is similar to the one you want to make, duplicate it and then move it to another position.</p>
+<p>If you look closely, you will see two small peaks at <code class="docutils literal notranslate"><span class="pre">58</span> <span class="pre">keV</span></code> and <code class="docutils literal notranslate"><span class="pre">59.4</span> <span class="pre">keV</span></code>.
+If you did the peak search with default parameters, only <code class="docutils literal notranslate"><span class="pre">59.4</span> <span class="pre">keV</span></code> will have a track assigned to it.
+To create a track at <code class="docutils literal notranslate"><span class="pre">58</span> <span class="pre">keV</span></code>, select the existing one on the list (<code class="docutils literal notranslate"><span class="pre">Track</span> <span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">59.4</span> <span class="pre">keV</span></code>), press <code class="docutils literal notranslate"><span class="pre">Duplicate</span></code>, and in the popup set the center value to <code class="docutils literal notranslate"><span class="pre">58</span></code> and press <code class="docutils literal notranslate"><span class="pre">Ok</span></code>.
+You will see that another track has appeared.</p>
+<p>You can also delete tracks by selecting them on the list and pressing <code class="docutils literal notranslate"><span class="pre">Delete</span></code>.</p>
 </section>
 </section>
 
