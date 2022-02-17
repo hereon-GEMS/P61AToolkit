@@ -92,7 +92,8 @@ The track creation / editing workflow should go as follows:
 #. Make tracks.
 #. If the tracks do not follow the observed diffraction peaks, adjust ``Track Window`` parameter and then search and make tracks again.
 
-Please pay attention, that the ``Track Window`` parameter is not too wide or too narrow (see see :ref:`peak-tracking`)!
+Please pay attention, that the ``Track Window`` parameter is not too wide or too narrow (see :ref:`peak-tracking`)!
+
 ``Track Window`` should be larger than the variance in peak position between the spectra and smaller than the distance between the two neighbouring peaks.
 Here are two examples of wrong ``Track Window`` values.
 
