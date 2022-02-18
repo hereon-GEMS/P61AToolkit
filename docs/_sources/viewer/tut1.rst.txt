@@ -102,6 +102,11 @@ To refine the automatically generated peak positions, go to the ``Peak fit`` tab
 
 Every peak has a set of refineable parameters: **center**, **amplitude**, **sigma**, etc., and a set of non-refineable
 parameters.
+At the moment only pseudo-Voigt peak shape approximation is available in the Viewer, following this definition:
+
+.. image:: tut-01-img0.png
+   :width: 600
+
 The way refinement works in P61A::Viewer is that every peak is only evaluated and refined over its **base** which
 is measured in sigmas (usually values between 3 and 7 give good results, depending on the peak's "skirt" and surrounding
 background).
