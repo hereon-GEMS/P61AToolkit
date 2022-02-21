@@ -143,7 +143,7 @@ If you double-click a track, you can set the center and its refinement limits.
 Note that if you set tight refinement limits for any parameter (center, sigma, etc.), its values will be "compressed" to always stay within the limits.
 
 ****************
-Refinement
+Background
 ****************
 
 Description of the peak models and basics of peak refinement can be found in the previous tutorial (see :ref:`peak-refinement`).
@@ -154,3 +154,11 @@ At the moment two types of background functions are implemented: ``Chebyshev`` p
 Both background functions have ``xmin`` and ``xmax`` parameters, defining the background domain.
 In principle you can define as many different background functions as you want, as long as their domains do not overlap, which will produce mistakes.
 Data used for background refinement is taken from the background domain ``[xmin, xmax]`` with exclusion of all the peak domains (``[center - base * sigma, center + base * sigma]`` for every peak).
+
+Given the complicated shape of the background produced at P61A beamline, we have found that the ``Chebyshev`` model is only useful on relatively small domains and is prone to errors.
+To refine the background as a whole with minimal input and good accuracy one has to use ``Interpolation``.
+
+Please note, that on the ``Peak fit`` tab if you press ``+ background`` button, you only add a background function to the currently selected spectrum.
+Once you have added, modified, and fitted all the background functions you want, you can press ``Copy background`` to copy it to the rest of the spectra.
+
+After that you can proceed with the sequential refinement as described in :ref:`peak-refinement`.
