@@ -146,3 +146,11 @@ Note that if you set tight refinement limits for any parameter (center, sigma, e
 Refinement
 ****************
 
+Description of the peak models and basics of peak refinement can be found in the previous tutorial (see :ref:`peak-refinement`).
+However, to successfully fit real data one also has to take into account the background.
+
+In the Viewer background refinement is split from peak refinement, both can be performed independently from each other.
+At the moment two types of background functions are implemented: ``Chebyshev`` polynomials and ``Interpolation``.
+Both background functions have ``xmin`` and ``xmax`` parameters, defining the background domain.
+In principle you can define as many different background functions as you want, as long as their domains do not overlap, which will produce mistakes.
+Data used for background refinement is taken from the background domain ``[xmin, xmax]`` with exclusion of all the peak domains (``[center - base * sigma, center + base * sigma]`` for every peak).

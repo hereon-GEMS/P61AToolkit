@@ -94,6 +94,8 @@ For the tutorial dataset to be tracked properly, the **Track window** should be 
 When you press ``Make tracks`` button, tracks should appear on the plot.
 To understand what exactly **Track window** does, try playing around with it, increase or decrease it.
 
+.. _peak-refinement:
+
 ***************
 Peak refinement
 ***************
@@ -115,6 +117,7 @@ The peak function follows the definition:
 The way refinement works in P61A::Viewer is that every peak is only evaluated and refined over its **base**.
 Usually **base** values between 3 and 7 give good results, depending on the peak's "skirt" and surrounding
 background.
+The choice of **base** value depends on each dataset and each peak.
 
 Parameter **overlap_base** is also measured in sigmas and determines if peaks next to each other should be refined
 together or separately: if for two peaks their overlap bases do in fact overlap, they will be refined together on an

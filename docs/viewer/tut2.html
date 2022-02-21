@@ -181,6 +181,13 @@ Note that if you set tight refinement limits for any parameter (center, sigma, e
 </section>
 <section id="refinement">
 <h2>Refinement<a class="headerlink" href="#refinement" title="Permalink to this headline"></a></h2>
+<p>Description of the peak models and basics of peak refinement can be found in the previous tutorial (see <a class="reference internal" href="tut1.html#peak-refinement"><span class="std std-ref">Peak refinement</span></a>).
+However, to successfully fit real data one also has to take into account the background.</p>
+<p>In the Viewer background refinement is split from peak refinement, both can be performed independently from each other.
+At the moment two types of background functions are implemented: <code class="docutils literal notranslate"><span class="pre">Chebyshev</span></code> polynomials and <code class="docutils literal notranslate"><span class="pre">Interpolation</span></code>.
+Both background functions have <code class="docutils literal notranslate"><span class="pre">xmin</span></code> and <code class="docutils literal notranslate"><span class="pre">xmax</span></code> parameters, defining the background domain.
+In principle you can define as many different background functions as you want, as long as their domains do not overlap, which will produce mistakes.
+Data used for background refinement is taken from the background domain <code class="docutils literal notranslate"><span class="pre">[xmin,</span> <span class="pre">xmax]</span></code> with exclusion of all the peak domains (<code class="docutils literal notranslate"><span class="pre">[center</span> <span class="pre">-</span> <span class="pre">base</span> <span class="pre">*</span> <span class="pre">sigma,</span> <span class="pre">center</span> <span class="pre">+</span> <span class="pre">base</span> <span class="pre">*</span> <span class="pre">sigma]</span></code> for every peak).</p>
 </section>
 </section>
 

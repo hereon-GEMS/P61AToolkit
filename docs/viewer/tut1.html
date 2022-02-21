@@ -156,7 +156,7 @@ When you press <code class="docutils literal notranslate"><span class="pre">Make
 To understand what exactly <strong>Track window</strong> does, try playing around with it, increase or decrease it.</p>
 </section>
 <section id="peak-refinement">
-<h2>Peak refinement<a class="headerlink" href="#peak-refinement" title="Permalink to this headline"></a></h2>
+<span id="id3"></span><h2>Peak refinement<a class="headerlink" href="#peak-refinement" title="Permalink to this headline"></a></h2>
 <p>To refine the automatically generated peak positions, go to the <code class="docutils literal notranslate"><span class="pre">Peak</span> <span class="pre">fit</span></code> tab.</p>
 <p>Every peak has a set of refineable parameters, and a set of non-refineable parameters.
 At the moment only pseudo-Voigt peak shape approximation is available in the Viewer, with the refineable parameters: <strong>center</strong>, <strong>amplitude</strong>, <strong>sigma</strong>, <strong>fraction</strong>.
@@ -167,7 +167,8 @@ Non-refineable parameters are: <strong>width</strong>, <strong>height</strong>, 
 <p><strong>Base</strong> defines the peak function domain and is measured in sigmas. Every peak function is calculated according to the pseudo-Voigt expression within its domain <code class="docutils literal notranslate"><span class="pre">[center</span> <span class="pre">-</span> <span class="pre">base</span> <span class="pre">*</span> <span class="pre">sigma,</span> <span class="pre">center</span> <span class="pre">+</span> <span class="pre">base</span> <span class="pre">*</span> <span class="pre">sigma]</span></code> and is set as <code class="docutils literal notranslate"><span class="pre">0</span></code> outside the domain.
 The way refinement works in P61A::Viewer is that every peak is only evaluated and refined over its <strong>base</strong>.
 Usually <strong>base</strong> values between 3 and 7 give good results, depending on the peak’s “skirt” and surrounding
-background.</p>
+background.
+The choice of <strong>base</strong> value depends on each dataset and each peak.</p>
 <p>Parameter <strong>overlap_base</strong> is also measured in sigmas and determines if peaks next to each other should be refined
 together or separately: if for two peaks their overlap bases do in fact overlap, they will be refined together on an
 interval made from combining their <strong>bases</strong>. By default <strong>overlap_base</strong> is set relatively small, so that every peak is
