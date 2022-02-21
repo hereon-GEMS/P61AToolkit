@@ -103,14 +103,18 @@ To refine the automatically generated peak positions, go to the ``Peak fit`` tab
 Every peak has a set of refineable parameters, and a set of non-refineable parameters.
 At the moment only pseudo-Voigt peak shape approximation is available in the Viewer, with the refineable parameters: **center**, **amplitude**, **sigma**, **fraction**.
 Non-refineable parameters are: **width**, **height**, **base**, **overlap base**, **Rwp**, **chi2**.
+
 The peak function follows the definition:
 
 .. image:: tut-01-img0.png
    :width: 600
 
-The way refinement works in P61A::Viewer is that every peak is only evaluated and refined over its **base** which
-is measured in sigmas (usually values between 3 and 7 give good results, depending on the peak's "skirt" and surrounding
-background).
+**Width** is calculated as FWHM, **height** is the max value of the peak function.
+
+**Base** defines the peak function domain and is measured in sigmas. Every peak function is calculated according to the pseudo-Voigt expression within its domain ``[center - base * sigma, center + base * sigma]`` and is set as ``0`` outside the domain.
+The way refinement works in P61A::Viewer is that every peak is only evaluated and refined over its **base**.
+Usually **base** values between 3 and 7 give good results, depending on the peak's "skirt" and surrounding
+background.
 
 Parameter **overlap_base** is also measured in sigmas and determines if peaks next to each other should be refined
 together or separately: if for two peaks their overlap bases do in fact overlap, they will be refined together on an
