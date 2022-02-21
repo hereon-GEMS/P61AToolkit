@@ -100,9 +100,10 @@ Peak refinement
 
 To refine the automatically generated peak positions, go to the ``Peak fit`` tab.
 
-Every peak has a set of refineable parameters: **center**, **amplitude**, **sigma**, etc., and a set of non-refineable
-parameters.
-At the moment only pseudo-Voigt peak shape approximation is available in the Viewer, following this definition:
+Every peak has a set of refineable parameters, and a set of non-refineable parameters.
+At the moment only pseudo-Voigt peak shape approximation is available in the Viewer, with the refineable parameters: **center**, **amplitude**, **sigma**, **fraction**.
+Non-refineable parameters are: **width**, **height**, **base**, **overlap base**, **Rwp**, **chi2**.
+The peak function follows the definition:
 
 .. image:: tut-01-img0.png
    :width: 600

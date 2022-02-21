@@ -158,9 +158,10 @@ To understand what exactly <strong>Track window</strong> does, try playing aroun
 <section id="peak-refinement">
 <h2>Peak refinement<a class="headerlink" href="#peak-refinement" title="Permalink to this headline"></a></h2>
 <p>To refine the automatically generated peak positions, go to the <code class="docutils literal notranslate"><span class="pre">Peak</span> <span class="pre">fit</span></code> tab.</p>
-<p>Every peak has a set of refineable parameters: <strong>center</strong>, <strong>amplitude</strong>, <strong>sigma</strong>, etc., and a set of non-refineable
-parameters.
-At the moment only pseudo-Voigt peak shape approximation is available in the Viewer, following this definition:</p>
+<p>Every peak has a set of refineable parameters, and a set of non-refineable parameters.
+At the moment only pseudo-Voigt peak shape approximation is available in the Viewer, with the refineable parameters: <strong>center</strong>, <strong>amplitude</strong>, <strong>sigma</strong>, <strong>fraction</strong>.
+Non-refineable parameters are: <strong>width</strong>, <strong>height</strong>, <strong>base</strong>, <strong>overlap base</strong>, <strong>Rwp</strong>, <strong>chi2</strong>.
+The peak function follows the definition:</p>
 <a class="reference internal image-reference" href="../_images/tut-01-img0.png"><img alt="../_images/tut-01-img0.png" src="../_images/tut-01-img0.png" style="width: 600px;" /></a>
 <p>The way refinement works in P61A::Viewer is that every peak is only evaluated and refined over its <strong>base</strong> which
 is measured in sigmas (usually values between 3 and 7 give good results, depending on the peak’s “skirt” and surrounding
