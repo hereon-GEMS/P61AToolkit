@@ -11,7 +11,7 @@ Launches the :code:`P61App` (QApplication_ child class) and a :code:`P61Viewer` 
 import os.path
 
 from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QLocale
 
 if hasattr(Qt, 'AA_EnableHighDpiScaling'):
     QtWidgets.QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
@@ -56,6 +56,7 @@ class P61Viewer(QMainWindow):
         :param parent:
         """
         QMainWindow.__init__(self, parent=parent)
+        self.setLocale(QLocale(QLocale.English, QLocale.EuropeanUnion))
         self.q_app = P61App.instance()
         self.logger = logging.getLogger(str(self.__class__))
 
