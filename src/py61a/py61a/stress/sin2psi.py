@@ -184,7 +184,7 @@ def sin2psi(dataset: pd.DataFrame, phi_col: str, phi_atol: float,
                     depth = np.array([np.nan] * peak_data_proj.shape[0])
 
                 result.loc[res_idx, (peak_id, '-'.join(phi_dict[ii]))] = Sin2PsiProjection(
-                    xdata=(np.sin(np.radians(2. * peak_data_proj.loc[:, ('md', psi_col)]))).to_numpy(),
+                    xdata=(np.sin(np.radians(2. * abs(peak_data_proj.loc[:, ('md', psi_col)])))).to_numpy(),
                     ydata=peak_data_proj.loc[:, (peak_id, 'd')].to_numpy(),
                     depth=depth,
                     intercept=0.

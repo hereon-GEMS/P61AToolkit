@@ -12,7 +12,7 @@ def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFram
         index=s2p.index,
         columns=pd.MultiIndex.from_product([
             set(s2p.columns.get_level_values(0)),
-            ('s11-s33', 's22-s33', 'depth_min', 'depth_max', 'depth')])
+            ('s11-s33', 's22-s33', 's13', 's23', 'depth_min', 'depth_max', 'depth')])
     )
 
     # TODO: fix logic in column iteration. which columns are we looking up in which dataset?
@@ -43,6 +43,20 @@ def deviatoric_stresses(peaks: pd.DataFrame, s2p: pd.DataFrame, dec: pd.DataFram
                 s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uintercept)
         else:
             result.loc[:, (peak_id, 's22-s33')] = np.array([ufloat(np.nan, np.nan)] * result.shape[0])
+
+        if '0-180' in s2p[peak_id].columns:
+            result.loc[:, (peak_id, 's13')] = \
+                (1. / hs2) * s2p.loc[:, (peak_id, '0-180')].apply(lambda x: x.uslope) / \
+                s2p.loc[:, (peak_id, '0+180')].apply(lambda x: x.uintercept)
+        else:
+            result.loc[:, (peak_id, 's13')] = np.array([ufloat(np.nan, np.nan)] * result.shape[0])
+
+        if '90-270' in s2p[peak_id].columns:
+            result.loc[:, (peak_id, 's23')] = \
+                (1. / hs2) * s2p.loc[:, (peak_id, '90-270')].apply(lambda x: x.uslope) / \
+                s2p.loc[:, (peak_id, '90+270')].apply(lambda x: x.uintercept)
+        else:
+            result.loc[:, (peak_id, 's23')] = np.array([ufloat(np.nan, np.nan)] * result.shape[0])
 
         result.loc[:, (peak_id, 'depth')] = np.nanmean(s2p[peak_id].applymap(lambda cell: np.nanmean(cell.depth)))
         result.loc[:, (peak_id, 'depth_min')] = np.nanmin(s2p[peak_id].applymap(lambda cell: np.nanmin(cell.depth)))
