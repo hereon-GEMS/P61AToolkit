@@ -11,9 +11,10 @@ density = \
         'Ni': 8.9,
         'Ti': 4.506,
         'W': 19.28,
+        'Zr': 5.68,
     }
 
-_wd = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'NIST_abs')
+_wd = os.path.join(os.path.dirname(os.path.realpath(__file__)), r'..\..\..\..\data\absorption\NIST_abs')
 absorption = {el: pd.read_csv(os.path.join(_wd, el + '.csv'), comment='#') for el in density.keys()}
 
 
