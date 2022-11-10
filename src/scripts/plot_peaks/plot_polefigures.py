@@ -17,7 +17,7 @@ if __name__ == '__main__':
     dd = read_peaks(peakfile)
     # dd[('md', bet)] = (dd[('md', bet)] - 45) % 360
 
-    # calculating d values and depth
+    # selecting relevant data and plot pole figures
     for peak_id in get_peak_ids(dd, columns=('h', 'k', 'l', usedPar, usedPar + '_std')):
         used_val = unumpy.uarray(dd[(peak_id, usedPar)], dd[(peak_id, usedPar + '_std')])
         det_val = unumpy.nominal_values(used_val)

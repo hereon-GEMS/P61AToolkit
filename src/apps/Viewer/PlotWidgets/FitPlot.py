@@ -33,11 +33,19 @@ class FitPlot(pg.GraphicsLayoutWidget):
         self.ci.layout.setRowStretchFactor(0, 4)
         self.ci.layout.setRowStretchFactor(1, 1)
 
+        self.q_app.dataRowsRemoved.connect(self.on_data_rows_removed)
         self.q_app.selectedIndexChanged.connect(self.on_selected_idx_ch)
         self.q_app.peakTracksChanged.connect(self.on_pt_changed)
         self.q_app.peakListChanged.connect(self.on_peaks_changed)
         self.q_app.bckgListChanged.connect(self.on_bckg_changed)
         self.q_app.dataSorted.connect(self.on_data_sorted)
+
+    def on_data_rows_removed(self):
+        self.logger.debug('on_data_rows_removed: Handling dataRowsRemoved')
+        if self.q_app.data.empty or self.q_app.get_selected_idx() == -1:
+            self._line_ax.setTitle('Fit')
+            self.clear_axes()
+            self._line_ax.addLegend()
 
     def on_data_sorted(self):
         self.logger.debug('on_data_sorted: Handling dataSorted')
@@ -63,11 +71,13 @@ class FitPlot(pg.GraphicsLayoutWidget):
 
     @log_ex_time()
     def redraw_data(self):
+        self._line_ax.setTitle('Fit')
         self.clear_axes()
         self._line_ax.addLegend()
         idx = self.q_app.get_selected_idx()
 
         if idx != -1:
+            self._line_ax.setTitle('Fit: ' + self.q_app.data.loc[idx, 'ScreenName'])
             data = self.q_app.data.loc[idx, ['DataX', 'DataY', 'Color', 'PeakDataList', 'BckgDataList']]
 
             self._line_ax.plot(1E3 * data['DataX'], data['DataY'],
