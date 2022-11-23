@@ -87,7 +87,7 @@ class Sin2PsiProjection:
 
 
 def sin2psi(dataset: pd.DataFrame, phi_col: str, phi_atol: float,
-            psi_col: str, psi_atol: float, psi_max: float):
+            psi_col: str, psi_atol: float, psi_min: float, psi_max: float):
     """
 
     :param dataset:
@@ -95,6 +95,7 @@ def sin2psi(dataset: pd.DataFrame, phi_col: str, phi_atol: float,
     :param phi_atol:
     :param psi_col:
     :param psi_atol:
+    :param psi_min:
     :param psi_max:
     :return:
     """
@@ -117,7 +118,7 @@ def sin2psi(dataset: pd.DataFrame, phi_col: str, phi_atol: float,
         dataset,
         motors=[
             {'mot_name': phi_col, 'atol': phi_atol, 'values': phi_values, 'new_name': '__PHI__'},
-            {'mot_name': psi_col, 'atol': psi_atol, 'max': psi_max, 'new_name': '__PSI__'}
+            {'mot_name': psi_col, 'atol': psi_atol, 'min': psi_min, 'max': psi_max, 'new_name': '__PSI__'}
         ])
     dataset.drop(dataset[dataset.loc[:, ('scanpts', '__PSI__')] == -1].index, inplace=True)
 

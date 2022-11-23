@@ -166,6 +166,18 @@ def peak_id_str(data: pd.DataFrame, peak_id: str) -> str:
         return '%s [%d%d%d]' % (phase, hh, kk, ll)
 
 
+def peak_hkl_str(data: pd.DataFrame, peak_id: str) -> str:
+    if ('h' in data[peak_id].columns) and ('k' in data[peak_id].columns) and ('l' in data[peak_id].columns):
+        hh, kk, ll = data[peak_id][['h', 'k', 'l']].mean().astype(int)
+    else:
+        hh, kk, ll = None, None, None
+
+    if hh is not None and kk is not None and ll is not None:
+        return '%d%d%d' % (hh, kk, ll)
+    else:
+        return ''
+
+
 def group_by_motors(data: pd.DataFrame, motors: Union[tuple, list]) -> pd.DataFrame:
     """
 
