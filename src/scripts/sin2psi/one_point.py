@@ -1,8 +1,7 @@
 import os
 import itertools
-import numpy as np
-from matplotlib import pyplot as plt
 import pandas as pd
+from matplotlib import pyplot as plt
 from uncertainties import unumpy
 
 from py61a.viewer_utils import read_peaks, get_peak_ids, peak_id_str
@@ -10,10 +9,20 @@ from py61a.cryst_utils import tau, mu, bragg
 from py61a.stress import sin2psi, deviatoric_stresses
 
 if __name__ == '__main__':
+	# this script handles exported peak fit data of P61A:Viewer for sin2psi measurement in reflection mode
+
+	# general parameters
 	plot_sin2psi = True
 	plot_stresses = True
 	export_sin2psi = True
 	export_stresses = True
+	res_file_delim = ','
+	file_mwl_fit_append = '_mwl_fit.csv'
+	file_mwl_stresses_append = '_mwl_stresses.csv'
+	polar_motor = 'eu.chi'
+	azimuth_motor = 'eu.phi'
+
+	# measurement specific parameters
 	element = 'Fe'
 	peakfile = r'Z:\current\processed\Steel_sample.csv'
 	decfile = r'../../../data/dec/bccFe.csv'
@@ -21,27 +30,28 @@ if __name__ == '__main__':
 	max_psi = 90.
 	# tth_axis = 'd0.rz'  # relevant diffraction angle of detector 0 (horizontal)
 	tth_axis = 'd1.rx'  # relevant diffraction angle of detector 1 (vertical)
-	res_file_delim = ','
-	file_mwl_fit_append = '_mwl_fit.csv'
-	file_mwl_stresses_append = '_mwl_stresses.csv'
 
+	# import the data, set tth value and check azimuth and polar angles
 	dd = read_peaks(peakfile)
-	dec = pd.read_csv(decfile, index_col=None, comment='#')
 	tth = abs(dd[('md', tth_axis)].mean())
+	# tth = 8.4  # input manual value if wanted
 	if dd[('md', tth_axis)].mean() < 0:  # for horizontal detector
-		dd[('md', 'eu.chi')] = dd[('md', 'eu.chi')] - 90
+		dd[('md', polar_motor)] = dd[('md', polar_motor)] - 90
+	# dd[('md', azimuth_motor)] = (dd[('md', azimuth_motor)] - 45) % 360
 
-	# dd[('md', 'eu.phi')] = (dd[('md', 'eu.phi')] - 45) % 360
+	# import DEC values
+	dec = pd.read_csv(decfile, index_col=None, comment='#')
+
 	# calculating d values and depth
 	for peak_id in get_peak_ids(dd, columns=('h', 'k', 'l', 'center', 'center_std')):
 		d_val = bragg(en=unumpy.uarray(dd[(peak_id, 'center')], dd[(peak_id, 'center_std')]), tth=tth)['d']
 		dd[(peak_id, 'd')] = unumpy.nominal_values(d_val)
 		dd[(peak_id, 'd_std')] = unumpy.std_devs(d_val)
-		dd[(peak_id, 'depth')] = tau(mu(element, dd[(peak_id, 'center')].mean()), tth=tth, psi=dd[('md', 'eu.chi')],
+		dd[(peak_id, 'depth')] = tau(mu(element, dd[(peak_id, 'center')].mean()), tth=tth, psi=dd[('md', polar_motor)],
 			eta=90.)
 
 	# perform sin2psi analysis and calculate stresses
-	analysis = sin2psi(dataset=dd, phi_col='eu.phi', phi_atol=5., psi_col='eu.chi', psi_atol=.1, psi_min=min_psi,
+	analysis = sin2psi(dataset=dd, phi_col=azimuth_motor, phi_atol=5., psi_col=polar_motor, psi_atol=.1, psi_min=min_psi,
 		psi_max=max_psi)
 	stresses = deviatoric_stresses(dd, analysis, dec)
 	analysis = analysis.squeeze(axis=0)
@@ -91,7 +101,6 @@ if __name__ == '__main__':
 		for peak_id in get_peak_ids(dd, columns=('h', 'k', 'l', 'center', 'center_std')):
 			if peak_id not in set(analysis.index.get_level_values(0)):
 				continue
-
 			fig = plt.figure(peak_id)
 			fig.suptitle(peak_id_str(dd, peak_id))
 			ax1, ax2 = plt.subplot(121), plt.subplot(122)
@@ -140,4 +149,5 @@ if __name__ == '__main__':
 		plt.xlabel('Information depth [μm]')
 		plt.ylabel('Stress [MPa]')
 		plt.legend()
+
 		plt.show()

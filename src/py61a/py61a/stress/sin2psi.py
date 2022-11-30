@@ -86,8 +86,8 @@ class Sin2PsiProjection:
         return np.isnan(self.slope) and np.isnan(self.intercept)
 
 
-def sin2psi(dataset: pd.DataFrame, phi_col: str, phi_atol: float,
-            psi_col: str, psi_atol: float, psi_min: float, psi_max: float):
+def sin2psi(dataset: pd.DataFrame, phi_col='eu.phi', phi_atol=5.,
+            psi_col='eu.chi', psi_atol=.1, psi_min=0., psi_max=90.):
     """
 
     :param dataset:
