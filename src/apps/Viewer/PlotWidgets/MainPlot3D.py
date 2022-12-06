@@ -88,6 +88,7 @@ class MainPlot3D(GlPlot3D):
         self._show_pt_tracks = False
         self._show_known_regions = False
         self._show_fit_centers = False
+        self._show_fluorescence_lines = False
 
         self._surf_data = []
         self._lines = []
@@ -95,6 +96,7 @@ class MainPlot3D(GlPlot3D):
         self._peak_tracks = []
         self._fit_tracks = []
         self._hkl_lines = []
+        self._fluorescence_lines = []
 
     @property
     def surface(self):
@@ -161,6 +163,17 @@ class MainPlot3D(GlPlot3D):
             raise ValueError('MainPlot3D.show_fit_centers property should be bool')
         self._show_fit_centers = val
         self.upd_and_redraw(fit=True)
+
+    @property
+    def show_fluorescence_lines(self):
+        return self._show_fluorescence_lines
+
+    @show_fluorescence_lines.setter
+    def show_fluorescence_lines(self, val):
+        if not isinstance(val, bool):
+            raise ValueError('MainPlot3D.show_fluorescence_lines property should be bool')
+        self._show_fluorescence_lines = val
+        self.upd_and_redraw(char=True)
 
     def redraw_spectra(self, ys, ymap):
         del self._lines[:]
@@ -267,6 +280,42 @@ class MainPlot3D(GlPlot3D):
     def redraw_fit_centers(self, ys):
         del self._fit_tracks[:]
 
+    def redraw_fluorescence_lines(self):
+        del self._fluorescence_lines[:]
+
+        if self._show_fluorescence_lines:
+            xx = np.ones(3)
+            yy = np.array([0., 1., 1.])
+            zz = np.array([1., 1., self.imax])
+            self._fluorescence_lines.append(
+                gl.GLLinePlotItem(pos=self.transform_xyz(24.002 * xx, yy, zz), color='#404e93', width=2,
+                                  antialias=True))  # In Ka2
+            self._fluorescence_lines.append(
+                gl.GLLinePlotItem(pos=self.transform_xyz(24.2097 * xx, yy, zz), color='#404e93', width=2,
+                                  antialias=True))  # In Ka1
+            self._fluorescence_lines.append(
+                gl.GLLinePlotItem(pos=self.transform_xyz(27.2759 * xx, yy, zz), color='#404e93', width=2,
+                                  antialias=True))  # In Kb1
+            self._fluorescence_lines.append(
+                gl.GLLinePlotItem(pos=self.transform_xyz(57.9817 * xx, yy, zz), color='#404e93', width=2,
+                                  antialias=True))  # W Ka2
+            self._fluorescence_lines.append(
+                gl.GLLinePlotItem(pos=self.transform_xyz(59.31824 * xx, yy, zz), color='#404e93', width=2,
+                                  antialias=True))  # W Ka1
+            self._fluorescence_lines.append(
+                gl.GLLinePlotItem(pos=self.transform_xyz(67.2443 * xx, yy, zz), color='#404e93', width=2,
+                                  antialias=True))  # W Kb1
+            self._fluorescence_lines.append(
+                gl.GLLinePlotItem(pos=self.transform_xyz(72.8042 * xx, yy, zz), color='#404e93', width=2,
+                                  antialias=True))  # Pb Ka2
+            self._fluorescence_lines.append(
+                gl.GLLinePlotItem(pos=self.transform_xyz(74.9694 * xx, yy, zz), color='#404e93', width=2,
+                                  antialias=True))  # Pb Ka1
+            self._fluorescence_lines.append(
+                gl.GLLinePlotItem(pos=self.transform_xyz(84.936 * xx, yy, zz), color='#404e93', width=2,
+                                  antialias=True))  # Pb Kb1
+
+
     @log_ex_time()
     def redraw_data(self, *args, **kwargs):
         ids = self.q_app.get_active_ids()
@@ -281,6 +330,7 @@ class MainPlot3D(GlPlot3D):
             self.redraw_pt_tracks(ymap)
             self.redraw_known_regions()
             self.redraw_fit_centers(ys)
+            self.redraw_fluorescence_lines()
         else:
             if 'spectra' in kwargs:
                 if kwargs['spectra']:
@@ -297,9 +347,12 @@ class MainPlot3D(GlPlot3D):
             if 'fit' in kwargs:
                 if kwargs['fit']:
                     self.redraw_fit_centers(ys)
+            if 'char' in kwargs:
+                if kwargs['char']:
+                    self.redraw_fluorescence_lines()
 
         for item in self._surf_data + self._lines + self._peak_scatters + \
-                    self._peak_tracks + self._fit_tracks + self._hkl_lines:
+                    self._peak_tracks + self._fit_tracks + self._hkl_lines + self._fluorescence_lines:
             if item is not None:
                 self.addItem(item)
 
