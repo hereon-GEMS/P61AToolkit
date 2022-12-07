@@ -1,4 +1,5 @@
 from .P61ANexusReader import P61ANexusReader
+from .P61ANexusHandler import P61ANexusHandler
 from .XSpressCSVReader import XSpressCSVReader
 from .RawFileReader import RawFileReader
 from .EDDIReader import EDDIReader
