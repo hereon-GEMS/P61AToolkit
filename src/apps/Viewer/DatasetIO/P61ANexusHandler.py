@@ -321,10 +321,6 @@ class P61ANexusHandler:
                         results[:, 1] = np.min((results[:, 1], data['DataY'].to_numpy()), axis=0)
                         treal = np.min((treal, trealCur))
                         dt = np.min((dt, dtCur))
-                    if method == 'mean':
-                        results[:, 1] = results[:, 1] / len(files)
-                        treal = treal / len(files)
-                        dt = dt / len(files)
             else:
                 if results is None:
                     # initialize values if not existing
@@ -343,10 +339,15 @@ class P61ANexusHandler:
                         results[self.hist] = np.min((results[self.hist], data[self.hist]))
                         for scaler_val in self.scaler_items:
                             results[scaler_val] = np.min((results[scaler_val], data[scaler_val]))
-                    if method == 'mean':
-                        results[self.hist] = results[self.hist] / len(files)
-                        for scaler_val in self.scaler_items:
-                            results[scaler_val] = results[scaler_val] / len(files)
+        if method == 'mean':
+            if extract:
+                results[:, 1] = results[:, 1] / len(files)
+                treal = treal / len(files)
+                dt = dt / len(files)
+            else:
+                results[self.hist] = results[self.hist] / len(files)
+                for scaler_val in self.scaler_items:
+                    results[scaler_val] = results[scaler_val] / len(files)
         # if result file is not specified request file name
         # if resFile is None or len(resFile) == 0:
         #     resFile = fg.requestSaveFile(dialogTitle='Specify result file name')
