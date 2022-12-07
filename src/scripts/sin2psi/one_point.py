@@ -26,7 +26,7 @@ if __name__ == '__main__':
 	element = 'Fe'
 	peakfile = r'Z:\current\processed\Steel_sample.csv'
 	decfile = r'../../../data/dec/bccFe.csv'
-	min_psi = 0.
+	min_psi = -90.
 	max_psi = 90.
 	# tth_axis = 'd0.rz'  # relevant diffraction angle of detector 0 (horizontal)
 	tth_axis = 'd1.rx'  # relevant diffraction angle of detector 1 (vertical)

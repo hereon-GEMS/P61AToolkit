@@ -145,6 +145,10 @@ class P61App(QApplication):
         self.cmaps = dict((name.replace('.csv', ''), np.loadtxt(os.path.join('utils', 'cmaps', name)))
                           for name in filter(lambda arg: '.csv' in arg, os.listdir(os.path.join('utils', 'cmaps'))))
 
+        self.fluorescence_lines = {'In-Ka2': 24.002, 'In-Ka1': 24.2097, 'In-Kb1': 27.2759,
+                                   'W-Ka2': 57.9817, 'W-Ka1': 59.31824, 'W-Kb3': 66.951, 'W-Kb1': 67.2443, 'W-Kb2': 69.067,
+                                   'Pb-Ka2': 72.8042, 'Pb-Ka1': 74.9694, 'Pb-Kb3': 84.450, 'Pb-Kb1': 84.936, 'Pb-Kb2': 87.320}
+
         self.genFitResChanged.connect(self.on_fit_res_changed)
         self.dataRowsInserted.connect(self.on_data_rows_inserted)
         self.dataRowsRemoved.connect(self.on_data_rows_removed)

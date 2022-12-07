@@ -30,15 +30,8 @@ class MainPlotAvg(pg.GraphicsLayoutWidget):
         self._pt_tracks = []
 
         self._fluorescence_lines = []
-        self._fluorescence_lines.append(pg.InfiniteLine(1e3 * 24.002, pen='#404e93', movable=False))  # In Ka2
-        self._fluorescence_lines.append(pg.InfiniteLine(1e3 * 24.2097, pen='#404e93', movable=False))  # In Ka1
-        self._fluorescence_lines.append(pg.InfiniteLine(1e3 * 27.2759, pen='#404e93', movable=False))  # In Kb1
-        self._fluorescence_lines.append(pg.InfiniteLine(1e3 * 57.9817, pen='#404e93', movable=False))  # W Ka2
-        self._fluorescence_lines.append(pg.InfiniteLine(1e3 * 59.31824, pen='#404e93', movable=False))  # W Ka1
-        self._fluorescence_lines.append(pg.InfiniteLine(1e3 * 67.2443, pen='#404e93', movable=False))  # W Kb1
-        self._fluorescence_lines.append(pg.InfiniteLine(1e3 * 72.8042, pen='#404e93', movable=False))  # Pb Ka2
-        self._fluorescence_lines.append(pg.InfiniteLine(1e3 * 74.9694, pen='#404e93', movable=False))  # Pb Ka1
-        self._fluorescence_lines.append(pg.InfiniteLine(1e3 * 84.936, pen='#404e93', movable=False))  # Pb Kb1
+        for val in self.q_app.fluorescence_lines.values():
+            self._fluorescence_lines.append(pg.InfiniteLine(1e3 * val, pen='#7F0000', movable=False))
 
         self._line_ax = self.addPlot(title="Imported spectra")
         self._line_ax.setLabel('bottom', "Energy", units='eV')

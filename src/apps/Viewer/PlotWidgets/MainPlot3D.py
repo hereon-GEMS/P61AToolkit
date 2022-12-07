@@ -287,34 +287,9 @@ class MainPlot3D(GlPlot3D):
             xx = np.ones(3)
             yy = np.array([0., 1., 1.])
             zz = np.array([1., 1., self.imax])
-            self._fluorescence_lines.append(
-                gl.GLLinePlotItem(pos=self.transform_xyz(24.002 * xx, yy, zz), color='#404e93', width=2,
-                                  antialias=True))  # In Ka2
-            self._fluorescence_lines.append(
-                gl.GLLinePlotItem(pos=self.transform_xyz(24.2097 * xx, yy, zz), color='#404e93', width=2,
-                                  antialias=True))  # In Ka1
-            self._fluorescence_lines.append(
-                gl.GLLinePlotItem(pos=self.transform_xyz(27.2759 * xx, yy, zz), color='#404e93', width=2,
-                                  antialias=True))  # In Kb1
-            self._fluorescence_lines.append(
-                gl.GLLinePlotItem(pos=self.transform_xyz(57.9817 * xx, yy, zz), color='#404e93', width=2,
-                                  antialias=True))  # W Ka2
-            self._fluorescence_lines.append(
-                gl.GLLinePlotItem(pos=self.transform_xyz(59.31824 * xx, yy, zz), color='#404e93', width=2,
-                                  antialias=True))  # W Ka1
-            self._fluorescence_lines.append(
-                gl.GLLinePlotItem(pos=self.transform_xyz(67.2443 * xx, yy, zz), color='#404e93', width=2,
-                                  antialias=True))  # W Kb1
-            self._fluorescence_lines.append(
-                gl.GLLinePlotItem(pos=self.transform_xyz(72.8042 * xx, yy, zz), color='#404e93', width=2,
-                                  antialias=True))  # Pb Ka2
-            self._fluorescence_lines.append(
-                gl.GLLinePlotItem(pos=self.transform_xyz(74.9694 * xx, yy, zz), color='#404e93', width=2,
-                                  antialias=True))  # Pb Ka1
-            self._fluorescence_lines.append(
-                gl.GLLinePlotItem(pos=self.transform_xyz(84.936 * xx, yy, zz), color='#404e93', width=2,
-                                  antialias=True))  # Pb Kb1
-
+            for val in self.q_app.fluorescence_lines.values():
+                self._fluorescence_lines.append(
+                    gl.GLLinePlotItem(pos=self.transform_xyz(val * xx, yy, zz), color='#7F0000', width=2, antialias=True))
 
     @log_ex_time()
     def redraw_data(self, *args, **kwargs):

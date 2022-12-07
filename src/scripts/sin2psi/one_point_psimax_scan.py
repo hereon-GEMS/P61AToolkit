@@ -12,6 +12,7 @@ if __name__ == '__main__':
     element = 'Fe'
     dd = read_peaks(r'Z:\p61\2021\data\11012378\processed\SMSS_oven_test_after.csv')
     dec = pd.read_csv(r'../../../data/dec/bccFe.csv', index_col=None, comment='#')
+    psi_min = -90.
     tth = dd[('md', 'd0.rz')].mean()
     dd[('md', 'eu.chi')] = 90. - dd[('md', 'eu.chi')]
     # dd[('md', 'eu.phi')] = (dd[('md', 'eu.phi')] - 45) % 360
@@ -31,7 +32,7 @@ if __name__ == '__main__':
         print(psi_max)
 
         analysis = sin2psi(dataset=dd, phi_col='eu.phi', phi_atol=5.,
-                           psi_col='eu.chi', psi_atol=.1, psi_max=psi_max)
+                           psi_col='eu.chi', psi_atol=.1, psi_min=psi_min, psi_max=psi_max)
         stresses = deviatoric_stresses(dd, analysis, dec)
         analysis = analysis.squeeze(axis=0)
         stresses = stresses.squeeze(axis=0)

@@ -87,7 +87,7 @@ class Sin2PsiProjection:
 
 
 def sin2psi(dataset: pd.DataFrame, phi_col='eu.phi', phi_atol=5.,
-            psi_col='eu.chi', psi_atol=.1, psi_min=0., psi_max=90.):
+            psi_col='eu.chi', psi_atol=.1, psi_min=-90., psi_max=90.):
     """
 
     :param dataset:
