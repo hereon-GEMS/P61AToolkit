@@ -543,6 +543,10 @@ class P61App(QApplication):
             track_center = track.get_track_center()
             tracks_items.append('%d%s%.01f keV' % (ii, delimiter, track_center))
 
+            for line in self.fluorescence_lines.keys():
+                if abs(self.fluorescence_lines[line] - track_center) < 0.2:
+                    tracks_items[-1] += delimiter + line
+
             for phase in self.get_hkl_peaks():
                 peaks = self.hkl_peaks[phase]
                 for peak in peaks:
