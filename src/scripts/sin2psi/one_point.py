@@ -1,5 +1,6 @@
 import os
 import itertools
+import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 from uncertainties import unumpy
@@ -73,7 +74,10 @@ if __name__ == '__main__':
 			if peak_id in set(analysis.index.get_level_values(0)):
 				cur_val_str = res_file_delim.join((peak_id, peak_id_str(dd, peak_id)))
 				for sin2psi_head_group in sin2psi_head_groups:
-					cur_val_str += '%s%g' % (res_file_delim, eval('analysis[("' + peak_id + '", "' + sin2psi_head_group[0] + '")].' + sin2psi_head_group[1]))
+					if (peak_id, sin2psi_head_group[0]) in analysis:
+						cur_val_str += '%s%g' % (res_file_delim, eval('analysis[("' + peak_id + '", "' + sin2psi_head_group[0] + '")].' + sin2psi_head_group[1]))
+					else:
+						cur_val_str += '%s%g' % (res_file_delim, np.nan)
 				fid.write(cur_val_str + '\n')
 		fid.close()
 
@@ -150,4 +154,5 @@ if __name__ == '__main__':
 		plt.ylabel('Stress [MPa]')
 		plt.legend()
 
+	if plot_sin2psi or plot_stresses:
 		plt.show()
