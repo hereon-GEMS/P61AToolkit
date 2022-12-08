@@ -105,7 +105,7 @@ class PeakTrackList(QWidget):
         ids = self.lst.selectedIndexes()
         rows = sorted(map(lambda x: x.row(), ids), reverse=True)
 
-        popup = TrackEditPopUp(parent=self,track_ids=rows)
+        popup = TrackEditPopUp(parent=self, track_ids=rows)
         popup.exec_()
 
     def clean_peaks(self):
@@ -123,17 +123,4 @@ class PeakTrackList(QWidget):
 
     def upd_list(self):
         self.lst.clear()
-        tracks = self.q_app.get_pd_tracks()
-
-        tracks_items = []
-        for ii, track in enumerate(tracks):
-            track_center = np.mean(track.cxs)
-            tracks_items.append('%d :: %.01f keV' % (ii, track_center))
-
-            for phase in self.q_app.get_hkl_peaks():
-                peaks = self.q_app.hkl_peaks[phase]
-                for peak in peaks:
-                    if peak['e'] - peak['de'] < track_center < peak['e'] + peak['de']:
-                        tracks_items[-1] += ' :: ' + phase + ' [%d%d%d]' % (peak['h'], peak['k'], peak['l'])
-
-        self.lst.addItems(tracks_items)
+        self.lst.addItems(self.q_app.get_tracks_information())

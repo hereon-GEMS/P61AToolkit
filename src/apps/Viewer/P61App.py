@@ -534,26 +534,43 @@ class P61App(QApplication):
         result.to_csv(f_name)
         self.logger.debug('export_fit: Peak data saved as %s' % f_name)
 
+    def get_tracks_information(self, delimiter=' :: '):
+        # provide characteristic track information (for showing information)
+        tracks_items = []
+
+        for ii, track in enumerate(self.get_pd_tracks()):
+            track_center = track.get_track_center()
+            tracks_items.append('%d%s%.01f keV' % (ii, delimiter, track_center))
+
+            for phase in self.get_hkl_peaks():
+                peaks = self.hkl_peaks[phase]
+                for peak in peaks:
+                    if peak['e'] - peak['de'] < track_center < peak['e'] + peak['de']:
+                        tracks_items[-1] += delimiter + phase + ' [%d%d%d]' % (peak['h'], peak['k'], peak['l'])
+
+        return tracks_items
+
     def get_data_by_name(self, var):
         if var in self.motors_all:
+            # motor values
             mds = self.data.loc[self.data['Active'], 'Motors'].to_list()
             xx = [md[var] if md is not None else None for md in mds]
             xx = np.array([np.nan if x is None else x for x in xx])
             return xx, np.array([np.nan] * xx.size), np.array([np.nan] * xx.size)
-
-        elif var[:5] == 'Track':
-            param = var.split(': ')[1]
-            track = self.get_pd_tracks()[int(var.split(':')[0].replace('Track ', ''))]
+        elif var[:5] == 'Track' and len(self.peak_tracks) > 0:
+            # track values
+            params = var.split(': ')
+            track = self.get_pd_tracks()[int(params[0].replace('Track ', ''))]
             active_ids = self.get_active_ids()
             xx_ids = np.array(track.ids)
 
-            if param == 'center':
+            if params[-1] == 'center':
                 xx = np.array(track.cxs)
                 xx_min, xx_max = np.array(track.cx_bounds).T
-            elif param == 'amplitude':
+            elif params[-1] == 'amplitude':
                 xx = np.array(track.amplitudes)
                 xx_min, xx_max = np.array(track.amplitude_bounds).T
-            elif param == 'sigma':
+            elif params[-1] == 'sigma':
                 xx = np.array(track.sigmas)
                 xx_min, xx_max = np.array(track.sigma_bounds).T
             else:
@@ -567,4 +584,5 @@ class P61App(QApplication):
 
             return xx, xx_min, xx_max
         else:
+            # unknown
             return np.array([]), np.array([]), np.array([])

@@ -376,6 +376,9 @@ class PeakDataTrack:
     def get_track_idx(self):
         return self._idx
 
+    def get_track_center(self):
+        return np.mean(self.cxs)
+
     def __copy__(self):
         peaks = [copy.copy(peak) for peak in self._peaks]
         result = PeakDataTrack(peaks[0])
