@@ -49,45 +49,35 @@ class MetaDataWidget3D(QWidget):
         self.cb_z.currentIndexChanged.connect(self.on_btn_plot)
 
     def upd_cbs(self):
-        # set items of x row
+        # remember current items
         item_x = self.cb_x.currentIndex()
+        item_y = self.cb_y.currentIndex()
+        item_z = self.cb_z.currentIndex()
+        # remove all items
         self.cb_x.clear()
-        # motor information
+        self.cb_y.clear()
+        self.cb_z.clear()
+        # add items of axis - motor information
         for mt in sorted(self.q_app.motors_all):
             self.cb_x.addItem(mt)
-        # peak information
+            self.cb_y.addItem(mt)
+            self.cb_z.addItem(mt)
+        # add items of axis - spectra information
+        for param in ('CountTime', 'Cps', u'χ²'):
+            self.cb_x.addItem(param)
+            self.cb_y.addItem(param)
+            self.cb_z.addItem(param)
+        # add items of axis - peak information
         for track in self.q_app.get_tracks_information(delimiter=': '):
             for param in ('center', 'amplitude', 'sigma'):
                 self.cb_x.addItem('Track ' + track + ': ' + param)
-
+                self.cb_y.addItem('Track ' + track + ': ' + param)
+                self.cb_z.addItem('Track ' + track + ': ' + param)
+        # set items of axis
         if item_x < self.cb_x.count():
             self.cb_x.setCurrentIndex(item_x)
-
-        # set items of y row
-        item_y = self.cb_y.currentIndex()
-        self.cb_y.clear()
-        # motor information
-        for mt in sorted(self.q_app.motors_all):
-            self.cb_y.addItem(mt)
-        # peak information
-        for track in self.q_app.get_tracks_information(delimiter=': '):
-            for param in ('center', 'amplitude', 'sigma'):
-                self.cb_y.addItem('Track ' + track + ': ' + param)
-
         if item_y < self.cb_y.count():
             self.cb_y.setCurrentIndex(item_y)
-
-        # set items of z row
-        item_z = self.cb_z.currentIndex()
-        self.cb_z.clear()
-        # motor information
-        for mt in sorted(self.q_app.motors_all):
-            self.cb_z.addItem(mt)
-        # peak information
-        for track in self.q_app.get_tracks_information(delimiter=': '):
-            for param in ('center', 'amplitude', 'sigma'):
-                self.cb_z.addItem('Track ' + track + ': ' + param)
-
         if item_z < self.cb_z.count():
             self.cb_z.setCurrentIndex(item_z)
 

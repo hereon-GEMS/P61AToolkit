@@ -13,9 +13,10 @@ class P61ANexusReader:
     ch1 = ('entry', 'instrument', 'xspress3', 'channel01')
     all_event = ('scaler', 'allevent')
     all_good = ('scaler', 'allgood')
+    time = ('scaler', 'time')
     hist = ('histogram', )
     # define column names for resulting table
-    columns = ('DataX', 'DataY', 'DataID', 'Channel', 'ScreenName', 'Active', 'Color', 'DeadTime')
+    columns = ('DataX', 'DataY', 'DataID', 'Channel', 'ScreenName', 'Active', 'Color', 'DeadTime', 'CountTime', 'Cps')
 
     def __init__(self):
         self.q_app = P61App.instance()
@@ -58,9 +59,11 @@ class P61ANexusReader:
                     if sum_frames:
                         allevent = np.sum(f['/'.join(channel + self.all_event)], axis=0)
                         allgood = np.sum(f['/'.join(channel + self.all_good)], axis=0)
+                        time = np.sum(f['/'.join(channel + self.time)], axis=0)
                     else:
                         allevent = f['/'.join(channel + self.all_event)]
                         allgood = f['/'.join(channel + self.all_good)]
+                        time = f['/'.join(channel + self.time)]
                 # iterate over frames
                 for fr_num, frame in enumerate(frames):
                     # reset intensities at low energies (noise) and at highest energy (unprocessed)
@@ -90,6 +93,11 @@ class P61ANexusReader:
                         row = {c: None for c in self.columns}
                     if ('/'.join(channel + self.all_event) in f) and ('/'.join(channel + self.all_good) in f):
                         row.update({'DeadTime': 1. - allgood / allevent if sum_frames else 1. - allgood[fr_num] / allevent[fr_num]})
+                    if '/'.join(channel + self.time) in f:
+                        row.update({'CountTime': time * 1.25e-8 if sum_frames else time[fr_num] * 1.25e-8})
+                        if '/'.join(channel + self.all_good) in f:
+                            row.update({'Cps': allgood / (time * 1.25e-8) if sum_frames else allgood[fr_num] / (time[fr_num] * 1.25e-8)})
+
                     row.update({
                         'DataX': kev,
                         'DataY': frame,

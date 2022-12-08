@@ -10,7 +10,7 @@ class DataSetStorageModel(QAbstractTableModel):
         self.q_app = instance
         self.logger = logging.getLogger(str(self.__class__))
 
-        self.c_names = ('Name', 'Channel', u'💀⏱', u'χ²')
+        self.c_names = ('Name', 'Channel', u'💀⏱', 'CountTime', 'Cps', u'χ²')
 
         self.q_app.genFitResChanged.connect(self.on_gen_fit_changed)
         self.q_app.peakListChanged.connect(self.on_gen_fit_changed)
@@ -63,6 +63,16 @@ class DataSetStorageModel(QAbstractTableModel):
             else:
                 return None
         elif ii.column() == 3:
+            if role == Qt.DisplayRole:
+                return item_row['CountTime']
+            else:
+                return None
+        elif ii.column() == 4:
+            if role == Qt.DisplayRole:
+                return item_row['Cps']
+            else:
+                return None
+        elif ii.column() == 5:
             if role == Qt.DisplayRole:
                 return '%.01e' % item_row['Chi2'] if item_row['Chi2'] is not None else None
             else:
@@ -124,7 +134,7 @@ class DataSetStorageModel(QAbstractTableModel):
             return False
 
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
-        tmp = {0: 'ScreenName', 1: 'Channel', 2: 'DeadTime', 3: 'Chi2'}
+        tmp = {0: 'ScreenName', 1: 'Channel', 2: 'DeadTime', 3: 'CountTime', 4: 'Cp', 5: 'Chi2'}
         tmp.update({i + len(self.c_names): self.q_app.motors_cols[i] for i in range(len(self.q_app.motors_cols))})
 
         self.q_app.sort_data(by=tmp[column], inplace=True, ascending=bool(order))

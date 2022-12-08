@@ -107,8 +107,8 @@ class P61App(QApplication):
         QApplication.__init__(self, *args, **kwargs)
 
         # data storage for one-per-dataset items
-        self.data = pd.DataFrame(columns=('DataX', 'DataY', 'DeadTime', 'Channel', 'DataID', 'ScreenName', 'Active',
-                                          'Color', 'PeakDataList', 'BckgDataList', 'Chi2', 'Motors'))
+        self.data = pd.DataFrame(columns=('DataX', 'DataY', 'DeadTime', 'CountTime', 'Cps', 'Channel', 'DataID',
+                                          'ScreenName', 'Active', 'Color', 'PeakDataList', 'BckgDataList', 'Chi2', 'Motors'))
         self.data_model = DataSetStorageModel(instance=self)
         self.motors_cols = ('eu.chi', 'eu.phi', 'eu.bet', 'eu.alp', 'eu.x', 'eu.y', 'eu.z')
         self.motors_all = set(self.motors_cols)
@@ -346,7 +346,7 @@ class P61App(QApplication):
             row_data = dict()
             for k in ('DataX', 'DataY'):
                 row_data[k] = self.data.loc[idx, k].tolist()
-            for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Active'):
+            for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Active', 'CountTime', 'Cps'):
                 row_data[k] = self.data.loc[idx, k]
 
             row_data['Motors'] = dict(self.data.loc[idx, 'Motors']) \
@@ -422,7 +422,8 @@ class P61App(QApplication):
                 'Active': True,
                 'PeakDataList': peak_list,
                 'BckgDataList': [BckgData.from_dict(bckg) for bckg in row['BckgDataList']],
-                **{k: row[k] for k in ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Active')}
+                **{k: row[k] for k in
+                   ('DeadTime', 'Channel', 'DataID', 'ScreenName', 'Chi2', 'Active', 'CountTime', 'Cps') if k in row}
             })
 
             if row['Motors'] is not None:
@@ -522,7 +523,7 @@ class P61App(QApplication):
         result = pd.DataFrame()
         result = result.append(self.data.loc[self.data['Active'],
                                              ['ScreenName', 'Channel', 'DeadTime',
-                                              'PeakDataList', 'Motors', 'Chi2']])
+                                              'PeakDataList', 'Motors', 'Chi2', 'CountTime', 'Cps']])
         result = result.apply(self.expand_peaks, axis=1)
         result = result.apply(self.expand_motors, axis=1)
         result = self.add_phase_data(result)
@@ -581,8 +582,14 @@ class P61App(QApplication):
             xx_min = np.array([xx.loc[idx, 'xx_min'] if idx in xx_ids else np.nan for idx in active_ids])
             xx_max = np.array([xx.loc[idx, 'xx_max'] if idx in xx_ids else np.nan for idx in active_ids])
             xx = np.array([xx.loc[idx, 'xx'] if idx in xx_ids else np.nan for idx in active_ids])
-
             return xx, xx_min, xx_max
+        elif var in ('CountTime', 'Cps', u'χ²'):
+            # spectra values
+            if var == u'χ²':
+                var = 'Chi2'
+            xx = self.data.loc[self.data['Active'], var]
+            xx = np.array([np.nan if x is None else x for x in xx])
+            return xx, np.array([np.nan] * xx.size), np.array([np.nan] * xx.size)
         else:
             # unknown
             return np.array([]), np.array([]), np.array([])
