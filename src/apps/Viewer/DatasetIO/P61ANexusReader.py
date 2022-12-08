@@ -36,7 +36,6 @@ class P61ANexusReader:
         return hists
 
     def read(self, f_name, sum_frames=False):
-        kev_per_bin = 5E-2  # default
         # define resulting data frame
         if self.q_app is not None:
             result = pd.DataFrame(columns=self.q_app.data.columns)
@@ -71,20 +70,21 @@ class P61ANexusReader:
                     frame[-1] = 0.0
                     # corrections to NIST Pb and W lines
                     # calculation of energies
-                    kev = np.arange(frame.shape[0]) * kev_per_bin
                     if ii == 0:
-                        kev = np.arange(frame.shape[0]) * 0.050494483569344 + 0.029899315869827
+                        kev = np.arange(frame.shape[0]) * 0.050494483569344 + 0.029899315869827  # old
+                        # kev = np.arange(frame.shape[0]) * 0.0502526643786186 + 0.0233578244744876  # 07.07.22
                     elif ii == 1:
-                        kev = np.arange(frame.shape[0]) * 0.04995786201326 + 0.106286326963684
+                        kev = np.arange(frame.shape[0]) * 0.04995786201326 + 0.106286326963684  # old
+                        # kev = np.arange(frame.shape[0]) * 0.0499765125529105 + 0.02579913996599  # 07.07.22
                     else:
-                        kev = (np.arange(frame.shape[0]) + 0.5) * kev_per_bin
+                        kev = (np.arange(frame.shape[0]) + 0.5) * 5E-2
                     # only intensities >0 allowed
                     if self._replace:
                         frame[frame < 1.0] = 1.0
                     else:
                         self.logger.warning('NeXuS import filters out intensities <1 ct. '
-                                            'Not all imported datasets have the same shape, this might bring unexpected '
-                                            'consequences!')
+                                            'Not all imported datasets have the same shape, this might bring unexpected'
+                                            ' consequences!')
                         kev, frame = kev[frame >= 1.0], frame[frame >= 1.0]
                     # set values of row
                     if self.q_app is not None:
