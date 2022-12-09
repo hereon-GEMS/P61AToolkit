@@ -44,6 +44,8 @@ class MetaDataWidget3D(QWidget):
 
         self.q_app.motorListUpdated.connect(self.on_mt_list_updated)
         self.q_app.peakTracksChanged.connect(self.on_mt_list_updated)
+        self.q_app.hklPhasesChanged.connect(self.on_mt_list_updated)
+        self.q_app.hklPeaksChanged.connect(self.on_mt_list_updated)
         self.cb_x.currentIndexChanged.connect(self.on_btn_plot)
         self.cb_y.currentIndexChanged.connect(self.on_btn_plot)
         self.cb_z.currentIndexChanged.connect(self.on_btn_plot)
