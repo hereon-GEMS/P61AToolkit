@@ -89,6 +89,7 @@ class MainPlot3D(GlPlot3D):
         self._show_known_regions = False
         self._show_fit_centers = False
         self._show_fluorescence_lines = False
+        self._logz = False
 
         self._surf_data = []
         self._lines = []
@@ -221,7 +222,7 @@ class MainPlot3D(GlPlot3D):
             else:
                 self._surf_data.append(
                     gl.GLSurfacePlotItem(x=grid_xx, y=grid_yy, z=grid_zz,
-                                         colors=self.q_app.apply_cmap(grid_zz, 'turbo', not self.logz),
+                                         colors=self.q_app.apply_cmap(grid_zz, 'turbo', not self._logz),
                                          shader=None, computeNormals=False))
         else:
             for idx in ymap:

@@ -158,7 +158,7 @@ class GlPlot3D(gl.GLViewWidget):
         self.emin = self.emin_default
         self.emax = self.emax_default
         self.imax = self.imax_default
-        self.logz = False
+        self._logz = False
         self._metavars = []
         self.setCameraPosition(**self.cam_default)
 
@@ -193,7 +193,7 @@ class GlPlot3D(gl.GLViewWidget):
         for ii, ee in enumerate(np.linspace(self.emin, self.emax, self.x_ticks)):
             self.text_objs[ii][3] = '%.01f' % ee
 
-        if self.logz:
+        if self._logz:
             for ii, zz in enumerate(np.logspace(0, np.log(self.imax), self.z_ticks, base=np.e)):
                 self.text_objs[ii + self.x_ticks][3] = '%.0f' % zz
         else:
@@ -274,7 +274,7 @@ class GlPlot3D(gl.GLViewWidget):
         xx = xx[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
 
         xx = self.x_ratio * (xx - self.emin * 1E3) / (self.emax * 1E3 - self.emin * 1E3)
-        if self.logz:
+        if self._logz:
             xx, yy, zz = xx[zz >= 1], yy[zz >= 1], zz[zz >= 1]
             zz = np.log(zz) / np.log(self.imax)
         else:
@@ -296,7 +296,7 @@ class GlPlot3D(gl.GLViewWidget):
         xx = xx[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
 
         xx = self.x_ratio * (xx - self.emin * 1E3) / (self.emax * 1E3 - self.emin * 1E3)
-        if self.logz:
+        if self._logz:
             xx, yy, zz = xx[zz >= 1], yy[zz >= 1], zz[zz >= 1]
             zz = np.log(zz) / np.log(self.imax)
         else:
