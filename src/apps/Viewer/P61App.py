@@ -594,6 +594,10 @@ class P61App(QApplication):
             xx = self.data.loc[self.data['Active'], var]
             xx = np.array([np.nan if x is None else x for x in xx])
             return xx, np.array([np.nan] * xx.size), np.array([np.nan] * xx.size)
+        elif var == 'Index':
+            # index of data items
+            xx = self.data.loc[self.data['Active']].index
+            return xx, np.array([np.nan] * xx.size), np.array([np.nan] * xx.size)
         else:
             # unknown
             return np.array([]), np.array([]), np.array([])

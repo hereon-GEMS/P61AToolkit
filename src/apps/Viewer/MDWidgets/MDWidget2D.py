@@ -39,6 +39,10 @@ class MetaDataWidget2D(QWidget):
         self.q_app.peakTracksChanged.connect(self.on_mt_list_updated)
         self.q_app.hklPhasesChanged.connect(self.on_mt_list_updated)
         self.q_app.hklPeaksChanged.connect(self.on_mt_list_updated)
+        self.q_app.dataActiveChanged.connect(self.on_mt_list_updated)
+        self.q_app.dataSorted.connect(self.on_mt_list_updated)
+        self.q_app.dataRowsRemoved.connect(self.on_mt_list_updated)
+        self.q_app.dataRowsInserted.connect(self.on_mt_list_updated)
         self.cb_x.currentIndexChanged.connect(self.on_btn_plot)
         self.cb_y.currentIndexChanged.connect(self.on_btn_plot)
 
@@ -54,7 +58,7 @@ class MetaDataWidget2D(QWidget):
             self.cb_x.addItem(mt)
             self.cb_y.addItem(mt)
         # add items of axis - spectra information
-        for param in ('CountTime', 'Cps', u'χ²'):
+        for param in ('Index', 'CountTime', 'Cps', u'χ²'):
             self.cb_x.addItem(param)
             self.cb_y.addItem(param)
         # add items of axis - peak information

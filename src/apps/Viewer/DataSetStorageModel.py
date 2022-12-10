@@ -134,7 +134,7 @@ class DataSetStorageModel(QAbstractTableModel):
             return False
 
     def sort(self, column: int, order: Qt.SortOrder = ...) -> None:
-        tmp = {0: 'ScreenName', 1: 'Channel', 2: 'DeadTime', 3: 'CountTime', 4: 'Cp', 5: 'Chi2'}
+        tmp = {0: 'ScreenName', 1: 'Channel', 2: 'DeadTime', 3: 'CountTime', 4: 'Cps', 5: 'Chi2'}
         tmp.update({i + len(self.c_names): self.q_app.motors_cols[i] for i in range(len(self.q_app.motors_cols))})
 
         self.q_app.sort_data(by=tmp[column], inplace=True, ascending=bool(order))
