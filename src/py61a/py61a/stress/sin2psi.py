@@ -151,6 +151,7 @@ def sin2psi(dataset: pd.DataFrame, phi_col='eu.phi', phi_atol=5.,
             peak_data = peak_data.groupby(by=[('scanpts', '__PHI__'), ('scanpts', '__PSI__')]).mean()
 
             for ii in range(len(phi_values) // 2):
+                # determine values for main component
                 peak_data_proj = peak_data.loc[
                     peak_data.index.get_level_values(('scanpts', '__PHI__')).map(
                         lambda x: x in (ii, ii + len(phi_values) // 2)
@@ -167,17 +168,23 @@ def sin2psi(dataset: pd.DataFrame, phi_col='eu.phi', phi_atol=5.,
                     ydata=peak_data_proj.loc[:, (peak_id, 'd')].to_numpy(),
                     depth=depth
                 )
-
+                # determine values for shear component
                 peak_data_proj = peak_data.loc[
                     peak_data.index.get_level_values(('scanpts', '__PHI__')).map(
                         lambda x: x in (ii, ii + len(phi_values) // 2)
                     )
                 ]
+                max_vals = peak_data_proj.groupby(by=[('scanpts', '__PSI__')]).max()  # remember maximum values
                 ids = peak_data_proj.loc[
                     peak_data_proj.index.get_level_values(('scanpts', '__PHI__')) == (ii + len(phi_values) // 2)
                 ].index
                 peak_data_proj.loc[ids, (peak_id, 'd')] = -1 * peak_data_proj.loc[ids, (peak_id, 'd')]
                 peak_data_proj = peak_data_proj.groupby(by=[('scanpts', '__PSI__')]).mean()
+                # remove difference values related to single values leading to outliers in shear stresses
+                ids = peak_data_proj.loc[
+                    peak_data_proj.loc[:, (peak_id, 'd')].abs() == max_vals.loc[:, (peak_id, 'd')]
+                    ].index
+                peak_data_proj.drop(index=ids, inplace=True)
 
                 if (peak_id, 'depth') in peak_data_proj.columns:
                     depth = peak_data_proj.loc[:, (peak_id, 'depth')].to_numpy()
