@@ -34,8 +34,8 @@ if __name__ == '__main__':
     select_type = 'mean'  # 'sum', 'mean', 'max', 'min', 'first', 'last'
     keep_motors = ['eu.x']
     merge_motors = ['eu.chi']
-    chi_step = 5
-    res_chi = list(range(2, 90, chi_step))
+    merge_step = 5
+    res_merge_vals = list(np.arange(2, 90, merge_step))
 
     # path, file = fileparts(fileNames[0])
     path = r'Z:\current\processed'
@@ -46,21 +46,22 @@ if __name__ == '__main__':
     for mot in keep_motors:
         for val in mot_uni[mot]:
             for merge in merge_motors:
-                for chi_res in res_chi:
+                for merge_res_val in res_merge_vals:
                     # select relevant fio file entries for merging
                     scanDataSelection = scanDataFrame.loc[
-                        (scanDataFrame[mot] == val) & (scanDataFrame[merge] >= chi_res - chi_step / 2) & (scanDataFrame[
-                            merge] <= chi_res + chi_step / 2)]
-                    # set merged entry for fio file - mean values
-                    fio_data.loc[fio_data.shape[0]] = scanDataSelection.mean()
-                    fio_data.loc[fio_data.shape[0] - 1].update({'xspress3_index': scanDataSelection.iloc[0]['xspress3_index']})
-                    # select relevant nexus files
-                    selFioFiles = [fileNames[int(i)] for i in scanDataSelection['fileindex']]
-                    nexus_files = [('%s/%s/%s_%05d.nxs' % (
-                        fileparts3(f)[0], fileparts3(f)[1], '_'.join(fileparts3(f)[1].split('_')[:-1]),
-                        scanDataSelection.iloc[i]['xspress3_index'])) for i, f in enumerate(selFioFiles)]
-                    # create merged nexus file
-                    resFile = resPath + res_fio_name + ('_%05d.nxs' % scanDataSelection.iloc[0]['xspress3_index'])
-                    P61ANexusHandler().accumSpectra(resFile, nexus_files, 'sum', select_type, False)
+                        (scanDataFrame[mot] == val) & (scanDataFrame[merge] >= merge_res_val - merge_step / 2) &
+                        (scanDataFrame[merge] <= merge_res_val + merge_step / 2)]
+                    if scanDataSelection.size > 0:
+                        # set merged entry for fio file - mean values
+                        fio_data.loc[fio_data.shape[0]] = scanDataSelection.mean()
+                        fio_data.loc[fio_data.shape[0] - 1].update({'xspress3_index': scanDataSelection.iloc[0]['xspress3_index']})
+                        # select relevant nexus files
+                        selFioFiles = [fileNames[int(i)] for i in scanDataSelection['fileindex']]
+                        nexus_files = [('%s/%s/%s_%05d.nxs' % (
+                            fileparts3(f)[0], fileparts3(f)[1], '_'.join(fileparts3(f)[1].split('_')[:-1]),
+                            scanDataSelection.iloc[i]['xspress3_index'])) for i, f in enumerate(selFioFiles)]
+                        # create merged nexus file
+                        resFile = resPath + res_fio_name + ('_%05d.nxs' % scanDataSelection.iloc[0]['xspress3_index'])
+                        P61ANexusHandler().accumSpectra(resFile, nexus_files, 'sum', select_type, False)
     # create merged fio file
     write_fio({}, fio_data.drop(labels='fileindex', axis=1), path + '/' + res_fio_name + '.fio', True)
