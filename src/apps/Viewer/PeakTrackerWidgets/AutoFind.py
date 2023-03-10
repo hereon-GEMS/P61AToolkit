@@ -59,6 +59,22 @@ class AutoFindWidget(QWidget):
                                           suffix=' cts')
         self.height_edit.setValue(1e3)
 
+        self.prom_label = QLabel('Prominence')
+        self.prom_label.setToolTip('Minimal height relative to surrounding background.')
+        self.prom_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        # self.prom_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=1e3)
+        self.prom_edit = QDoubleSpinBox(parent=self, minimum=1., maximum=1e8, singleStep=1., decimals=0,
+                                          suffix=' cts')
+        self.prom_edit.setValue(1e3)
+
+        self.width_label = QLabel('Width')
+        self.width_label.setToolTip('Minimal width of peaks.')
+        self.width_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        # self.width_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=5E-2)
+        self.width_edit = QDoubleSpinBox(parent=self, minimum=0., maximum=10, singleStep=0.1, decimals=2,
+                                          suffix=' keV')
+        self.width_edit.setValue(0.05)
+
         self.dist_label = QLabel('Distance')
         self.dist_label.setToolTip('Minimal horizontal distance between neighbouring peaks.\n'
                                    'Smaller peaks are removed first until the condition is fulfilled '
@@ -69,21 +85,7 @@ class AutoFindWidget(QWidget):
                                           suffix=' keV')
         self.dist_edit.setValue(0.5)
 
-        self.width_label = QLabel('Width')
-        self.width_label.setToolTip('Minimal width of peaks.')
-        self.width_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        # self.width_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=5E-2)
-        self.width_edit = QDoubleSpinBox(parent=self, minimum=0., maximum=10, singleStep=0.1, decimals=2,
-                                          suffix=' keV')
-        self.width_edit.setValue(0.05)
-
-        self.prom_label = QLabel('Prominence')
-        self.prom_label.setToolTip('Minimal height relative to surrounding background.')
-        self.prom_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        # self.prom_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=1e3)
-        self.prom_edit = QDoubleSpinBox(parent=self, minimum=1., maximum=1e8, singleStep=1., decimals=0,
-                                          suffix=' cts')
-        self.prom_edit.setValue(1e3)
+        self.btn_all = QPushButton('Find')
 
         self.tw_label = QLabel('Track window')
         # self.tw_edit = FloatEdit(inf_allowed=False, none_allowed=True, init_val=3E-1)
@@ -94,7 +96,6 @@ class AutoFindWidget(QWidget):
                                  'for the two peaks to be on the same track.')
         self.tw_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
 
-        self.btn_all = QPushButton('Find')
         self.btn_stack = QPushButton('Make tracks')
 
         self.btn_all.clicked.connect(self.on_btn_all)
@@ -107,20 +108,19 @@ class AutoFindWidget(QWidget):
 
         l1.addWidget(self.height_label, 1, 1, 1, 1)
         l1.addWidget(self.height_edit, 1, 2, 1, 1)
-        l1.addWidget(self.dist_label, 1, 3, 1, 1)
-        l1.addWidget(self.dist_edit, 1, 4, 1, 1)
-
+        l1.addWidget(self.prom_label, 1, 3, 1, 1)
+        l1.addWidget(self.prom_edit, 1, 4, 1, 1)
         l1.addWidget(self.width_label, 2, 1, 1, 1)
         l1.addWidget(self.width_edit, 2, 2, 1, 1)
-        l1.addWidget(self.prom_label, 2, 3, 1, 1)
-        l1.addWidget(self.prom_edit, 2, 4, 1, 1)
-        l1.addWidget(self.btn_all, 3, 1, 1, 4, alignment=Qt.AlignRight)
+        l1.addWidget(self.dist_label, 2, 3, 1, 1)
+        l1.addWidget(self.dist_edit, 2, 4, 1, 1)
 
         l2 = QHBoxLayout()
+        l2.addWidget(self.btn_all, alignment=Qt.AlignRight)
         l2.addWidget(self.tw_label, alignment=Qt.AlignLeft)
         l2.addWidget(self.tw_edit, alignment=Qt.AlignLeft)
-        l1.addLayout(l2, 4, 1, 1, 3, alignment=Qt.AlignLeft)
-        l1.addWidget(self.btn_stack, 4, 4, 1, 1)
+        l1.addLayout(l2, 3, 1, 1, 3, alignment=Qt.AlignLeft)
+        l1.addWidget(self.btn_stack, 3, 4, 1, 1)
         layout.addLayout(l1)
 
     def on_btn_stack(self):

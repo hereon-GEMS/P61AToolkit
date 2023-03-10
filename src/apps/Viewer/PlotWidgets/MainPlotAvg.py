@@ -25,6 +25,7 @@ class MainPlotAvg(pg.GraphicsLayoutWidget):
 
         self._lines = []
         self._hkl_regions = []
+        self._hkl_names = []
         self._fit_scatters = []
         self._pt_scatters = []
         self._pt_tracks = []
@@ -150,6 +151,9 @@ class MainPlotAvg(pg.GraphicsLayoutWidget):
             for ii in reversed(range(len(self._hkl_regions))):
                 self._line_ax.removeItem(self._hkl_regions[ii])
                 self._hkl_regions.pop(ii)
+            for ii in reversed(range(len(self._hkl_names))):
+                self._line_ax.removeItem(self._hkl_names[ii])
+                self._hkl_names.pop(ii)
         else:
             pass
 
@@ -212,6 +216,10 @@ class MainPlotAvg(pg.GraphicsLayoutWidget):
             self._line_ax.removeItem(self._hkl_regions[ii])
             self._hkl_regions.pop(ii)
 
+        for ii in reversed(range(len(self._hkl_names))):
+            self._line_ax.removeItem(self._hkl_names[ii])
+            self._hkl_names.pop(ii)
+
         for phase, color in zip(self.q_app.get_hkl_peaks(), self.q_app.wheels['def_no_red']):
             peaks = self.q_app.hkl_peaks[phase]
             for peak in peaks:
@@ -221,6 +229,12 @@ class MainPlotAvg(pg.GraphicsLayoutWidget):
                                                              pen=hex(color).replace('0x', '#'),
                                                              movable=False))
                 self._line_ax.addItem(self._hkl_regions[-1])
+
+                self._hkl_names.append(pg.InfiniteLine(pos=1e3 * (peak['e'] - peak['de']/2), movable=False,
+                                                       label='[%d%d%d]' % (peak['h'], peak['k'], peak['l']),
+                                                       labelOpts={'position': 0.05, 'anchors': (0, 0),
+                                                                  'color': '#000000'}, pen=pg.mkPen(None)))
+                self._line_ax.addItem(self._hkl_names[-1])
 
     def line_init(self, ii):
         data = self.q_app.data.loc[ii, ['DataX', 'DataY', 'Color']]

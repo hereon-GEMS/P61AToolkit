@@ -1,7 +1,9 @@
 import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore
 from collections import defaultdict
 from functools import reduce
 import pyqtgraph.opengl as gl
+from pyqtgraph.opengl.GLGraphicsItem import GLGraphicsItem
 import numpy as np
 import pandas as pd
 from scipy.interpolate import griddata
@@ -97,6 +99,7 @@ class MainPlot3D(GlPlot3D):
         self._peak_tracks = []
         self._fit_tracks = []
         self._hkl_lines = []
+        self._hkl_names = []
         self._fluorescence_lines = []
 
     @property
@@ -188,7 +191,7 @@ class MainPlot3D(GlPlot3D):
 
             for idx in ymap:
                 data = self.q_app.data.loc[idx, ['DataX', 'DataY']]
-                pos = self.transform_xz(data['DataX'], data['DataY'])
+                pos = self.transform_xyz(data['DataX'], intensity=data['DataY'])
                 surf_xx.append(pos[:, 0].copy())
                 surf_zz.append(pos[:, 2].copy())
                 surf_yy.append(np.array([ymap[idx]] * surf_zz[-1].shape[0]))
@@ -260,6 +263,7 @@ class MainPlot3D(GlPlot3D):
 
     def redraw_known_regions(self):
         del self._hkl_lines[:]
+        del self._hkl_names[:]
 
         if self._show_known_regions:
             for phase, color in zip(self.q_app.hkl_peaks, self.q_app.wheels['def_no_red']):
@@ -277,6 +281,10 @@ class MainPlot3D(GlPlot3D):
                     pos = self.transform_xyz(xx, yy, zz)
                     self._hkl_lines.append(
                         gl.GLLinePlotItem(pos=pos, color=hex(color).replace('0x', '#'), width=2, antialias=True))
+                    x_text, _, _ = self.recalculate_xyz(np.array([peak['e']]))
+                    if x_text.size > 0:
+                        self._hkl_names.append(
+                            GLTextItem(x_text, 0.98, 0.97, '[%d%d%d]' % (peak['h'], peak['k'], peak['l']), self))
 
     def redraw_fit_centers(self, ys):
         del self._fit_tracks[:]
@@ -327,14 +335,14 @@ class MainPlot3D(GlPlot3D):
                 if kwargs['char']:
                     self.redraw_fluorescence_lines()
 
-        for item in self._surf_data + self._lines + self._peak_scatters + \
-                    self._peak_tracks + self._fit_tracks + self._hkl_lines + self._fluorescence_lines:
+        for item in self._surf_data + self._lines + self._peak_scatters + self._peak_tracks + self._fit_tracks + \
+                    self._hkl_lines + self._hkl_names + self._fluorescence_lines:
             if item is not None:
                 self.addItem(item)
 
     def _init_line(self, idx):
         data = self.q_app.data.loc[idx, ['DataX', 'DataY', 'Color', 'Active']]
-        pos = self.transform_xz(data['DataX'], data['DataY'])
+        pos = self.transform_xyz(data['DataX'], intensity=data['DataY'])
         if self._colored:
             result = gl.GLLinePlotItem(pos=pos,
                                        color=str(hex(data['Color'])).replace('0x', '#'),
@@ -357,6 +365,47 @@ class MainPlot3D(GlPlot3D):
         peak_xs = np.array(peak_xs)
         peak_ys = np.array(peak_ys)
 
-        pos = self.transform_xz(peak_xs, peak_ys)
+        pos = self.transform_xyz(peak_xs, intensity=peak_ys)
         result = gl.GLScatterPlotItem(pos=pos, color=(1, 1, 1, 1), size=3)
         return result
+
+
+class GLTextItem(GLGraphicsItem):
+
+    """
+
+    Class for plotting text on a GLWidget
+
+    """
+
+    def __init__(self, X=None, Y=None, Z=None, text=None, GLViewWidget=None):
+        GLGraphicsItem.__init__(self)
+        self.GLViewWidget = GLViewWidget
+        self.setGLOptions('translucent')
+        self.text = text
+        self.X = X
+        self.Y = Y
+        self.Z = Z
+
+    def setGLViewWidget(self, GLViewWidget):
+        self.GLViewWidget = GLViewWidget
+
+    def setText(self, text):
+        self.text = text
+        self.update()
+
+    def setX(self, X):
+        self.X = X
+        self.update()
+
+    def setY(self, Y):
+        self.Y = Y
+        self.update()
+
+    def setZ(self, Z):
+        self.Z = Z
+        self.update()
+
+    def paint(self):
+        self.GLViewWidget.qglColor(QtCore.Qt.white)
+        self.GLViewWidget.renderText(self.X, self.Y, self.Z, self.text)

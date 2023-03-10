@@ -253,58 +253,47 @@ class GlPlot3D(gl.GLViewWidget):
         self.lines_origin[1] += dy
         self.lines_origin[2] += dz
 
-    def transform_xz(self, energy, intensity):
+    def recalculate_xyz(self, energy, y_pos=None, intensity=None):
+        xx = np.array(1E3 * energy, dtype=np.float)
+        if y_pos is None:
+            yy = np.array([0.0] * energy.shape[0], dtype=np.float)
+        else:
+            yy = np.array(y_pos, dtype=np.float)
+        if intensity is None:
+            zz = np.array([0.0] * energy.shape[0], dtype=np.float)
+        else:
+            zz = np.array(intensity, dtype=np.float)
+
+        yy = yy[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
+        zz = zz[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
+        xx = xx[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
+
+        xx = self.x_ratio * (xx - self.emin * 1E3) / (self.emax * 1E3 - self.emin * 1E3)
+        if self._logz:
+            xx, yy, zz = xx[zz >= 1], yy[zz >= 1], zz[zz >= 1]
+            zz = np.log(zz) / np.log(self.imax)
+        else:
+            zz /= self.imax
+
+        xx += self.lines_origin[0]
+        yy += self.lines_origin[1]
+        zz += self.lines_origin[2]
+
+        return xx, yy, zz
+
+    def transform_xyz(self, energy, y_pos=None, intensity=None):
         """
-        Turns energy and intensity vectors as stored in P61App.data to stacked XYZ values to plot on the 3D plot.
-        Fills the Y values with 0s (relative to the plot axes origin), because after new lines are added / removed
-        a restacking of Y axis is needed for every line anyway to put all lines at the equal distance from one another
-        and restacking behaviour is subclass-specific.
+        Turns energy, y_pos and intensity vectors as stored in P61App.data to stacked XYZ values to plot on the 3D plot.
+        If Y values are None, it fills the Y values with 0s (relative to the plot axes origin), because after new lines
+        are added / removed a restacking of Y axis is needed for every line anyway to put all lines at the equal
+        distance from one another and restacking behaviour is subclass-specific.
 
         :param energy:
+        :param y_pos:
         :param intensity:
-        :param index:
         :return:
         """
-        xx = np.array(1E3 * energy, dtype=np.float)
-        zz = np.array(intensity, dtype=np.float)
-        yy = np.array([0.0] * zz.shape[0], dtype=np.float)
-
-        yy = yy[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
-        zz = zz[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
-        xx = xx[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
-
-        xx = self.x_ratio * (xx - self.emin * 1E3) / (self.emax * 1E3 - self.emin * 1E3)
-        if self._logz:
-            xx, yy, zz = xx[zz >= 1], yy[zz >= 1], zz[zz >= 1]
-            zz = np.log(zz) / np.log(self.imax)
-        else:
-            zz /= self.imax
-
-        xx += self.lines_origin[0]
-        yy += self.lines_origin[1]
-        zz += self.lines_origin[2]
-
-        return np.vstack([xx, yy, zz]).transpose()
-
-    def transform_xyz(self, energy, y_pos, intensity):
-        xx = np.array(1E3 * energy, dtype=np.float)
-        yy = np.array(y_pos, dtype=np.float)
-        zz = np.array(intensity, dtype=np.float)
-
-        yy = yy[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
-        zz = zz[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
-        xx = xx[(xx < self.emax * 1E3) & (xx > self.emin * 1E3)]
-
-        xx = self.x_ratio * (xx - self.emin * 1E3) / (self.emax * 1E3 - self.emin * 1E3)
-        if self._logz:
-            xx, yy, zz = xx[zz >= 1], yy[zz >= 1], zz[zz >= 1]
-            zz = np.log(zz) / np.log(self.imax)
-        else:
-            zz /= self.imax
-
-        xx += self.lines_origin[0]
-        yy += self.lines_origin[1]
-        zz += self.lines_origin[2]
+        xx, yy, zz = self.recalculate_xyz(energy, y_pos, intensity)
 
         return np.vstack([xx, yy, zz]).transpose()
 

@@ -21,11 +21,20 @@ class MetaDataPlot2D(pg.GraphicsLayoutWidget):
         self._line_ax.setLabel('left', "???")
         self._line_ax.showGrid(x=True, y=True)
 
+        self.logx = False
+        self.logy = False
+
     def set_variables(self, x_var, y_var):
         self._line_ax.clear()
 
         xx, _, _ = self.q_app.get_data_by_name(x_var)
         yy, yy_mins, yy_maxs = self.q_app.get_data_by_name(y_var)
+
+        if self.logx:
+            xx = np.log(xx)
+
+        if self.logy:
+            yy, yy_mins, yy_maxs = np.log(yy), np.log(yy_mins), np.log(yy_maxs)
 
         if xx.size != yy.size:
             return

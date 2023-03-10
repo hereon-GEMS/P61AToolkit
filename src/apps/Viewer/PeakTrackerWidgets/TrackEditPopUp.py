@@ -161,7 +161,7 @@ class TrackEditPopUp(QDialog):
         self.gb_base.clicked.connect(self.on_gb_clicked)
         self.gb_o_base.clicked.connect(self.on_gb_clicked)
 
-    def on_gb_clicked(self,*args, **kwargs):
+    def on_gb_clicked(self, *args, **kwargs):
         self.init_edits()
 
     def init_edits(self):
