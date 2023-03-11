@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Calibrating 2Θ using a reference sample &mdash; P61A Toolkit  documentation</title>
@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -26,17 +27,21 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> P61A Toolkit
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            P61A Toolkit
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
@@ -70,9 +75,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">P61A::Viewer</a> &raquo;</li>
-      <li>Calibrating 2Θ using a reference sample</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">P61A::Viewer</a></li>
+      <li class="breadcrumb-item active">Calibrating 2Θ using a reference sample</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/viewer/tut_tth_cal.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -83,19 +88,19 @@
            <div itemprop="articleBody">
              
   <section id="calibrating-2-using-a-reference-sample">
-<h1>Calibrating 2Θ using a reference sample<a class="headerlink" href="#calibrating-2-using-a-reference-sample" title="Permalink to this headline"></a></h1>
+<h1>Calibrating 2Θ using a reference sample<a class="headerlink" href="#calibrating-2-using-a-reference-sample" title="Permalink to this heading"></a></h1>
 <p>To know the precise 2Θ value that was used during the experiment a calibration measurement is performed,
 usually with <a class="reference external" href="https://www-s.nist.gov/srmors/certificates/640f.pdf">NIST 640f Si powder</a>.
 An example of such measurement can be found
 <a class="reference external" href="https://github.com/hereon-GEMS/P61AToolkit/blob/master/data/tutorials/Si640f.nxs">here</a>.</p>
 <section id="import">
-<h2>Import<a class="headerlink" href="#import" title="Permalink to this headline"></a></h2>
+<h2>Import<a class="headerlink" href="#import" title="Permalink to this heading"></a></h2>
 <p>After you have downloaded the file, open it in the Viewer with the <code class="docutils literal notranslate"><span class="pre">+</span></code> button.
 We are going to be working with Channel 1, so you can uncheck or remove Channel 0 data.</p>
 <a class="reference internal image-reference" href="../_images/tut-tth-01.png"><img alt="../_images/tut-tth-01.png" src="../_images/tut-tth-01.png" style="width: 600px;" /></a>
 </section>
 <section id="modelling-peak-positions">
-<h2>Modelling peak positions<a class="headerlink" href="#modelling-peak-positions" title="Permalink to this headline"></a></h2>
+<h2>Modelling peak positions<a class="headerlink" href="#modelling-peak-positions" title="Permalink to this heading"></a></h2>
 <p>Prior to the analysis we knew which powder we had measured (NIST 640f in this case) and the approximate 2Θ angle of
 Detector/Channel 1 (about 6°).
 Using this knowledge we can set the parameters in the phase constructor in the bottom left corner:
@@ -109,7 +114,7 @@ there are peaks where the model predicts them to be.</p>
 In some identified areas there may be no measured peaks due, for example, to the reflection being weak.</p>
 </section>
 <section id="identifying-measured-peak-positions">
-<h2>Identifying measured peak positions<a class="headerlink" href="#identifying-measured-peak-positions" title="Permalink to this headline"></a></h2>
+<h2>Identifying measured peak positions<a class="headerlink" href="#identifying-measured-peak-positions" title="Permalink to this heading"></a></h2>
 <p>Now we can go through the peak search and refinement procedure.
 It is described in detail in other tutorials, so the description here will be brief.</p>
 <p>First, find the peaks. Adjust the search parameters until a few of the most prominent diffraction peaks are identified.</p>
@@ -123,7 +128,7 @@ peak positions by pressing <code class="docutils literal notranslate"><span clas
 enough.</p>
 </section>
 <section id="calibrating-2">
-<h2>Calibrating 2Θ<a class="headerlink" href="#calibrating-2" title="Permalink to this headline"></a></h2>
+<h2>Calibrating 2Θ<a class="headerlink" href="#calibrating-2" title="Permalink to this heading"></a></h2>
 <p>If you go back to the <code class="docutils literal notranslate"><span class="pre">Import</span> <span class="pre">and</span> <span class="pre">view</span></code> tab, you will see the refined peak positions and the areas identifying where
 the peaks are expected to be. If at least some of the measured peak positions fall within the correct areas,
 you can try the <code class="docutils literal notranslate"><span class="pre">Calibrate</span> <span class="pre">-&gt;</span> <span class="pre">Calibrate</span> <span class="pre">2Θ</span></code> menu.</p>

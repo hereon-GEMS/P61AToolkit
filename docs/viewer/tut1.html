@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Simple sequential refinement &mdash; P61A Toolkit  documentation</title>
@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -27,17 +28,21 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> P61A Toolkit
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            P61A Toolkit
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
@@ -74,9 +79,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="index.html">P61A::Viewer</a> &raquo;</li>
-      <li>Simple sequential refinement</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">P61A::Viewer</a></li>
+      <li class="breadcrumb-item active">Simple sequential refinement</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/viewer/tut1.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -87,10 +92,10 @@
            <div itemprop="articleBody">
              
   <section id="simple-sequential-refinement">
-<h1>Simple sequential refinement<a class="headerlink" href="#simple-sequential-refinement" title="Permalink to this headline"></a></h1>
+<h1>Simple sequential refinement<a class="headerlink" href="#simple-sequential-refinement" title="Permalink to this heading"></a></h1>
 <p>The purpose of this tutorial is to familiarize you with the basic functions of the Viewer.</p>
 <section id="import">
-<h2>Import<a class="headerlink" href="#import" title="Permalink to this headline"></a></h2>
+<h2>Import<a class="headerlink" href="#import" title="Permalink to this heading"></a></h2>
 <p>P61A beamline saves spectra as NeXuS <code class="docutils literal notranslate"><span class="pre">.nxs</span></code> files and metadata as FIO <code class="docutils literal notranslate"><span class="pre">.fio</span></code> files.
 The beamline conrtrol software <a class="reference external" href="https://hasyweb.desy.de/services/computing/Spock/Spock.pdf">SPOCK</a> is set up in
 such a way, that if you make a single acquisition using <code class="docutils literal notranslate"><span class="pre">ct</span></code> command,
@@ -104,7 +109,7 @@ different motor positions.</p>
 As a first step, import the dataset by pressing the <code class="docutils literal notranslate"><span class="pre">+</span></code> button on the Viewer and selecting the FIO file.</p>
 </section>
 <section id="project-files">
-<h2>Project files<a class="headerlink" href="#project-files" title="Permalink to this headline"></a></h2>
+<h2>Project files<a class="headerlink" href="#project-files" title="Permalink to this heading"></a></h2>
 <p>After you have imported the data, you should save your analysis using File -&gt; Save As menu.
 The format of the project files is <code class="docutils literal notranslate"><span class="pre">.pickle</span></code>, and they are just
 <a class="reference external" href="https://docs.python.org/3/library/pickle.html">serialized</a> Python 3 objects.</p>
@@ -117,7 +122,7 @@ To avoid frustration, please save your analysis regularly.</p>
 </div>
 </section>
 <section id="view-sort">
-<h2>View / Sort<a class="headerlink" href="#view-sort" title="Permalink to this headline"></a></h2>
+<h2>View / Sort<a class="headerlink" href="#view-sort" title="Permalink to this heading"></a></h2>
 <p>The dataset for this tutorial is called <code class="docutils literal notranslate"><span class="pre">sdp_00001</span></code>, which stands for Shifting Double Peaks.
 Purpose of this tutorial is to show you how P61A::Viewer treats peaks during sequential refinement.</p>
 <p>First step of sequential refinement is organizing your data. You can sort the datasets by
@@ -128,7 +133,7 @@ popup menu.</p>
 looks, but to continue we need to have data sorted by Name or <code class="docutils literal notranslate"><span class="pre">xspress3_index</span></code>.</p>
 </section>
 <section id="peak-search">
-<span id="id1"></span><h2>Peak search<a class="headerlink" href="#peak-search" title="Permalink to this headline"></a></h2>
+<span id="id1"></span><h2>Peak search<a class="headerlink" href="#peak-search" title="Permalink to this heading"></a></h2>
 <p>The peak search algorithm in P61A::Viewer searches for local maxima in the datasets, and then filters them by the
 following criteria:</p>
 <ol class="arabic simple">
@@ -145,7 +150,7 @@ following criteria:</p>
 repeat the search, and see at what value of each parameter peaks start disappearing.</p>
 </section>
 <section id="peak-tracking">
-<span id="id2"></span><h2>Peak tracking<a class="headerlink" href="#peak-tracking" title="Permalink to this headline"></a></h2>
+<span id="id2"></span><h2>Peak tracking<a class="headerlink" href="#peak-tracking" title="Permalink to this heading"></a></h2>
 <p>After the peak search has found all appropriate peaks in all specified spectra, you can organize peaks into tracks.
 Tracks should follow the same physical peak over all analysed spectra. Since different datasets may have different variance in
 peak positions between spectra, you have to define the <strong>Track window</strong>: maximal distance between the peak positions in
@@ -156,7 +161,7 @@ When you press <code class="docutils literal notranslate"><span class="pre">Make
 To understand what exactly <strong>Track window</strong> does, try playing around with it, increase or decrease it.</p>
 </section>
 <section id="peak-refinement">
-<span id="id3"></span><h2>Peak refinement<a class="headerlink" href="#peak-refinement" title="Permalink to this headline"></a></h2>
+<span id="id3"></span><h2>Peak refinement<a class="headerlink" href="#peak-refinement" title="Permalink to this heading"></a></h2>
 <p>To refine the automatically generated peak positions, go to the <code class="docutils literal notranslate"><span class="pre">Peak</span> <span class="pre">fit</span></code> tab.</p>
 <p>Every peak has a set of refineable parameters, and a set of non-refineable parameters.
 At the moment only pseudo-Voigt peak shape approximation is available in the Viewer, with the refineable parameters: <strong>center</strong>, <strong>amplitude</strong>, <strong>sigma</strong>, <strong>fraction</strong>.
@@ -189,7 +194,7 @@ initiating all fit models from current one.</p></li>
 quality.</p>
 </section>
 <section id="peak-export">
-<h2>Peak export<a class="headerlink" href="#peak-export" title="Permalink to this headline"></a></h2>
+<h2>Peak export<a class="headerlink" href="#peak-export" title="Permalink to this heading"></a></h2>
 <p>After you are happy with the quality of the refinement, you can export the results using <code class="docutils literal notranslate"><span class="pre">Export</span> <span class="pre">peaks</span></code> button.
 It is not important for the purposes of this tutorial, but will be important further on.</p>
 </section>

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Installation &mdash; P61A Toolkit  documentation</title>
@@ -14,6 +14,7 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -27,17 +28,21 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../index.html" class="icon icon-home"> P61A Toolkit
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            P61A Toolkit
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
@@ -65,8 +70,8 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
-      <li>Installation</li>
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Installation</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/installation/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -77,15 +82,15 @@
            <div itemprop="articleBody">
              
   <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
+<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h1>
 <section id="download-binaries">
-<h2>Download binaries<a class="headerlink" href="#download-binaries" title="Permalink to this headline"></a></h2>
-<p>A pre-compiled version of the Viewer that requires no installation can be found <a class="reference external" href="https://github.com/hereon-GEMS/P61AToolkit/releases">here</a>.</p>
+<h2>Download binaries<a class="headerlink" href="#download-binaries" title="Permalink to this heading"></a></h2>
+<p>A pre-compiled version of the Viewer (Version 2.0.0) that requires no installation can be found <a class="reference external" href="https://github.com/hereon-GEMS/P61AToolkit/releases">here</a>.</p>
 </section>
 <section id="installation-from-source-code">
-<span id="install-from-source"></span><h2>Installation from source code<a class="headerlink" href="#installation-from-source-code" title="Permalink to this headline"></a></h2>
+<span id="install-from-source"></span><h2>Installation from source code<a class="headerlink" href="#installation-from-source-code" title="Permalink to this heading"></a></h2>
 <section id="recommended-environment">
-<h3>Recommended environment.<a class="headerlink" href="#recommended-environment" title="Permalink to this headline"></a></h3>
+<h3>Recommended environment.<a class="headerlink" href="#recommended-environment" title="Permalink to this heading"></a></h3>
 <p>If you are well versed in Python and / or open-source software, you probably don’t need this tutorial.
 However, if you do, here is our recommended technological stack:</p>
 <ol class="arabic simple">
@@ -94,17 +99,27 @@ However, if you do, here is our recommended technological stack:</p>
 </ol>
 </section>
 <section id="setting-up-a-pycharm-project">
-<h3>Setting up a PyCharm project.<a class="headerlink" href="#setting-up-a-pycharm-project" title="Permalink to this headline"></a></h3>
+<h3>Setting up a PyCharm project.<a class="headerlink" href="#setting-up-a-pycharm-project" title="Permalink to this heading"></a></h3>
 <p>If you have never used <a class="reference external" href="https://www.jetbrains.com/pycharm/">PyCharm</a> and <a class="reference external" href="https://git-scm.com/">git</a> before, you will have to set it up first.
 JetBrains provide a tutorial for setting it up and cloning a project from the remote host <a class="reference external" href="https://www.jetbrains.com/help/pycharm/set-up-a-git-repository.html">here</a>.
 The URL for the repository you want to clone is: <code class="docutils literal notranslate"><span class="pre">https://github.com/hereon-GEMS/P61AToolkit.git</span></code>.</p>
 <p>If you do not wish to use git and keep the project up to date, you can download the source code <a class="reference external" href="https://github.com/hereon-GEMS/P61AToolkit/archive/refs/heads/master.zip">here</a>.
 After extracting the <code class="docutils literal notranslate"><span class="pre">.zip</span></code> archive, create a PyCharm project as described <a class="reference external" href="https://www.jetbrains.com/help/pycharm/importing-project-from-existing-source-code.html">here</a>.</p>
-<p>After you have created a project, we recommend that you set up a virtual environment for it using the file  <code class="docutils literal notranslate"><span class="pre">requirements/env_conda_win.yml</span></code>.
+<p>After you have created a project, we recommend that you set up the python environment with all needed python packages.</p>
+<p>Therefore, if you use <a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda Python</a>, create a virtual environment for it using the file  <code class="docutils literal notranslate"><span class="pre">requirements/env_conda_win.yml</span></code>.
 If you are unfamiliar with the process, the easiest way to do that is to use Anaconda-Navigator that came with your Python installation, proceed to Environments tab, click Import -&gt; Local Drive, and select the <code class="docutils literal notranslate"><span class="pre">requirements/env_conda_win.yml</span></code> file.
 You can change the name of the environment if you want. After it is created, follow <a class="reference external" href="https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html">these instructions</a> (do not create a new environment in PyCharm, add an Existing environment and put in the address of the one you just made).
 After this step PyCharm usually hangs for a few minutes while it is indexing all packages from the selected environment.</p>
-<p>The last thing to do is to mark directories <code class="docutils literal notranslate"><span class="pre">src</span></code> and <code class="docutils literal notranslate"><span class="pre">src/py61a</span></code> as Sources Root (in PyCharm: right-click the directory in Project view -&gt; Mark Directory as -&gt; Sources Root) and you are ready.</p>
+<p>If you don’t use <a class="reference external" href="https://www.anaconda.com/products/individual">Anaconda Python</a>, you can also use <a class="reference external" href="https://pypi.org/">PyPI</a> to install the requirements in a terminal by typing <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-r</span></code> with the requirement text file (path and name) as argument. This file can be found in the project folder at <code class="docutils literal notranslate"><span class="pre">requirements/requirements.txt</span></code>.</p>
+<dl class="simple">
+<dt>The last thing to do is to mark the following directories as Sources Root (in PyCharm: right-click the directory in Project view -&gt; Mark Directory as -&gt; Sources Root) and you are ready.</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/apps</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/apps/Viewer</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/py61a</span></code></p></li>
+</ul>
+</dd>
+</dl>
 <p>To run P61A::Viewer, right-click <code class="docutils literal notranslate"><span class="pre">src/apps/Viewer/P61AViewerMain.py</span></code> in the Project window and choose Run.</p>
 </section>
 </section>
