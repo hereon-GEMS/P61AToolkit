@@ -6,7 +6,7 @@ Installation
 Download binaries
 *****************
 
-A pre-compiled version of the Viewer (Version 2.0.0) that requires no installation can be found `here <https://github.com/hereon-GEMS/P61AToolkit/releases>`_.
+A pre-compiled version of the Viewer that requires no installation can be found `here <https://github.com/hereon-GEMS/P61AToolkit/releases>`_.
 
 .. _install-from-source:
 
@@ -32,20 +32,12 @@ The URL for the repository you want to clone is: ``https://github.com/hereon-GEM
 If you do not wish to use git and keep the project up to date, you can download the source code `here <https://github.com/hereon-GEMS/P61AToolkit/archive/refs/heads/master.zip>`__.
 After extracting the ``.zip`` archive, create a PyCharm project as described `here <https://www.jetbrains.com/help/pycharm/importing-project-from-existing-source-code.html>`__.
 
-After you have created a project, we recommend that you set up the python environment with all needed python packages.
-
-Therefore, if you use `Anaconda Python <https://www.anaconda.com/products/individual>`_, create a virtual environment for it using the file  ``requirements/env_conda_win.yml``.
+After you have created a project, we recommend that you set up a virtual environment for it using the file  ``requirements/env_conda_win.yml``.
 If you are unfamiliar with the process, the easiest way to do that is to use Anaconda-Navigator that came with your Python installation, proceed to Environments tab, click Import -> Local Drive, and select the ``requirements/env_conda_win.yml`` file.
 You can change the name of the environment if you want. After it is created, follow `these instructions <https://www.jetbrains.com/help/pycharm/creating-virtual-environment.html>`_ (do not create a new environment in PyCharm, add an Existing environment and put in the address of the one you just made).
 After this step PyCharm usually hangs for a few minutes while it is indexing all packages from the selected environment.
 
-If you don't use `Anaconda Python <https://www.anaconda.com/products/individual>`_, you can also use `PyPI <https://pypi.org/>`_ to install the requirements in a terminal by typing ``pip install -r`` with the requirement text file (path and name) as argument. This file can be found in the project folder at ``requirements/requirements.txt``.
-
-The last thing to do is to mark the following directories as Sources Root (in PyCharm: right-click the directory in Project view -> Mark Directory as -> Sources Root) and you are ready.
-  - ``src``
-  - ``src/apps``
-  - ``src/apps/Viewer``
-  - ``src/py61a``
+The last thing to do is to mark directories ``src`` and ``src/py61a`` as Sources Root (in PyCharm: right-click the directory in Project view -> Mark Directory as -> Sources Root) and you are ready.
 
 To run P61A::Viewer, right-click ``src/apps/Viewer/P61AViewerMain.py`` in the Project window and choose Run.
 

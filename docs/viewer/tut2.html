@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Realistic data refinement &mdash; P61A Toolkit  documentation</title>
@@ -14,7 +14,6 @@
         <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
-        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
         <script src="../_static/doctools.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -28,21 +27,17 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-
-          
-          
-          <a href="../index.html" class="icon icon-home">
-            P61A Toolkit
+            <a href="../index.html" class="icon icon-home"> P61A Toolkit
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../introduction.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
@@ -78,9 +73,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="index.html">P61A::Viewer</a></li>
-      <li class="breadcrumb-item active">Realistic data refinement</li>
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="index.html">P61A::Viewer</a> &raquo;</li>
+      <li>Realistic data refinement</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/viewer/tut2.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -91,18 +86,18 @@
            <div itemprop="articleBody">
              
   <section id="realistic-data-refinement">
-<h1>Realistic data refinement<a class="headerlink" href="#realistic-data-refinement" title="Permalink to this heading"></a></h1>
+<h1>Realistic data refinement<a class="headerlink" href="#realistic-data-refinement" title="Permalink to this headline"></a></h1>
 <p>The purpose of this tutorial is to introduce you to the way peak identification and fitting can be done on experimental
 data using P61A::Viewer.</p>
 <section id="import">
-<h2>Import<a class="headerlink" href="#import" title="Permalink to this heading"></a></h2>
+<h2>Import<a class="headerlink" href="#import" title="Permalink to this headline"></a></h2>
 <p>This tutorial starts with the project file that you can find
 <a class="reference external" href="https://github.com/hereon-GEMS/P61AToolkit/blob/master/data/tutorials/laplace_space_stress.pickle">here</a>.
 This is a simulated BCC Fe diffraction pattern from a measurement in reflection.
 Download the file and open it in Viewer using <code class="docutils literal notranslate"><span class="pre">File</span> <span class="pre">-&gt;</span> <span class="pre">Open</span></code> menu.</p>
 </section>
 <section id="identifying-peaks">
-<h2>Identifying peaks<a class="headerlink" href="#identifying-peaks" title="Permalink to this heading"></a></h2>
+<h2>Identifying peaks<a class="headerlink" href="#identifying-peaks" title="Permalink to this headline"></a></h2>
 <p>First step of the analysis is understanding what you are looking at. In this dataset we expect to see diffraction from
 one phase, and in any dataset coming from P61A we expect to see background that includes a few fluorescence peaks.
 Here is what the background looks like without the sample in the beam:</p>
@@ -120,7 +115,7 @@ Stripes should appear indicating the modelled peak positions.</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img2.png"><img alt="../_images/tut-02-img2.png" src="../_images/tut-02-img2.png" style="width: 600px;" /></a>
 </section>
 <section id="finding-peaks">
-<h2>Finding peaks<a class="headerlink" href="#finding-peaks" title="Permalink to this heading"></a></h2>
+<h2>Finding peaks<a class="headerlink" href="#finding-peaks" title="Permalink to this headline"></a></h2>
 <p>Now that we know which peaks we want to fit, we can start setting up the refinement model.</p>
 <p>On one hand, you may want to fit as many peaks as you can identify on the image.
 You have already collected the data, no reason to waste it.
@@ -138,7 +133,7 @@ Multiple diffraction peaks are identified plus a few of their neighbours that we
 That means you can press the <code class="docutils literal notranslate"><span class="pre">Make</span> <span class="pre">Tracks</span></code> button and proceed to the next step.</p>
 </section>
 <section id="making-tracks">
-<h2>Making tracks<a class="headerlink" href="#making-tracks" title="Permalink to this heading"></a></h2>
+<h2>Making tracks<a class="headerlink" href="#making-tracks" title="Permalink to this headline"></a></h2>
 <p>Once you have pressed <code class="docutils literal notranslate"><span class="pre">Make</span> <span class="pre">Tracks</span></code>, created tracks should appear on the list on the left</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img5.png"><img alt="../_images/tut-02-img5.png" src="../_images/tut-02-img5.png" style="width: 600px;" /></a>
 <p>The list gives you the track positions and which hkl and phase they are identified as.</p>
@@ -162,7 +157,7 @@ Checking if the track assignment was done correctly or not is convenient through
 </ol>
 </section>
 <section id="editing-tracks">
-<h2>Editing tracks<a class="headerlink" href="#editing-tracks" title="Permalink to this heading"></a></h2>
+<h2>Editing tracks<a class="headerlink" href="#editing-tracks" title="Permalink to this headline"></a></h2>
 <p>If you double-click a track on the list or select multiple tracks and press <code class="docutils literal notranslate"><span class="pre">Edit</span></code>, and editing menu will appear:</p>
 <a class="reference internal image-reference" href="../_images/tut-02-img9.png"><img alt="../_images/tut-02-img9.png" src="../_images/tut-02-img9.png" style="width: 600px;" /></a>
 <p>It shows and allows you to change data on the whole track at once.</p>
@@ -185,7 +180,7 @@ If you double-click a track, you can set the center and its refinement limits.
 Note that if you set tight refinement limits for any parameter (center, sigma, etc.), its values will be “compressed” to always stay within the limits.</p>
 </section>
 <section id="background">
-<h2>Background<a class="headerlink" href="#background" title="Permalink to this heading"></a></h2>
+<h2>Background<a class="headerlink" href="#background" title="Permalink to this headline"></a></h2>
 <p>Description of the peak models and basics of peak refinement can be found in the previous tutorial (see <a class="reference internal" href="tut1.html#peak-refinement"><span class="std std-ref">Peak refinement</span></a>).
 However, to successfully fit real data one also has to take into account the background.</p>
 <p>In the Viewer background refinement is split from peak refinement, both can be performed independently from each other.
