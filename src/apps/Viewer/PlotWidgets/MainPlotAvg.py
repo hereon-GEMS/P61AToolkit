@@ -222,17 +222,25 @@ class MainPlotAvg(pg.GraphicsLayoutWidget):
 
         for phase, color in zip(self.q_app.get_hkl_peaks(), self.q_app.wheels['def_no_red']):
             peaks = self.q_app.hkl_peaks[phase]
+            hkl_names_pos = {}  # used to get a unique vertical position of all hkl labels of each phase
             for peak in peaks:
+                # define the vertical position of hkl label with the current energy position
+                peak_id = round(peak['e'], 6)
+                if peak_id in hkl_names_pos.keys():
+                    hkl_names_pos[peak_id] = hkl_names_pos[peak_id] + 0.025
+                else:
+                    hkl_names_pos[peak_id] = 0.05
+                # set the block region of this peak
                 self._hkl_regions.append(pg.LinearRegionItem([1e3 * (peak['e'] - peak['de']),
                                                               1e3 * (peak['e'] + peak['de'])],
                                                              brush=hex(color * 0x100 + 0x30).replace('0x', '#'),
                                                              pen=hex(color).replace('0x', '#'),
                                                              movable=False))
                 self._line_ax.addItem(self._hkl_regions[-1])
-
+                # set the hkl label of this peak
                 self._hkl_names.append(pg.InfiniteLine(pos=1e3 * (peak['e'] - peak['de']/2), movable=False,
                                                        label='[%d%d%d]' % (peak['h'], peak['k'], peak['l']),
-                                                       labelOpts={'position': 0.05, 'anchors': (0, 0),
+                                                       labelOpts={'position': hkl_names_pos[peak_id], 'anchors': (0, 0),
                                                                   'color': '#000000'}, pen=pg.mkPen(None)))
                 self._line_ax.addItem(self._hkl_names[-1])
 

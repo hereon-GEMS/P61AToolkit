@@ -266,6 +266,7 @@ class MainPlot3D(GlPlot3D):
         del self._hkl_names[:]
 
         if self._show_known_regions:
+            hkl_names_pos = {}  # used to get a unique vertical position of all hkl labels of each phase
             for phase, color in zip(self.q_app.hkl_peaks, self.q_app.wheels['def_no_red']):
                 peaks = self.q_app.hkl_peaks[phase]
                 for peak in peaks:
@@ -279,12 +280,20 @@ class MainPlot3D(GlPlot3D):
                                    self.imax, 1., 1.,
                                    1.])
                     pos = self.transform_xyz(xx, yy, zz)
+                    # append current peak region
                     self._hkl_lines.append(
                         gl.GLLinePlotItem(pos=pos, color=hex(color).replace('0x', '#'), width=2, antialias=True))
                     x_text, _, _ = self.recalculate_xyz(np.array([peak['e']]))
                     if x_text.size > 0:
+                        # define the vertical position of hkl label with the current energy position
+                        peak_id = round(x_text[0], 6)
+                        if peak_id in hkl_names_pos.keys():
+                            hkl_names_pos[peak_id] = hkl_names_pos[peak_id] * 0.985
+                        else:
+                            hkl_names_pos[peak_id] = 0.97
+                        # append current hkl label
                         self._hkl_names.append(
-                            GLTextItem(x_text, 0.98, 0.97, '[%d%d%d]' % (peak['h'], peak['k'], peak['l']), self))
+                            GLTextItem(x_text[0], 0.98, hkl_names_pos[peak_id], '[%d%d%d]' % (peak['h'], peak['k'], peak['l']), self))
 
     def redraw_fit_centers(self, ys):
         del self._fit_tracks[:]
