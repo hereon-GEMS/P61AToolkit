@@ -68,6 +68,10 @@ class P61ANexusHandler:
         if extract:
             if self.q_app is not None:
                 result = pd.DataFrame(columns=self.q_app.data.columns)
+                if self.q_app.get_merge_frames():
+                    accum_frames = 'sum'
+                else:
+                    accum_frames = 'none'
             else:
                 result = pd.DataFrame(columns=self.columns)
         else:

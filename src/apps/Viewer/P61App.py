@@ -121,6 +121,8 @@ class P61App(QApplication):
         self.proj_f_name_hint = None
         self.data_dir = None
 
+        self.merge_frames = False
+
         self.logger = logging.getLogger(str(self.__class__))
         self.thread_pool = QThreadPool(parent=self)
 
@@ -304,6 +306,12 @@ class P61App(QApplication):
         if emit:
             self.logger.debug('set_hkl_peaks: Emitting hklPeaksChanged')
             self.hklPeaksChanged.emit()
+
+    def get_merge_frames(self):
+        return self.merge_frames
+
+    def set_merge_frames(self, merge_frames=False):
+        self.merge_frames = merge_frames
 
     @log_ex_time()
     def sort_data(self, **kwargs):

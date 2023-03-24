@@ -39,6 +39,7 @@ class P61ANexusReader:
         # define resulting data frame
         if self.q_app is not None:
             result = pd.DataFrame(columns=self.q_app.data.columns)
+            sum_frames = self.q_app.get_merge_frames()
         else:
             result = pd.DataFrame(columns=self.columns)
         # process current nexus file

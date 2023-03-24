@@ -96,11 +96,13 @@ class P61Viewer(QMainWindow):
         self._act_save = QAction('Save', self)
         self._act_reload = QAction('Reload', self)
         self._act_save_as = QAction('Save as', self)
+        self._act_merge_frames = QAction('Merge frames', self)
+        self._act_merge_frames.setCheckable(True)
         self._act_export_s = QAction('Spectra', self)
         self._act_export_p = QAction('Peaks', self)
         self._act_tutorial = QAction('Documentation', self)
         self._act_calib_tth = QAction('Calibrate 2Θ', self)
-        fileMenu.addActions([self._act_open, self._act_reload, self._act_save, self._act_save_as])
+        fileMenu.addActions([self._act_open, self._act_reload, self._act_save, self._act_save_as, self._act_merge_frames])
         exportMenu.addActions([self._act_export_s, self._act_export_p])
         calibrateMenu.addActions([self._act_calib_tth])
         helpMenu.addActions([self._act_tutorial])
@@ -137,6 +139,7 @@ class P61Viewer(QMainWindow):
         self._act_save_as.triggered.connect(self.on_act_save_as)
         self._act_reload.triggered.connect(self.on_act_reload)
         self._act_open.triggered.connect(self.on_act_open)
+        self._act_merge_frames.triggered.connect(self.on_act_merge_frames)
         self._act_export_s.triggered.connect(self.on_act_export_s)
         self._act_export_p.triggered.connect(self.on_act_export_p)
         self._act_calib_tth.triggered.connect(self.on_act_calib_tth)
@@ -197,6 +200,9 @@ class P61Viewer(QMainWindow):
 
     def on_act_reload(self):
         self.q_app.load_proj_from(f_name=None)
+
+    def on_act_merge_frames(self):
+        self.q_app.set_merge_frames(self._act_merge_frames.isChecked())
 
     def on_act_export_s(self):
         w = ExportPopUp(parent=self)
